@@ -559,13 +559,16 @@ C4B---------FIRST COMPUTE EFFECTIVE CELL RADIUS FOR THIS CONNECTION
 C4B1---------GET RO FOR VERTICAL WELL USING ISOTROPIC THIEM EQUATION,
 C4B1--------USE ANISOTROPY FOR CONDUCTANCE (PGF)
             RO = 0.0
+            DEXN = 0.0
             DO IJ = IA(NL)+1,IA(NL+1)-1
-              JJ = JA(IJ)
-              IF(JJ.GT.NODES)CYCLE
+              JJ1 = JA(IJ)
+              IF(JJ1.GT.NODES)CYCLE
               IJS = JAS(IJ)
-              RO = RO + (2.0*CL1(IJS))**2
+              IF(IVC(IJS).EQ.1) CYCLE
+              RO = RO + CL1(IJS)**2
+              DEXN = DEXN + 1.0
             ENDDO
-            RO = 0.14 * SQRT(RO/2.0)
+            RO = 0.28 * SQRT(2.0*RO/DEXN)
           ELSE
 C4B2--------GET RO FOR HORIZONTAL WELL USING ANISOTROPIC EQUATION
             DEX = 0.0
@@ -574,6 +577,7 @@ C4B2--------GET RO FOR HORIZONTAL WELL USING ANISOTROPIC EQUATION
               JJ = JA(IJ)
               IF(JJ.GT.NODES)CYCLE
               IJS = JAS(IJ)
+              IF(IVC(IJS).EQ.1) CYCLE
               DEX = DEX + CL1(IJS)
               DEXN = DEXN + 1.0
             ENDDO
@@ -1645,6 +1649,7 @@ C  DEALLOCATE CLN DATA
 C
         DEALLOCATE(NCLN,ICLNCB,ICLNHD,ICLNDD,ICLNIB,NCLNNDS)
         DEALLOCATE(NNDCLN,CLNCON,ACLNNDS)
+        DEALLOCATE(IFLINCLN,ICCWADICLN,ICGWADICLN,ACLNGWC,ACLNCOND)
 C
       RETURN
       END

@@ -3564,6 +3564,14 @@ c
   11  return
       end
 
+      SUBROUTINE xmdlibda
+      use xmdcmn
+      use xmdmatrix
+      INTEGER ALLOC_ERR
+      deallocate(icolour, RBorder, iblackend, lorder, STAT = ALLOC_ERR)
+      deallocate(iaf, idiagf, STAT = ALLOC_ERR)
+      RETURN
+      END
 
 
 

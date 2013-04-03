@@ -1399,7 +1399,8 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,     ONLY:IOUT,PERLEN,NSTP,TSMULT,HNEW,HOLD,ICONCV,BOT,
-     *                     IBOUND,NODES
+     *                     IBOUND,NODES,NODLAY
+      USE GWFBCFMODULE,ONLY:LAYCON
       USE GWFBASMODULE,ONLY:DELT,PERTIM
 C     ------------------------------------------------------------------
 C
@@ -1434,12 +1435,18 @@ C5------CHECK THAT ALL PARAMETERS IN PARAMETER VALUE FILE HAVE BEEN DEFINED.
 C
 C6------SET HEADS ABOVE BOTTOM FOR ICONCV=0 AT FIRST ENTRY
       IF(KPER.EQ.1.AND.ICONCV.EQ.0)THEN
-        DO N=1,NODES
-          IF(IBOUND(N).NE.0)THEN
-          IF(HNEW(N).LT.BOT(N))THEN
-            HNEW(N) = BOT(N)
-            HOLD(N) = BOT(N)
-          ENDIF
+        DO K=1,NLAY
+          IF(LAYCON(K).NE.0.OR.LAYCON(K).NE.2)THEN
+            NNDLAY=NODLAY(K)
+            NSTRT=NODLAY(K-1)+1
+            DO N=NSTRT,NNDLAY
+              IF(IBOUND(N).NE.0)THEN
+                IF(HNEW(N).LT.BOT(N))THEN
+                  HNEW(N) = BOT(N)
+                  HOLD(N) = BOT(N)
+                ENDIF
+              ENDIF
+            ENDDO
           ENDIF
         ENDDO
       ENDIF
@@ -2271,11 +2278,13 @@ C
         DEALLOCATE(LAYCBD)
         DEALLOCATE(LAYHDT)
         DEALLOCATE(LAYHDS)
+        DEALLOCATE(ICONCV,NOCVCO,NOVFC)
         DEALLOCATE(NSTP)
         DEALLOCATE(TSMULT)
         DEALLOCATE(ISSFLG)
         DEALLOCATE(HNEW)
         DEALLOCATE(HOLD)
+        DEALLOCATE(SN,SO)
         DEALLOCATE(IBOUND)
         IF(IUNSTR.EQ.0)THEN
           DEALLOCATE(DELR)
@@ -2293,8 +2302,9 @@ C
         DEALLOCATE(AMAT)
         DEALLOCATE(IA)
         DEALLOCATE(JA)
+        DEALLOCATE(NJAS, JAS)
         IF(INCLN.NE.0.OR.INGNC.NE.0.OR.INGNC2.NE.0.OR.INGNCn.NE.0) THEN
-          DEALLOCATE(JAFL) 
+          DEALLOCATE(JAFL)
         ENDIF
         DEALLOCATE(INGNC,INGNC2,INGNCn,ISYMFLG)
 C-------------------------------------------------------
@@ -2342,11 +2352,15 @@ C
         DEALLOCATE(ICHFLG)
         DEALLOCATE(DELT)
         DEALLOCATE(PERTIM)
+        DEALLOCATE(PERLEN)
         DEALLOCATE(TOTIM)
         DEALLOCATE(HNOFLO)
         DEALLOCATE(CHEDFM)
         DEALLOCATE(CDDNFM)
         DEALLOCATE(CBOUFM)
+        !IF(NPTIMES.GT.0) DEALLOCATE(TIMOT)
+        !DEALLOCATE(IATS,NPTIMES,NPSTPS,IBUDFLAT,ICBCFLAT,IHDDFLAT)
+        !DEALLOCATE(DELTAT,TMINAT,TMAXAT,TADJAT,TCUTAT)
 C
         DEALLOCATE(IOFLG)
         DEALLOCATE(VBVL)
@@ -2358,6 +2372,9 @@ C
         DEALLOCATE(ITRNSP)
         DEALLOCATE(NOCVCO)
         DEALLOCATE(ICONCV)
+C
+        NULLIFY(IATMP,NJA)
+        DEALLOCATE(CL1,CL2)
 C
       RETURN
       END
