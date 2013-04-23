@@ -184,8 +184,8 @@ C5A-----CONVERT LAYAVG TO CONFORM TO THAT IN LPF PACKAGE
           LAYAVG(I)=3
       ELSEIF(LAYAVG(I).EQ.2)THEN
           LAYAVG(I)=1
-      ELSEIF(LAYAVG(I).EQ.1)THEN
-          LAYAVG(I)=3
+      ELSEIF(LAYAVG(I).EQ.3)THEN
+          LAYAVG(I)=2
       ENDIF
 C5B-----NEW LAYCON OF 4 IS FOR UNCONFINED T, CONVERTABLE S
 C5B-----WITH T COMPUTED USING UPSTREAM WATER TABLE DEPTH
@@ -1792,12 +1792,8 @@ C     ------------------------------------------------------------------
       USE GWTBCTMODULE, ONLY: CBCH
       USE SMSMODULE, ONLY: AMATFL
 C
-      CHARACTER*16 TEXT(2)
       DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
      *  X1,CIN,COUT
-C
-      DATA TEXT(1) /'   CONSTANT HEAD'/
-      DATA TEXT(2) /'  CLN CONST HEAD'/
 C     ------------------------------------------------------------------
 C
 C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
@@ -1805,6 +1801,7 @@ C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
       IF(IBCFCB.LT.0 .AND. ICBCFL.NE.0) IBD=-1
       IF(IBCFCB.GT.0) IBD=ICBCFL
       IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
+C      IF(IBD.EQ.0) RETURN
 C
 C2------CLEAR BUDGET ACCUMULATORS.
       ZERO=0.
@@ -1816,22 +1813,6 @@ C3------CLEAR BUFFER.
       DO 5 N=1,NEQS
         BUFF(N)=ZERO
 5     CONTINUE
-C
-C3A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
-C3A-----CELLS AND WRITE HEADER RECORDS.
-      IF(IBD.EQ.2) THEN
-        NCH=0
-        DO 7 N=1,NEQS
-          IF(IBOUND(N).LT.0) NCH=NCH+1
-7       CONTINUE
-        IF(IUNSTR.EQ.0)THEN
-          CALL UBDSV2(KSTP,KPER,TEXT(1),IBCFCB,NCOL,NROW,NLAY,
-     1         NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-        ELSE
-          CALL UBDSV2U(KSTP,KPER,TEXT(1),IBCFCB,NODES,
-     1         NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-        ENDIF
-      END IF
 C
 C4------LOOP THROUGH EACH CELL AND CALCULATE FLOW INTO MODEL FROM EACH
 C4------CONSTANT-HEAD CELL.
@@ -1903,7 +1884,81 @@ C8--------STORE SUM IN BUFFER.
         BUFF(N)=RATE
         IF(ITRNSP.GT.0) CBCH(N) = RATE
 C
-C9--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
+  200 CONTINUE
+C
+C9------RETURN.
+      RETURN
+      END 
+C      
+      SUBROUTINE GWF2BCFU1BDCHWR(KSTP,KPER)
+C     ******************************************************************
+C     SAVE FLOW FROM CONSTANT-HEAD CELLS
+C     ******************************************************************
+C
+C     SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,ITRNSP,NOVFC,
+     1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN
+      USE CLN1MODULE, ONLY: NCLNNDS,ICLNCB
+      USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,DELT,PERTIM,TOTIM,ICBCFL,
+     1                      ICHFLG
+      USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
+      USE GWTBCTMODULE, ONLY: CBCH
+      USE SMSMODULE, ONLY: AMATFL
+C
+      CHARACTER*16 TEXT(2)
+      DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
+     *  X1,CIN,COUT
+C
+      DATA TEXT(1) /'   CONSTANT HEAD'/
+      DATA TEXT(2) /'  CLN CONST HEAD'/
+C     ------------------------------------------------------------------
+C
+C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
+      IBD=0
+      IF(IBCFCB.LT.0 .AND. ICBCFL.NE.0) IBD=-1
+      IF(IBCFCB.GT.0) IBD=ICBCFL
+      IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
+C      IF(IBD.EQ.0) RETURN
+      CHIN = 0.0
+      CHOUT = 0.0
+C--------------------------------------------------------------------------
+C2------FIRST FOR THE GWF DOMAIN
+C---------------------------------------------------------------------------
+      IF(IBD.EQ.2) THEN
+C2A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
+C2A-----CELLS AND WRITE HEADER RECORDS.         
+        NCH=0
+        DO 7 N=1,NODES
+          IF(IBOUND(N).LT.0) NCH=NCH+1
+7       CONTINUE
+C2B-------WRITE HEADER FOR THE LIST       
+        IF(IUNSTR.EQ.0)THEN
+          CALL UBDSV2(KSTP,KPER,TEXT(1),IBCFCB,NCOL,NROW,NLAY,
+     1         NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        ELSE
+          CALL UBDSV2U(KSTP,KPER,TEXT(1),IBCFCB,NODES,
+     1         NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        ENDIF
+      END IF
+C
+C3------LOOP THROUGH EACH CELL AND WRITE FLOW FROM EACH
+C3------CONSTANT-HEAD CELL.
+      IBDLBL = 0
+      DO 200 N=1,NODES
+C
+C4------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
+        IF (IBOUND(N).GE.0)GO TO 200
+C
+C5--------GET RATE FROM BUFFER
+        RATE = BUFF(N)
+        IF (RATE.LT.0.0) THEN
+            CHOUT=CHOUT-RATE
+          ELSE
+            CHIN=CHIN+RATE
+          END IF
+C
+C6--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
         IF(IBD.LT.0) THEN
           IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT,KPER,KSTP
   899     FORMAT(1X,/1X,A,'   PERIOD',I3,'   STEP',I3)
@@ -1921,25 +1976,77 @@ C9--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
           IBDLBL=1
         END IF
 C
-C10-----IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
+C7------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
         IF(IBD.EQ.2)THEN
           SRATE = RATE
           IF(IUNSTR.EQ.0)THEN
+            K = N / (NCOL*NROW) + 1             
+            IJ = N - (K-1)*NCOL*NROW
+            I = (IJ-1)/NCOL + 1
+            J = IJ - (I-1)*NCOL             
             CALL UBDSVA(IBCFCB,NCOL,NROW,J,I,K,SRATE,IBOUND,NLAY)
           ELSE
             CALL UBDSVAU(IBCFCB,NODES,N,SRATE,IBOUND)
           ENDIF
 C--------------------------------------------------------------
-C10A---------SAVE C-B-C FLOWS FOR CLN NODES
-C--------------------------------------------------------------
-          IF(INCLN.GT.0)THEN
+        ENDIF
+  200 CONTINUE
+C--------------------------------------------------------------------------
+C8------NEXT FOR THE CLN DOMAIN
+C---------------------------------------------------------------------------
+      IF(IBD.EQ.2) THEN
+C8A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
+C8A-----CELLS AND WRITE HEADER RECORDS.         
+        NCH=0
+        DO 8 N=NODES+1,NEQS
+          IF(IBOUND(N).LT.0) NCH=NCH+1
+8       CONTINUE
+C8B-------WRITE HEADER FOR THE CLN DOMAINLIST       
+ 
+        CALL UBDSV2U(KSTP,KPER,TEXT(2),ICLNCB,NCLNNDS,
+     1       NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+      END IF
+C
+C9------LOOP THROUGH EACH CELL AND WRITE FLOW FROM EACH
+C9------CONSTANT-HEAD CELL.
+      IBDLBL = 0
+      DO 201 N=NODES+1,NEQS
+C
+C10------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
+        IF (IBOUND(N).GE.0)GO TO 201
+C
+C11--------GET RATE FROM BUFFER
+        RATE = BUFF(N)
+        IF (RATE.LT.0.0) THEN
+            CHOUT=CHOUT-RATE
+          ELSE
+            CHIN=CHIN+RATE
+          END IF
+C
+C12--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT,KPER,KSTP
+          WRITE(IOUT,910) N,RATE
+          IBDLBL=1
+        END IF
+C
+C13------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
+        IF(IBD.EQ.2)THEN
+          SRATE = RATE
+          IF(IUNSTR.EQ.0)THEN
+            K = N / (NCOL*NROW) + 1             
+            IJ = N - (K-1)*NCOL*NROW
+            I = (IJ-1)/NCOL + 1
+            J = IJ - (I-1)*NCOL             
+            CALL UBDSVA(IBCFCB,NCOL,NROW,J,I,K,SRATE,IBOUND,NLAY)
+          ELSE
             CALL UBDSVAU(IBCFCB,NODES,N,SRATE,IBOUND)
           ENDIF
 C--------------------------------------------------------------
         ENDIF
-  200 CONTINUE
+  201 CONTINUE     
 C
-C11-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
+C14-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
       IF(IBD.EQ.1)THEN
         IF(IUNSTR.EQ.0)THEN
           CALL UBUDSV(KSTP,KPER,TEXT(1),
@@ -1949,7 +2056,7 @@ C11-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
      1                 IOUT,PERTIM,TOTIM)
         ENDIF
 C--------------------------------------------------------------
-C11A-------SAVE C-B-C FLOWS FOR CLN NODES
+C14A-------SAVE C-B-C FLOWS FOR CLN NODES
 C--------------------------------------------------------------
         IF(INCLN.GT.0)THEN
           IF(ICLNCB.GT.0)THEN
@@ -1960,8 +2067,8 @@ C--------------------------------------------------------------
 C--------------------------------------------------------------
       ENDIF
 C
-C12-----SAVE TOTAL CONSTANT HEAD FLOWS AND VOLUMES IN VBVL TABLE
-C12-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
+C15-----SAVE TOTAL CONSTANT HEAD FLOWS AND VOLUMES IN VBVL TABLE
+C15-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
       CIN=CHIN
       COUT=CHOUT
       VBVL(1,MSUM)=VBVL(1,MSUM)+CIN*DELT
@@ -1971,9 +2078,10 @@ C12-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
       VBNM(MSUM)=TEXT(1)
       MSUM=MSUM+1
 C
-C13-----RETURN.
+C16-----RETURN.
       RETURN
       END
+
       SUBROUTINE GWF2BCFU1BDADJ(KSTP,KPER)
 C     ******************************************************************
 C     COMPUTE FLOW BETWEEN ADJACENT CELLS IN A SUBREGION OF THE GRID
@@ -2045,7 +2153,7 @@ C
 c6----return
       RETURN
       END
-      SUBROUTINE GWF2BCFU1BDWR(KSTP,KPER)
+      SUBROUTINE GWF2BCFU1BDADJWR(KSTP,KPER)
 C     ******************************************************************
 C     COMPUTE FLOW BETWEEN ADJACENT CELLS IN A SUBREGION OF THE GRID
 C     ******************************************************************
@@ -3421,12 +3529,14 @@ C6------------------CALCULATE INVERSE LEAKANCE FOR CELL.
                     TTOP=TOP(N)
                     IF(LAYSTRT(K).NE.0) TTOP=STRT(N)
                     BOVK1=(TTOP-BBOT)*HALF/HYC1
+                    IF(BOVK1.LT.1.0E-20) BOVK1 = 1.0E-20
 C
 C7------------------CALCULATE INVERSE LEAKANCE FOR ADJACENT CELL.
                     BBOT=BOT(JJ)
                     TTOP=TOP(JJ)
                     IF(LAYSTRT(KK).NE.0) TTOP=STRT(JJ)
                     BOVK2=(TTOP-BBOT)*HALF/HYC2
+                    IF(BOVK2.LT.1.0E-20) BOVK2 = 1.0E-20               
 C
 C8------------------CALCULATE VERTICAL HYDRAULIC CONDUCTIVITY FOR CONFINING BED.
                     IUP = N
@@ -3458,6 +3568,7 @@ C9----------------------CALCULATE INVERSE LEAKANCE FOR CONFINING BED.
                           CALL USTOP(' ')
                         END IF
                         CBBOVK=B/VKCB(IUP)
+                        IF(CBBOVK.LT.1.0E-20) CBBOVK = 1.0E-20
 C10------------------------COMPUTE PGF TERM
 C10A------------------------COMPUTE PGF TERM WITH CONFINING BED
                         PGF(IIS)=CONAREA/(BOVK1+CBBOVK+BOVK2)

@@ -1399,7 +1399,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,     ONLY:IOUT,PERLEN,NSTP,TSMULT,HNEW,HOLD,ICONCV,BOT,
-     *                     IBOUND,NODES,NODLAY
+     *                     IBOUND,NODES,NLAY,NODLAY
       USE GWFBCFMODULE,ONLY:LAYCON
       USE GWFBASMODULE,ONLY:DELT,PERTIM
 C     ------------------------------------------------------------------

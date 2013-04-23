@@ -274,44 +274,36 @@ C
 C-----------------------------------------------------------------------------
 C7C4-------RESET AMAT TO PRE-GHOST CONDITIONS FOR ALL GNC NODES FOR MASS BALANCE
 C-----------------------------------------------------------------------------
-CSP      IF(INGNC.NE.0)THEN
-CSP        CALL SGNC2BCFU1BDADJ1 
-CSP      ENDIF
-CSP      IF(INGNC2.NE.0)THEN
-CSP        CALL SGNCT2BCFU1BDADJ1
-CSP      ENDIF 
       IF(INGNCn.NE.0)THEN
         CALL SGNCn2BCFU1BDADJ1
       ENDIF
 C-----------------------------------------------------------------                       
 C
-C7C4A----CALCULATE BUDGET TERMS AND ADJUST THE GNC CORRECTIONS. 
+C7C4A----CALCULATE BUDGET TERMS. 
           MSUM = 1 
+C7C4A1----COMPUTE STORAGE TERMS          
+          IF (IUNIT(1).GT.0) CALL GWF2BCFU1BDS(KKSTP,KKPER)
+          IF (IUNIT(29).GT.0) CALL CLN1BDS(KKSTP,KKPER)
+C74A2-----COMPUTE FLOW FROM CONSTANT HEAD AND CBC FLOWS          
           ALLOCATE(TMPA(NJA))
           IF (IUNIT(1).GT.0) THEN
-            CALL GWF2BCFU1BDS(KKSTP,KKPER)
             CALL GWF2BCFU1BDCH(KKSTP,KKPER)
             CALL GWF2BCFU1BDADJ(KKSTP,KKPER)
           ENDIF
           IF (IUNIT(29).GT.0) THEN
-            CALL CLN1BDS(KKSTP,KKPER)
             CALL CLN1BDADJ(KKSTP,KKPER)
           ENDIF
 C---------------------------------------------------------------------
-C7C4B-----ADJUST UNSYMMETRIC PART OF FLOW TERM FOR GHOST NODES
-CSP      IF(INGNC.NE.0)THEN
-CSP        CALL SGNC2BCFU1BDADJ 
-CSP      ENDIF
-CSP      IF(INGNC2.NE.0)THEN
-CSP        CALL SGNCT2BCFU1BDADJ 
-CSP      ENDIF      
-      IF(INGNCn.NE.0)THEN
-        CALL SGNCn2BCFU1BDADJ 
-      ENDIF          
+C7C4B-----ADJUST THE GNC CORRECTIONS 
+          IF(INGNCn.NE.0)THEN
+            CALL SGNCn2BCFU1BDCH  
+            CALL SGNCn2BCFU1BDADJ 
+          ENDIF          
 C-----------------------------------------------------------------
 C7C5----SAVE CELL-BY-CELL FLOW TERMS 
           IF (IUNIT(1).GT.0) THEN
-            CALL GWF2BCFU1BDWR(KKSTP,KKPER)
+            CALL GWF2BCFU1BDCHWR(KKSTP,KKPER)  
+            CALL GWF2BCFU1BDADJWR(KKSTP,KKPER)
           ENDIF
           IF (IUNIT(29).GT.0) THEN
             CALL CLN1BDWR(KKSTP,KKPER)

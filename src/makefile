@@ -12,23 +12,9 @@ INCDIR= .
 
 # Define the Fortran compiler flags
 
-#F90FLAGS= -O3 -tpp7 -axW -Vaxlib -cm
-
-#F90= ifc
-
-#F90FLAGS= -O2 -fno-second-underscore -r8
-#F90FLAGS= -g -fbounds-check -fno-second-underscore -Wall -ftrace=full -r8
-#F90FLAGS= -g -fbounds-check -fno-second-underscore -Wall -ftrace=full
-#F90FLAGS= -O2 -fno-second-underscore 
-#F90= g95a
-
-#F90FLAGS= -O2 -fno-second-underscore -fdefault-real-8
-#F90FLAGS= -O2 -fno-second-underscore 
-#F90FLAGS= -g -fbounds-check -fno-second-underscore -Wall -ffpe-trap=invalid,zero 
-#F90= gfortran
-
 #release
-F90FLAGS= -O2 -heap-arrays:500 -fpe:0
+F90FLAGS= -O2 -heap-arrays -fpe:0 -traceback
+#-heap-arrays:500  
 #debug
 #F90FLAGS= -debug:full -traceback -heap-arrays:0
 

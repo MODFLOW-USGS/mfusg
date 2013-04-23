@@ -1061,6 +1061,48 @@ C4----RETURN
       RETURN
       END            
 C-----------------------------------------------------------------------
+      SUBROUTINE SGNCn2BCFU1BDCH
+C     ******************************************************************
+C     ADJUST CBC FLUX FOR GHOST NODE TERMS ON CONSTANT HEAD NODES
+C     ******************************************************************
+      USE GLOBAL, ONLY:JA,IA,NODES,NEQS,IVC,JAS,ISYM,IBOUND,ICONCV,IOUT,
+     1                 HNEW,AMAT,BUFF
+      USE GNCnMODULE,ONLY:NGNCn,GNCn,I2Kn,ISYMGNCn,MXADJn
+      USE GWFBCFMODULE, ONLY: LAYCON
+      DOUBLE PRECISION QNJ1,QMJ1,QNJ2,QMJ2,Cnm,ATERM,ALPHA,CORRECTnm,
+     1  SIGALJ,HD
+C-----------------------------------------------------------------------
+C
+C1------DO FOR EACH GNCn NODE
+      DO IG=1,NGNCn
+C
+C2--------GET NODE NUMBERS AND GHOST NODE PROPERTIES AND LOCATIONS
+        N1 = GNCn(1,IG)
+        N2 = GNCn(2,IG)
+C2A------CYCLE IF NEITHER NODE IS A CONSTANT HEAD NODE        
+        IF(IBOUND(N1).GE.0.AND.IBOUND(N2).GE.0) CYCLE
+C3------COMPUTE HEAD VALUE AT GHOST LOCATION AND ADJUSTMENT TERM        
+        SIGALJ = 0.0
+        HD = 0.0
+        DO IADJn = 1,MXADJn
+          N3 = GNCn(2+IADJn,IG)
+          IF(IBOUND(N3).EQ.0) CYCLE          
+          ALPHA = GNCn(2+MXADJn+IADJn,IG)
+          SIGALJ = SIGALJ + ALPHA
+          HD = HD + ALPHA*HNEW(N3)
+        ENDDO
+        ATERM = SIGALJ * HNEW(N1) - HD 
+C4--------COMPUTE AND ADJUST FLUX FROM BUFF        
+        Cnm = GNCn(2*MXADJn+3,IG)
+        CORRECTnm = ATERM * Cnm
+        BUFF(N1) = BUFF(N1) - CORRECTnm
+        BUFF(N2) = BUFF(N2) + CORRECTnm
+      ENDDO
+C
+C7------RETURN
+      RETURN
+      END      
+C-----------------------------------------------------------------------
       SUBROUTINE SGNCn2BCFU1BDADJ
 C     ******************************************************************
 C     ADJUST CBC FLUX FOR GHOST NODE TERMS
@@ -1080,6 +1122,7 @@ C2--------GET NODE NUMBERS AND GHOST NODE PROPERTIES AND LOCATIONS
         N1 = GNCn(1,IG)
         N2 = GNCn(2,IG)
         IF(IBOUND(N1).EQ.0.OR.IBOUND(N2).EQ.0) CYCLE
+C3------COMPUTE HEAD VALUE AT GHOST LOCATION AND ADJUSTMENT TERM 
         SIGALJ = 0.0
         HD = 0.0
         DO IADJn = 1,MXADJn
@@ -1091,7 +1134,7 @@ C2--------GET NODE NUMBERS AND GHOST NODE PROPERTIES AND LOCATIONS
         ENDDO
         ATERM = SIGALJ * HNEW(N1) - HD 
 C
-C4---------FIND LOCATION OF N2 AN ROW N1
+C4---------FIND LOCATION OF N2 IN ROW N1
         DO II = IA(N1)+1,IA(N1+1)-1
           JJ = JA(II)
           IIS = JAS(II)

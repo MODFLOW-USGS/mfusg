@@ -834,7 +834,7 @@ C2G-------COMPUTE AND FILL FOR NEXT LAYER
           DENOM = T1 + T2
           ID = IA(N) + JPTR
           IDS = JAS(ID)          
-          PGF(IDS) = ANUM/DENOM  
+          PGF(IDS) = ANUM/(DENOM  + 1.0e-20)
           FAHL(IDS) = ANUM
           CL1(IDS)= T1
           CL2(IDS)= T2
