@@ -1963,6 +1963,7 @@ C6--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
           IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT,KPER,KSTP
   899     FORMAT(1X,/1X,A,'   PERIOD',I3,'   STEP',I3)
           IF(IUNSTR.EQ.0)THEN
+            K = N / (NCOL*NROW) + 1 
             IJ = N - (K-1)*NCOL*NROW
             I = (IJ-1)/NCOL + 1
             J = IJ - (I-1)*NCOL
@@ -2033,15 +2034,7 @@ C
 C13------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
         IF(IBD.EQ.2)THEN
           SRATE = RATE
-          IF(IUNSTR.EQ.0)THEN
-            K = N / (NCOL*NROW) + 1             
-            IJ = N - (K-1)*NCOL*NROW
-            I = (IJ-1)/NCOL + 1
-            J = IJ - (I-1)*NCOL             
-            CALL UBDSVA(IBCFCB,NCOL,NROW,J,I,K,SRATE,IBOUND,NLAY)
-          ELSE
-            CALL UBDSVAU(IBCFCB,NODES,N,SRATE,IBOUND)
-          ENDIF
+          CALL UBDSVAU(IBCFCB,NODES,N,SRATE,IBOUND)
 C--------------------------------------------------------------
         ENDIF
   201 CONTINUE     
