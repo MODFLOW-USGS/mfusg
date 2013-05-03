@@ -1,5 +1,6 @@
 C     ******************************************************************
-C     MAIN CODE FOR U.S. GEOLOGICAL SURVEY MODULAR MODEL -- MODFLOW-2005
+C     MAIN CODE FOR U.S. GEOLOGICAL SURVEY UNSTRUCTURED MODULAR MODEL -- 
+C                              MODFLOW-USG
 C     ******************************************************************
 C
 C        SPECIFICATIONS:
@@ -19,7 +20,7 @@ C
 C-------ASSIGN VERSION NUMBER AND DATE
       CHARACTER*40 VERSION
       CHARACTER*10 MFVNAM
-      PARAMETER (VERSION='0.9.03 01/18/2013')
+      PARAMETER (VERSION='1.0.00 05/03/2013')
       PARAMETER (MFVNAM='-USG') !USG = Un-Structured Grids
 C
       CHARACTER*80 HEADNG(2)
@@ -110,6 +111,9 @@ C---------------------------------------------------------------------------
 C6F----- SOLVER INPUT
       IF(IUNIT(13).GT.0) THEN
         CALL SMS7U1AR(IUNIT(13))
+      ELSE
+        CALL USTOP(
+     1    'Error.  Sparse Matrix Solver (SMS) Package is required.')
       ENDIF
 C6G-------IAG IS NOT NEEDED FURTHER SO DEALLOCATE
       IF(INCLN.NE.0.OR.INGNC.NE.0.OR.INGNC2.NE.0.OR.INGNCn.NE.0) THEN
@@ -306,6 +310,7 @@ C7C5----SAVE CELL-BY-CELL FLOW TERMS
             CALL GWF2BCFU1BDADJWR(KKSTP,KKPER)
           ENDIF
           IF (IUNIT(29).GT.0) THEN
+            CALL GWF2CLNU1BDCHWR(KKSTP,KKPER)
             CALL CLN1BDWR(KKSTP,KKPER)
           ENDIF    
           DEALLOCATE(TMPA)

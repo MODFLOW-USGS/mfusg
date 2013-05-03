@@ -1,9 +1,7 @@
-# Makefile example for compiling GMG and linking GMG to MF2K:
-
-# Makefile for USGS distribution
-#
-#
-# SHELL=/bin/ksh
+# Makefile for MODFLOW-USG distribution.
+# This file has only been used with the NMAKE utility
+# NMAKE clean should be used prior to each build to
+# avoid dependency issues with Fortran modules.
 SOURCELOC = 
 UTILITYLOC = 
 NEWMOD = 
@@ -13,32 +11,26 @@ INCDIR= .
 # Define the Fortran compiler flags
 
 #release
-F90FLAGS= -O2 -heap-arrays -fpe:0 -traceback
-#-heap-arrays:500  
+F90FLAGS= -O2 -heap-arrays:0 -fpe:0 -traceback
+
 #debug
 #F90FLAGS= -debug:full -traceback -heap-arrays:0
 
+#Fortran compiler
 F90= ifort
-
 
 # 
 # Define the C compile flags
-# -D_UF defines UNIX naming conventions for mixed language compilation.
-# 
-#CFLAGS= -D_UF -O3 -ansi -pedantic
 #CFLAGS= -D_UF -O3 
 #CC= gcc
 CFLAGS= 
 CC= cl
 
 # Define the libraries
-
-#SYSLIBS= -lmisalign -ldgc -lm 
-#SYSLIBS= -lc
 USRLIB  = 
 
 # Define all object files which make up mfusg
-
+# Note the order of these files is important
 OBJECTS = \
         gmodules.obj \
         GLO2btnU1.obj \

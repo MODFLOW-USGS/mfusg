@@ -1899,19 +1899,17 @@ C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,ITRNSP,NOVFC,
      1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN
-      USE CLN1MODULE, ONLY: NCLNNDS,ICLNCB
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,DELT,PERTIM,TOTIM,ICBCFL,
      1                      ICHFLG
       USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
       USE GWTBCTMODULE, ONLY: CBCH
       USE SMSMODULE, ONLY: AMATFL
 C
-      CHARACTER*16 TEXT(2)
+      CHARACTER*16 TEXT(1)
       DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
      *  X1,CIN,COUT
 C
       DATA TEXT(1) /'   CONSTANT HEAD'/
-      DATA TEXT(2) /'  CLN CONST HEAD'/
 C     ------------------------------------------------------------------
 C
 C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
@@ -1923,7 +1921,7 @@ C      IF(IBD.EQ.0) RETURN
       CHIN = 0.0
       CHOUT = 0.0
 C--------------------------------------------------------------------------
-C2------FIRST FOR THE GWF DOMAIN
+C2------GWF DOMAIN
 C---------------------------------------------------------------------------
       IF(IBD.EQ.2) THEN
 C2A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
@@ -1960,7 +1958,7 @@ C5--------GET RATE FROM BUFFER
 C
 C6--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
         IF(IBD.LT.0) THEN
-          IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT,KPER,KSTP
+          IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT(1),KPER,KSTP
   899     FORMAT(1X,/1X,A,'   PERIOD',I3,'   STEP',I3)
           IF(IUNSTR.EQ.0)THEN
             K = N / (NCOL*NROW) + 1 
@@ -1993,53 +1991,8 @@ C--------------------------------------------------------------
         ENDIF
   200 CONTINUE
 C--------------------------------------------------------------------------
-C8------NEXT FOR THE CLN DOMAIN
-C---------------------------------------------------------------------------
-      IF(IBD.EQ.2) THEN
-C8A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
-C8A-----CELLS AND WRITE HEADER RECORDS.         
-        NCH=0
-        DO 8 N=NODES+1,NEQS
-          IF(IBOUND(N).LT.0) NCH=NCH+1
-8       CONTINUE
-C8B-------WRITE HEADER FOR THE CLN DOMAINLIST       
- 
-        CALL UBDSV2U(KSTP,KPER,TEXT(2),ICLNCB,NCLNNDS,
-     1       NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-      END IF
 C
-C9------LOOP THROUGH EACH CELL AND WRITE FLOW FROM EACH
-C9------CONSTANT-HEAD CELL.
-      IBDLBL = 0
-      DO 201 N=NODES+1,NEQS
-C
-C10------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
-        IF (IBOUND(N).GE.0)GO TO 201
-C
-C11--------GET RATE FROM BUFFER
-        RATE = BUFF(N)
-        IF (RATE.LT.0.0) THEN
-            CHOUT=CHOUT-RATE
-          ELSE
-            CHIN=CHIN+RATE
-          END IF
-C
-C12--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
-        IF(IBD.LT.0) THEN
-          IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT,KPER,KSTP
-          WRITE(IOUT,910) N,RATE
-          IBDLBL=1
-        END IF
-C
-C13------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
-        IF(IBD.EQ.2)THEN
-          SRATE = RATE
-          CALL UBDSVAU(IBCFCB,NODES,N,SRATE,IBOUND)
-C--------------------------------------------------------------
-        ENDIF
-  201 CONTINUE     
-C
-C14-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
+C8-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
       IF(IBD.EQ.1)THEN
         IF(IUNSTR.EQ.0)THEN
           CALL UBUDSV(KSTP,KPER,TEXT(1),
@@ -2048,20 +2001,10 @@ C14-----IF SAVING CELL-BY-CELL FLOW IN 3-D ARRAY, WRITE THE ARRAY.
           CALL UBUDSVU(KSTP,KPER,TEXT(1),IBCFCB,BUFF,NODES,
      1                 IOUT,PERTIM,TOTIM)
         ENDIF
-C--------------------------------------------------------------
-C14A-------SAVE C-B-C FLOWS FOR CLN NODES
-C--------------------------------------------------------------
-        IF(INCLN.GT.0)THEN
-          IF(ICLNCB.GT.0)THEN
-          CALL UBUDSVU(KSTP,KPER,TEXT(2),ICLNCB,BUFF(NODES+1),NCLNNDS,
-     1                 IOUT,PERTIM,TOTIM)
-          ENDIF
-        ENDIF
-C--------------------------------------------------------------
       ENDIF
 C
-C15-----SAVE TOTAL CONSTANT HEAD FLOWS AND VOLUMES IN VBVL TABLE
-C15-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
+C9------SAVE TOTAL CONSTANT HEAD FLOWS AND VOLUMES IN VBVL TABLE
+C9------FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
       CIN=CHIN
       COUT=CHOUT
       VBVL(1,MSUM)=VBVL(1,MSUM)+CIN*DELT
@@ -2071,7 +2014,7 @@ C15-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
       VBNM(MSUM)=TEXT(1)
       MSUM=MSUM+1
 C
-C16-----RETURN.
+C10------RETURN.
       RETURN
       END
 
@@ -2148,7 +2091,8 @@ c6----return
       END
       SUBROUTINE GWF2BCFU1BDADJWR(KSTP,KPER)
 C     ******************************************************************
-C     COMPUTE FLOW BETWEEN ADJACENT CELLS IN A SUBREGION OF THE GRID
+C     COMPUTE FLOW BETWEEN ADJACENT CELLS IN A SUBREGION OF THE GRID.
+C     FLOWS ARE WRITTEN SO THAT FLOW IS POSITIVE INTO A CELL.
 C     ******************************************************************
 C
 C     SPECIFICATIONS:
@@ -2246,7 +2190,7 @@ C
               JJ = JA(II)
               JJG = JAFL(IJAG)
               IF(JJ.NE.JJG) CYCLE
-              TMPB(IJAG) = TMPA(II)
+              TMPB(IJAG) = -TMPA(II)
               IJAG = IJAG + 1
             ENDDO
           ENDDO
@@ -3258,11 +3202,13 @@ C      SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NODES
       USE GWFBCFMODULE,ONLY:LAYAVG,CHANI,HANI
-      DOUBLE PRECISION HYMEAN,RATIO,FRAC1,FRAC2,T,HY1,HY2
+      DOUBLE PRECISION HYMEAN,RATIO,FRAC1,FRAC2,T,HY1,HY2,DDENOM
 C     ------------------------------------------------------------------
 C1------COMPUTE WEIGHTED HARMONIC AVERAGE
       IF(LAYAVG(K).EQ.0)THEN
-        HYMEAN = HY1*HY2*(EL1+EL2)/(HY1*EL2 + HY2*EL1 + 1.0e-20)
+        DDENOM = HY1*EL2 + HY2*EL1
+        IF(DDENOM.LT.1.0E-20) DDENOM=1.0E-20
+        HYMEAN = HY1*HY2*(EL1+EL2)/(DDENOM)
 C2------COMPUTE ARITHMETIC AVERAGE
       ELSEIF(LAYAVG(K).EQ.3)THEN
         HYMEAN = (HY1 + HY2)*0.5

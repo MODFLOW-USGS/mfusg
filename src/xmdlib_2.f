@@ -1994,7 +1994,7 @@ c
       endif
 
       if (ierr == -1) then
-        write (*,*) 'too many iterations!!'
+c        write (*,*) 'too many iterations!!'
         ierr = 0
       endif
 

@@ -1466,14 +1466,6 @@ C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NODES,TSMULT,HNEW,HOLD,So,Sn,NEQS,
      *                      iunit,area,iout
       USE GWFBASMODULE,ONLY:DELT,TOTIM,PERTIM
-      !use gwfrchmodule, only: mxznrch,inirch,irch,rech,iznrch
-      !use gwfevtmodule, only: mxznevt,inievt,ievt,evtr,iznevt
-      !REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::rtsrch
-      !REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::etsevt
-      !DOUBLE PRECISION tstartrch,tendrch,factrrch
-      !save tstartrch,tendrch,factrrch,inrts
-      !DOUBLE PRECISION tstartevt,tendevt,factrevt
-      !save tstartevt,tendevt,factrevt,inets
 C     ------------------------------------------------------------------
 C
 C1------IF NOT FIRST TIME STEP THEN CALCULATE TIME STEP LENGTH.
@@ -1488,74 +1480,6 @@ C3------COPY HNEW TO HOLD.
       DO 10 N=1,NEQS
       So(N) = Sn(N)
    10 HOLD(N)=HNEW(N)
-!c-----------------------------------------------------------
-!c-------update recharge array with RTS information
-!c-----------------------------------------------------------
-!      if(iunit(8).gt.0.and.mxznrch.gt.0)then
-!        if(kstp.eq.1.and.kper.eq.1)then
-!          inrts = 115
-!          allocate(rtsrch(mxznrch))
-!         read(inrts,*)tstartrch,tendrch,factrrch,(rtsrch(i),i=1,mxznrch)
-!         write(iout,2)tstartrch,tendrch,factrrch,(rtsrch(i),i=1,mxznrch)
-!2        format(2x,'** RTS read - Tstart, Tend, Factor, Rts(mxznrch)'/
-!     1     5x,200g15.7)
-!c---------allocate rts recharge to nodes
-!          DO 50 NN=1,INIRCH
-!          N = IRCH(NN)
-!          izr = iznrch(n)
-!          if(izr.ge.1.and.izr.le.mxznrch)
-!     *       RECH(NN)=RECH(NN) + rtsrch(izr)*AREA(N)
-!   50     CONTINUE
-!        endif
-!c-------read next line of RTS file and update RECH if TEND is reached
-!        if(totim-delt.gt.(tendrch - 1.0e-6))then
-!          DO 51 NN=1,INIRCH
-!          N = IRCH(NN)
-!          izr = iznrch(n)
-!          if(izr.ge.1.and.izr.le.mxznrch)
-!     *       RECH(NN)=RECH(NN) - rtsrch(izr)*AREA(N)
-!   51     CONTINUE
-!         read(inrts,*)tstartrch,tendrch,factrrch,(rtsrch(i),i=1,mxznrch)
-!         write(iout,2)tstartrch,tendrch,factrrch,(rtsrch(i),i=1,mxznrch)
-!         DO 52 NN=1,INIRCH
-!          N = IRCH(NN)
-!          izr = iznrch(n)
-!          if(izr.ge.1.and.izr.le.mxznrch)
-!     *       RECH(NN)=RECH(NN) + rtsrch(izr)*AREA(N)
-!   52     CONTINUE
-!        endif
-!      endif
-!c-----------------------------------------------------------
-!c-------update EVT array with ETS information
-!c-----------------------------------------------------------
-!      if(iunit(5).gt.0.and.mxznevt.gt.0)then
-!        if(kstp.eq.1.and.kper.eq.1)then
-!          inets = 116
-!          allocate(etsevt(mxznevt))
-!         read(inets,*)tstartevt,tendevt,factrevt,(etsevt(i),i=1,mxznevt)
-!         write(iout,3)tstartrch,tendrch,factrrch,(etsevt(i),i=1,mxznevt)
-!3        format(2x,'** ETS read - Tstart, Tend, Factor, Ets(mxznevt)'/
-!     1     5x,200g15.7)
-!c---------allocate ets value to nodes
-!          DO 60 NN=1,INIEVT
-!            N = IEVT(NN)
-!            ize = iznevt(n)
-!            if(ize.ge.1.and.ize.le.mxznevt)
-!     *        EVTR(NN)= etsevt(ize)*AREA(N)
-!   60     CONTINUE
-!        endif
-!c-------read next line of ETS file if TENDEVT is reached and update EVTR
-!        if(totim-delt.gt.(tendevt - 1.0e-6))then
-!         read(inets,*)tstartevt,tendevt,factrevt,(etsevt(i),i=1,mxznevt)
-!         write(iout,3)tstartrch,tendrch,factrrch,(etsevt(i),i=1,mxznevt)
-!          DO 62 NN=1,INIEVT
-!            N = IEVT(NN)
-!            ize = iznevt(n)
-!            if(ize.ge.1.and.ize.le.mxznevt)
-!     *        EVTR(NN)= etsevt(ize)*AREA(N)
-!   62     CONTINUE
-!        endif
-!      endif
 C
 C4------RETURN
       RETURN

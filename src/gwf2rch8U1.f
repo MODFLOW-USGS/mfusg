@@ -1,12 +1,10 @@
       MODULE GWFRCHMODULE
         INTEGER, SAVE, POINTER                 ::NRCHOP,IRCHCB,MXNDRCH
-        INTEGER, SAVE, POINTER    ::NPRCH,IRCHPF,INIRCH,mxznrch,IPELEV
-        INTEGER, SAVE, POINTER    ::IPONDOPT
-        REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::RECH,pelev
-        INTEGER, SAVE,   DIMENSION(:),  ALLOCATABLE    ::IRCH,iznrch
+        INTEGER,SAVE, POINTER ::NPRCH,IRCHPF,INIRCH,NIRCH
+        REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::RECH
+        INTEGER, SAVE,   DIMENSION(:),  ALLOCATABLE    ::IRCH
        END MODULE GWFRCHMODULE
-
-
+C
       SUBROUTINE GWF2RCH8U1AR(IN)
 C     ******************************************************************
 C     ALLOCATE ARRAY STORAGE FOR RECHARGE
@@ -16,7 +14,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,IFREFM,NODLAY,IUNSTR
       USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,NPRCH,IRCHPF,RECH,IRCH,
-     1  MXNDRCH,INIRCH,pelev,iznrch,mxznrch,IPELEV,IPONDOPT
+     1  MXNDRCH,INIRCH,NIRCH
 C
       CHARACTER*200 LINE
       CHARACTER*4 PTYP
@@ -24,7 +22,7 @@ C     ------------------------------------------------------------------
 C
 C1-------ALLOCATE SCALAR VARIABLES.
       ALLOCATE(NRCHOP,IRCHCB,MXNDRCH)
-      ALLOCATE(NPRCH,IRCHPF,INIRCH)
+      ALLOCATE(NPRCH,IRCHPF,INIRCH,NIRCH)
 C
 C2------IDENTIFY PACKAGE.
       IRCHPF=0
@@ -43,18 +41,7 @@ C3------READ NRCHOP AND IRCHCB.
          CALL URWORD(LINE,LLOC,ISTART,ISTOP,2,IRCHCB,R,IOUT,IN)
       END IF
 C
-C3B------READ KEYWORD OPTION PONDELEV.
-      ALLOCATE(IPONDOPT)
-      IPONDOPT=0
-   10 CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,N,R,IOUT,IN)
-      IF(LINE(ISTART:ISTOP).EQ.'PONDELEV') THEN
-         WRITE(IOUT,13)
-   13    FORMAT(1X,'PONDING ELEVATIONS WILL BE READ.',
-     1      '  VARIABLE INPELEV REQUIRED IN RECORD 5.')
-         IPONDOPT = 1
-         GO TO 10
-      END IF
-C      
+C3B------READ MXNDRCH FOR NRCHOP=2, OTHERWISE SET TO NODLAY(1).
       IF(IUNSTR.EQ.1.AND.NRCHOP.EQ.2)THEN
         READ(IN,*) MXNDRCH
       ELSE
@@ -85,20 +72,7 @@ C6------IF CELL-BY-CELL FLOWS ARE TO BE SAVED, THEN PRINT UNIT NUMBER.
 C
 C7------ALLOCATE SPACE FOR THE RECHARGE (RECH) AND INDICATOR (IRCH)
 C7------ARRAYS.
-      ALLOCATE (RECH(MXNDRCH),mxznrch)
-C      ALLOCATE(iznrch(mxndrch))
-      ALLOCATE(iznrch(1))
-      ALLOCATE (IPELEV)
-      IPELEV = 0
-      INPELEV = 0
-      IF (IPONDOPT.GT.0) THEN
-          ALLOCATE(pelev(mxndrch))
-      ELSE
-          ALLOCATE(PELEV(1))
-      ENDIF
-      PELEV = 1.0E20
-      iznrch = 0
-      mxznrch = 0
+      ALLOCATE (RECH(MXNDRCH))
       ALLOCATE (IRCH(MXNDRCH))
 C
 C8------READ NAMED PARAMETERS
@@ -127,18 +101,15 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,DELR,DELC,
      1  NODLAY,AREA,IUNSTR
-      USE GWFRCHMODULE,ONLY:NRCHOP,NPRCH,IRCHPF,RECH,IRCH,INIRCH,pelev,
-     *  iznrch,mxznrch,IPELEV,IPONDOPT
+      USE GWFRCHMODULE,ONLY:NRCHOP,NPRCH,IRCHPF,RECH,IRCH,INIRCH,NIRCH
       REAL, DIMENSION(:,:),ALLOCATABLE  ::TEMP
       INTEGER, DIMENSION(:,:),ALLOCATABLE  ::ITEMP
 C
-      CHARACTER*24 ANAME(4)
+      CHARACTER*24 ANAME(2)
       CHARACTER(LEN=200) line
 C
       DATA ANAME(1) /'    RECHARGE LAYER INDEX'/
       DATA ANAME(2) /'                RECHARGE'/
-      DATA ANAME(3) /'                   pelev'/
-      DATA ANAME(4) /'                  iznrch'/
 C     ------------------------------------------------------------------
       ALLOCATE (TEMP(NCOL,NROW))
       ALLOCATE (ITEMP(NCOL,NROW))
@@ -149,43 +120,23 @@ C2------IDENTIFY PACKAGE.
 C
 C2------READ FLAGS SHOWING WHETHER DATA IS TO BE REUSED.
       lloc = 1
-      iniznrch=0
-      inpelev=0
       CALL URDCOM(In, Iout, line)
       IF(IFREFM.EQ.0)THEN
         IF(NRCHOP.EQ.2) THEN
-C          READ(LINE,'(4I10)') INRECH,INIRCH,iniznrch,inpelev
-          IF (IPONDOPT.EQ.0) THEN
-              READ(LINE,'(2I10)') INRECH,INIRCH
-          ELSE
-              READ(LINE,'(3I10)') INRECH,INIRCH,inpelev
-          ENDIF
+          READ(LINE,'(2I10)') INRECH,INIRCH
         ELSE
-          IF (IPONDOPT.EQ.0) THEN
-              READ(LINE,'(3I10)') INRECH
-          ELSE
-              READ(LINE,'(3I10)') INRECH,inpelev
-          ENDIF
+          READ(LINE,'(3I10)') INRECH
           INIRCH = NODLAY(1)
         ENDIF
       ELSE
         IF(NRCHOP.EQ.2) THEN
           CALL URWORD(line, lloc, istart, istop, 2, inrech, r, Iout, In)
           CALL URWORD(line, lloc, istart, istop, 2, inirch, r, Iout, In)
-C          CALL URWORD(line,lloc,istart, istop, 2, iniznrch, r, Iout, In)
-          IF (IPONDOPT.EQ.1) 
-     1       CALL URWORD(line,lloc, istart, istop, 2, inpelev, r, Iout, 
-     2                   In)
         ELSE
           CALL URWORD(line, lloc, istart, istop, 2, inrech, r, Iout, In)
-C          CALL URWORD(line,lloc,istart, istop, 2, iniznrch, r, Iout, In)
-          IF (IPONDOPT.EQ.1)
-     1       CALL URWORD(line,lloc, istart, istop, 2, inpelev, r, Iout, 
-     2                   In)
           INIRCH = NODLAY(1)
         ENDIF
       END IF
-      IF(INPELEV.GE.0) IPELEV = INPELEV
 C
 C3------TEST INRECH TO SEE HOW TO DEFINE RECH.
       IF(INRECH.LT.0) THEN
@@ -194,6 +145,7 @@ C3A-----INRECH<0, SO REUSE RECHARGE ARRAY FROM LAST STRESS PERIOD.
         WRITE(IOUT,3)
     3   FORMAT(1X,/1X,'REUSING RECH FROM LAST STRESS PERIOD')
       ELSE
+        NIRCH = INIRCH  
         IF(IUNSTR.EQ.0)THEN
 C
 C3B-----INRECH=>0, SO READ RECHARGE RATE.
@@ -230,7 +182,7 @@ C3B-------INRECH=>0, SO READ RECHARGE RATE.
           IF(NPRCH.EQ.0) THEN
 C
 C3B1--------THERE ARE NO PARAMETERS, SO READ RECH USING U2DREL.
-            CALL U2DREL(RECH,ANAME(2),1,INIRCH,0,IN,IOUT)
+            CALL U2DREL(RECH,ANAME(2),1,NIRCH,0,IN,IOUT)
           ELSE
 C
 C3B2--------DEFINE RECH USING PARAMETERS.  INRECH IS THE NUMBER OF
@@ -241,7 +193,7 @@ C3B2--------PARAMETERS TO USE THIS STRESS PERIOD.
               WRITE(IOUT,34)
               CALL USTOP(' ')
             END IF
-            CALL UPARARRSUB2(RECH,INIRCH,1,0,INRECH,IN,IOUT,'RCH',
+            CALL UPARARRSUB2(RECH,NIRCH,1,0,INRECH,IN,IOUT,'RCH',
      1            ANAME(2),'RCH',IRCHPF)
           END IF
         ENDIF
@@ -272,11 +224,11 @@ C5B---------INIRCH=>0, SO CALL U2DINT TO READ LAYER INDICATOR ARRAY(IRCH)
                 IRCH(N) = ITEMP(IC,IR)
    57         CONTINUE
             ELSE
-              CALL U2DINT(IRCH,ANAME(1),1,INIRCH,0,IN,IOUT)
+              CALL U2DINT(IRCH,ANAME(1),1,NIRCH,0,IN,IOUT)
             END IF
           END IF
         ELSE ! NRCHOP IS NOT 2 SO SET TOP LAYER OF NODES IN IRCH
-          DO I=1,INIRCH
+          DO I=1,NIRCH
             IRCH(I) = I
           ENDDO
         END IF
@@ -285,40 +237,11 @@ C-------IF RECHARGE IS READ THEN MULTIPLY BY AREA TO GIVE FLUX
         IF(INRECH.GE.0) THEN
 C
 C4--------MULTIPLY RECHARGE RATE BY CELL AREA TO GET VOLUMETRIC RATE.
-          DO 50 NN=1,INIRCH
+          DO 50 NN=1,NIRCH
             N = IRCH(NN)
             RECH(NN)=RECH(NN)*AREA(N)
    50     CONTINUE
         END IF
-      ENDIF
-C----------------------------------------------------------------
-C----------RECHARGE ZONES
-!      IF(INiznrch.LT.0) THEN
-!C
-!C3A-----INiznrch<0, SO REUSE iznrch ARRAY FROM LAST STRESS PERIOD.
-!        WRITE(IOUT,5)
-!    5   FORMAT(1X,/1X,'REUSING iznrch FROM LAST STRESS PERIOD')
-!      ELSEif(INiznrch.gt.0)then
-!        mxznrch = iniznrch
-!        IF(IUNSTR.EQ.0)THEN
-!          CALL U2DINT(iznrch,ANAME(4),NROW,NCOL,0,IN,IOUT)
-!        ELSE
-!          CALL U2DINT(iznrch,ANAME(4),1,INIRCH,0,IN,IOUT)  
-!        ENDIF
-!      ENDIF 
-C----------------------------------------------------------------
-C----------ponding
-      IF(INpelev.LT.0) THEN
-C
-C3A-----INpelev<0, SO REUSE pelev ARRAY FROM LAST STRESS PERIOD.
-        WRITE(IOUT,4)
-    4   FORMAT(1X,/1X,'REUSING pelev FROM LAST STRESS PERIOD')
-      ELSEif(INpelev.gt.0)then
-        IF(IUNSTR.EQ.0)THEN  
-          CALL U2DREL(pelev,ANAME(3),NROW,NCOL,0,IN,IOUT)
-        ELSE
-          CALL U2DREL(pelev,ANAME(3),1,INIRCH,0,IN,IOUT)  
-        ENDIF
       ENDIF
 C---------------------------------------------------------------
       DEALLOCATE(TEMP)
@@ -333,43 +256,25 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY:NCOL,NROW,NLAY,IBOUND,RHS,IA,JA,JAS,NODLAY,
-     1  IVC,AMAT,HNEW,ISSFLG
-      USE GWFRCHMODULE,ONLY:NRCHOP,RECH,IRCH,INIRCH,pelev,IPELEV
-      DOUBLE PRECISION RECHFLUX,acoef,eps,pe,hd,rch,rcheps
+      USE GLOBAL,      ONLY:IBOUND,RHS
+      USE GWFRCHMODULE,ONLY:NRCHOP,RECH,IRCH,NIRCH
+      DOUBLE PRECISION RECHFLUX
 C     ------------------------------------------------------------------
 C
-      ISS=ISSFLG(KPER)
-      eps = 1.0e-5
-C3------FILL RECH ON ACTIVE NODE.
-      DO 10 NN=1,INIRCH
+C1------FILL RECH ON ACTIVE NODE.
+      DO 10 NN=1,NIRCH
         N = IRCH(NN)
         RECHFLUX = RECH(NN)
-C---------------------------------------------------------
-C-------FIND TOP-MOST ACTIVE NODE IF NOT N
+C
+C2------FIND TOP-MOST ACTIVE NODE IF NOT N
         IF(NRCHOP.EQ.3.AND.IBOUND(N).EQ.0)THEN
           CALL FIRST_ACTIVE_BELOW(N)
         ENDIF
 C---------------------------------------------------------
-C3A--------IF CELL IS VARIABLE HEAD, apply recharge as newton raphson
+C3------IF CELL IS VARIABLE HEAD
         IF(IBOUND(N).GT.0) then
-          IF(IPELEV.GT.0)THEN
-            pe = pelev(nn)
-            hd = hnew(n)
-            call realrech(pe,rechflux,hd,rch)
-            hd = hd + eps
-            call realrech(pe,rechflux,hd,rcheps)
-            acoef = (rcheps - rch) / eps
-            amat(ia(n)) = amat(ia(n)) + acoef
-            RHS(N)=RHS(N)-RCH + acoef * hnew(n)
-          ELSE
             RHS(N)=RHS(N)-RECHFLUX
-          ENDIF
         ENDIF
-C--------get ponding storage onto node with recharge
-        IF(ISS.NE.0) GOTO 10
-        IF(IPELEV.EQ.0) GO TO 10
-        call pondstor(n)
    10 CONTINUE
 C
 C6------RETURN
@@ -422,80 +327,6 @@ C
 C------RETURN
       RETURN
       END
-C----------------------------------------------
-      subroutine realrech(pe,rechflux,hd,rch)
-      DOUBLE PRECISION RECHFLUX,pe,hd,rch,depth,
-     *  slope,epsilon
-c----------------------------------------------
-C------MAKE RCH GO TO ZERO OVER A HEAD INCREASE OF 0.01
-      slope = -ABS(RECHFLUX/0.01)
-      slope = - 1.0e4
-      epsilon = 1.0e-3
-      depth = hd - pe
-      if(depth.lt.0)then
-        rch = rechflux
-cc      else
-cc        rch = slope * depth**2 + rechflux
-      elseif(depth.lt.epsilon)then
-        rch = slope/(2.0*epsilon)*depth**2+rechflux
-      else
-        rch = rechflux + slope*(depth-epsilon/2.0)
-      endif
-C6------RETURN
-      RETURN
-      END
-c----------------------------------------------
-      subroutine pondstor(n)
-C     ******************************************************************
-C     CALCULATE ponded storage
-C     ******************************************************************
-C
-      USE GLOBAL, ONLY:IBOUND,RHS,IA,JA,hold,
-     1  amat,hnew,bot,area
-      USE GWFBASMODULE,ONLY:DELT
-      double precision hd,sh1,sh2,shold,rho2,eps,tled,ds
-c      -------------------------------------------
-C6A-----IF THE CELL IS EXTERNAL THEN SKIP IT.
-      IF(IBOUND(N).LE.0) return
-      TLED=area(n)/DELT
-C-----COMPUTE PORE STORAGE TERM AS PER NEWTON RAPHSON
-      HD=Hold(N)
-      call storh(n,hd,shold)
-      HD=HNEW(N)
-      call storh(n,hd,sh1)
-      EPS = 1.0E-3
-      HD=HNEW(N)+ EPS
-      call storh(n,hd,sh2)
-      DS = (sh2-sh1)/EPS
-      RHO2  = DS * TLED
-      AMAT(IA(N)) = AMAT(IA(N)) - RHO2
-      RHS(N) = RHS(N) - RHO2*HNEW(N) + TLED*(sh1-shold)
-C6------RETURN
-      RETURN
-      END
-c----------------------------------------------
-      subroutine storh(n,hd,sh)
-C     ******************************************************************
-C     CALCULATE ponded storage
-C     ******************************************************************
-C
-      USE GLOBAL, ONLY: top
-      double precision hd,sh,depth
-c      -------------------------------------------
-      slope = 1.0
-      epsilon = 1.0e-3
-      depth = hd - top(n)
-      if(depth.lt.0.0)then
-        sh = 0.0
-      elseif(depth.lt.epsilon)then
-        sh = depth**2 / (2.0*epsilon)
-      else
-        sh = depth - epsilon/2.0
-      endif
-C6------RETURN
-      RETURN
-      END
-c----------------------------------------------
       SUBROUTINE GWF2RCH8U1BD(KSTP,KPER)
 C     ******************************************************************
 C     CALCULATE VOLUMETRIC BUDGET FOR RECHARGE
@@ -506,8 +337,7 @@ C     ------------------------------------------------------------------
       USE GLOBAL,  ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IA,JA,JAS,NODES,
      1             NODLAY,IUNSTR,IVC,hnew
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,PERTIM,TOTIM
-      USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,RECH,IRCH,INIRCH,pelev,IPELEV,
-     1                      IPONDOPT
+      USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,RECH,IRCH,NIRCH
 C
       DOUBLE PRECISION RATIN,RATOUT,QQ
       DOUBLE PRECISION RECHFLUX,acoef,eps,pe,hd,rch
@@ -528,7 +358,7 @@ C3------CLEAR THE BUFFER & SET FLAG FOR SAVING CELL-BY-CELL FLOW TERMS.
       IF(IRCHCB.GT.0) IBD=ICBCFL
 C
 C5------PROCESS EACH RECHARGE CELL LOCATION.
-        DO 10 NN=1,INIRCH
+        DO 10 NN=1,NIRCH
         N = IRCH(NN)
         RECHFLUX = RECH(NN)
 C---------------------------------------------------------
@@ -539,14 +369,7 @@ C-------FIND TOP-MOST ACTIVE NODE IF NOT N
 C---------------------------------------------------------
 C5A-----IF CELL IS VARIABLE HEAD, THEN DO BUDGET FOR IT.
         IF(IBOUND(N).GT.0) THEN
-          IF(IPELEV.GT.0)THEN
-            pe = pelev(nn)
-            hd = hnew(n)
-            call realrech(pe,rechflux,hd,rch)
-            QQ=rch
-          ELSE
-            QQ = RECHFLUX
-          ENDIF
+          QQ = RECHFLUX
           Q=QQ
 C
 C5B-----ADD RECH TO BUFF.
@@ -572,113 +395,7 @@ C8------UTILITY MODULE TO WRITE THEM.
         IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IRCHCB,BUFF,NODES,
      1                          IOUT,PERTIM,TOTIM)
         IF(IBD.EQ.2) CALL UBDSV3U(KSTP,KPER,TEXT,IRCHCB,BUFF,IRCH,
-     1           INIRCH,NRCHOP,NODES,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-      ENDIF
-C
-C9------MOVE TOTAL RECHARGE RATE INTO VBVL FOR PRINTING BY BAS1OT.
-      ROUT=RATOUT
-      RIN=RATIN
-      VBVL(4,MSUM)=ROUT
-      VBVL(3,MSUM)=RIN
-C
-C10-----ADD RECHARGE FOR TIME STEP TO RECHARGE ACCUMULATOR IN VBVL.
-      VBVL(2,MSUM)=VBVL(2,MSUM)+ROUT*DELT
-      VBVL(1,MSUM)=VBVL(1,MSUM)+RIN*DELT
-C
-C11-----MOVE BUDGET TERM LABELS TO VBNM FOR PRINT BY MODULE BAS_OT.
-      VBNM(MSUM)=TEXT
-C
-C12-----INCREMENT BUDGET TERM COUNTER.
-      MSUM=MSUM+1
-c-------call pond storage budget
-      IF(IPONDOPT.EQ.1)call pondbd (KSTP,KPER)
-
-C
-C13-----RETURN
-      RETURN
-      END
-c----------------------------------------------------------------
-      SUBROUTINE pondBD(KSTP,KPER)
-C     ******************************************************************
-C     CALCULATE ponded storage budget
-C     ******************************************************************
-C
-C        SPECIFICATIONS:
-C     ------------------------------------------------------------------
-      USE GLOBAL,  ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IA,JA,JAS,NODES,
-     1             NODLAY,IUNSTR,IVC,area,hnew,hold,ISSFLG
-      USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,PERTIM,TOTIM
-      USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,RECH,IRCH,INIRCH
-C
-      DOUBLE PRECISION RATIN,RATOUT,QQ
-      DOUBLE PRECISION hd,tled,sh1,shold
-      CHARACTER*16 TEXT
-      DATA TEXT /'  ponded storage'/
-C     ------------------------------------------------------------------
-      ISS=ISSFLG(KPER)
-C
-C2------IF STEADY STATE, STORAGE TERM IS ZERO
-      IF(ISS.NE.0) RETURN
-C2------CLEAR THE RATE ACCUMULATORS.
-      ZERO=0.
-      RATIN=ZERO
-      RATOUT=ZERO
-C
-C3------CLEAR THE BUFFER & SET FLAG FOR SAVING CELL-BY-CELL FLOW TERMS.
-      DO 2 N=1,NODES
-      BUFF(N)=ZERO
-    2 CONTINUE
-      IBD=0
-      IF(IRCHCB.GT.0) IBD=ICBCFL
-C3------SKIP COMPUTATIONS IF PONDING IS NOT ACTIVE FOR THIS STRESS PERIOD      
-      IF(IPELEV.EQ.0) GO TO 11
-C
-C5------PROCESS EACH RECHARGE CELL LOCATION.
-        DO 10 NN=1,INIRCH
-        N = IRCH(NN)
-        RECHFLUX = RECH(NN)
-C---------------------------------------------------------
-C-------FIND TOP-MOST ACTIVE NODE IF NOT N
-        IF(NRCHOP.EQ.3.AND.IBOUND(N).EQ.0)THEN
-          CALL FIRST_ACTIVE_BELOW(N)
-        ENDIF
-C---------------------------------------------------------
-C5A-----IF CELL IS VARIABLE HEAD, THEN DO BUDGET FOR IT.
-        IF(IBOUND(N).GT.0) THEN
-          TLED=area(n)/DELT
-C---------COMPUTE PORE STORAGE TERM AS PER NEWTON RAPHSON
-          HD=Hold(N)
-          call storh(n,hd,shold)
-          HD=HNEW(N)
-          call storh(n,hd,sh1)
-          q = -TLED*(sh1-shold)
-          QQ=Q
-C
-C5B-----ADD RECH TO BUFF.
-          BUFF(N)=Q
-C
-C5C-----IF RECH POSITIVE ADD IT TO RATIN, ELSE ADD IT TO RATOUT.
-          IF(Q.GE.ZERO) THEN
-            RATIN=RATIN+QQ
-          ELSE
-            RATOUT=RATOUT-QQ
-          END IF
-        END IF
-   10   CONTINUE
-   11   CONTINUE  
-C
-C8------IF CELL-BY-CELL FLOW TERMS SHOULD BE SAVED, CALL APPROPRIATE
-C8------UTILITY MODULE TO WRITE THEM.
-      IF(IUNSTR.EQ.0)THEN
-        IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IRCHCB,BUFF,NCOL,NROW,
-     1                          NLAY,IOUT)
-        IF(IBD.EQ.2) CALL UBDSV3(KSTP,KPER,TEXT,IRCHCB,BUFF,IRCH,NRCHOP,
-     1                   NCOL,NROW,NLAY,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-      ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IRCHCB,BUFF,NODES,
-     1                          IOUT,PERTIM,TOTIM)
-        IF(IBD.EQ.2) CALL UBDSV3U(KSTP,KPER,TEXT,IRCHCB,BUFF,IRCH,
-     1           INIRCH,NRCHOP,NODES,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+     1           NIRCH,NRCHOP,NODES,IOUT,DELT,PERTIM,TOTIM,IBOUND)
       ENDIF
 C
 C9------MOVE TOTAL RECHARGE RATE INTO VBVL FOR PRINTING BY BAS1OT.
@@ -707,16 +424,13 @@ C  Deallocate RCH DATA
 C
         DEALLOCATE(NRCHOP)
         DEALLOCATE(IRCHCB)
-        DEALLOCATE(NPRCH)
-        DEALLOCATE(IRCHPF)
-        DEALLOCATE(RECH)
-        DEALLOCATE(IRCH)
-        DEALLOCATE(NRCHOP)
-        DEALLOCATE(IRCHCB)
         DEALLOCATE(MXNDRCH)
         DEALLOCATE(NPRCH)
         DEALLOCATE(IRCHPF)
         DEALLOCATE(INIRCH)
+        DEALLOCATE(NIRCH)
+        DEALLOCATE(RECH)
+        DEALLOCATE(IRCH)
 C
       RETURN
       END

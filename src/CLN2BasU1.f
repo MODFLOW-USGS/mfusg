@@ -1243,6 +1243,104 @@ C
 C10----RETURN.
       RETURN
       END
+
+      SUBROUTINE GWF2CLNU1BDCHWR(KSTP,KPER)
+C     ******************************************************************
+C     SAVE FLOW FROM CONSTANT-HEAD CELLS
+C     ******************************************************************
+C
+C     SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,ITRNSP,NOVFC,
+     1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN
+      USE CLN1MODULE, ONLY: NCLNNDS,ICLNCB
+      USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,DELT,PERTIM,TOTIM,ICBCFL,
+     1                      ICHFLG
+      USE GWTBCTMODULE, ONLY: CBCH
+      USE SMSMODULE, ONLY: AMATFL
+C
+      CHARACTER*16 TEXT(1)
+      DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
+     *  X1,CIN,COUT
+C
+      DATA TEXT(1) /'  CLN CONST HEAD'/
+C     ------------------------------------------------------------------
+C
+C1------CLN DOMAIN
+      IBD=0
+      IF(ICLNCB.LT.0 .AND. ICBCFL.NE.0) IBD=-1
+      IF(ICLNCB.GT.0) IBD=ICBCFL
+      IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
+      CHIN = 0.0
+      CHOUT = 0.0
+C     
+      IF(IBD.EQ.2) THEN
+C2A-----IF SAVING CELL-BY-CELL FLOW IN A LIST, COUNT CONSTANT-HEAD
+C2A-----CELLS AND WRITE HEADER RECORDS.         
+        NCH=0
+        DO 8 N=NODES+1,NEQS
+          IF(IBOUND(N).LT.0) NCH=NCH+1
+8       CONTINUE
+C2B-------WRITE HEADER FOR THE CLN DOMAINLIST       
+ 
+        CALL UBDSV2U(KSTP,KPER,TEXT(1),ICLNCB,NCLNNDS,
+     1       NCH,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+      END IF
+C
+C3------LOOP THROUGH EACH CELL AND WRITE FLOW FROM EACH
+C3------CONSTANT-HEAD CELL.
+      IBDLBL = 0
+      DO 201 N=NODES+1,NEQS
+C
+C4------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
+        IF (IBOUND(N).GE.0)GO TO 201
+C
+C4--------GET RATE FROM BUFFER
+        RATE = BUFF(N)
+        IF (RATE.LT.0.0) THEN
+            CHOUT=CHOUT-RATE
+          ELSE
+            CHIN=CHIN+RATE
+          END IF
+C
+C5--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,899) TEXT(1),KPER,KSTP
+  899     FORMAT(1X,/1X,A,'   PERIOD',I3,'   STEP',I3)
+          WRITE(IOUT,910) N,RATE
+  910     FORMAT(1X,'NODE',I8,'   RATE',1PG15.6)
+          IBDLBL=1
+        END IF
+C
+C6------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
+        IF(IBD.EQ.2)THEN
+          SRATE = RATE
+          CALL UBDSVAU(ICLNCB,NODES,N,SRATE,IBOUND)
+C--------------------------------------------------------------
+        ENDIF
+  201 CONTINUE     
+C
+C7-------SAVE C-B-C FLOWS FOR CLN NODES
+        IF(IBD.EQ.1)THEN
+          CALL UBUDSVU(KSTP,KPER,TEXT(1),ICLNCB,BUFF(NODES+1),NCLNNDS,
+     1                 IOUT,PERTIM,TOTIM)
+        ENDIF
+C
+C8-----SAVE TOTAL CONSTANT HEAD FLOWS AND VOLUMES IN VBVL TABLE
+C8-----FOR INCLUSION IN BUDGET. PUT LABELS IN VBNM TABLE.
+      CIN=CHIN
+      COUT=CHOUT
+      VBVL(1,MSUM)=VBVL(1,MSUM)+CIN*DELT
+      VBVL(2,MSUM)=VBVL(2,MSUM)+COUT*DELT
+      VBVL(3,MSUM)=CIN
+      VBVL(4,MSUM)=COUT
+      VBNM(MSUM)=TEXT(1)
+      MSUM=MSUM+1
+C
+C9-----RETURN.
+      RETURN
+      END
+
       SUBROUTINE CLN1BDADJ(KSTP,KPER)
 C     ******************************************************************
 C     COMPUTE FLOW BETWEEN CLN-CLN AND CLN-MATRIX
@@ -1334,12 +1432,14 @@ C6---------COMPUTE FLUX IN TMP ARRAY
 C
       ENDDO
 C
+C7-----RETURN.
       RETURN
       END
 C---------------------------------------------------------------------------------------------
       SUBROUTINE CLN1BDWR(KSTP,KPER)
 C     ******************************************************************
-C     WRITE FLOW BETWEEN CLN-CLN AND CLN-MATRIX
+C     WRITE FLOW BETWEEN CLN-CLN AND CLN-MATRIX.  THESE CLN-CLN FLOWS
+C     ARE WRITTEN SO THAT FLOW IS POSITIVE OUT OF A CLN CELL.
 C     ******************************************************************
 C
 C     SPECIFICATIONS:
@@ -1357,7 +1457,7 @@ C
       REAL, DIMENSION(:),ALLOCATABLE :: TMPCLN(:),TMPCP(:)
 C
       DATA TEXT(1) /'   FLOW CLN FACE'/
-      DATA TEXT(2) /'      CLN TO GWF'/
+      DATA TEXT(2) /'      GWF TO CLN'/
       DATA TEXT(3) /'       CLN FLOWS'/
 C     ------------------------------------------------------------------
 C
@@ -1400,7 +1500,7 @@ C4B---------FILL FLOW TERM FOR CLN-CLN CONNECTION
               IF((IBOUND(N).LE.0) .AND. (IBOUND(JJ).LE.0)) CYCLE
             END IF
             IIS = JAS(II)
-            TMPCLN(ICLN)= TMPA(II)
+            TMPCLN(ICLN)= -TMPA(II)
             IF(ITRNSP.GT.0) CBCF(IIS) = TMPCLN(ICLN)
           ENDDO
         ENDDO
@@ -1445,7 +1545,7 @@ C5B-------FIND CLN-MATRIX CONNECTION
           END IF
 C
 C5C-------FILL FLOW THROUGH THIS FACE INTO THE ADJACENT CELL.
-          TMPCP(NN) = TMPA(II)
+          TMPCP(NN) = -TMPA(II)
           IF(ITRNSP.GT.0) CBCF(IIS) = TMPCP(NN)
         ENDDO
       ENDDO
