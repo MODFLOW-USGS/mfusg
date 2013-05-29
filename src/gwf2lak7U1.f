@@ -642,6 +642,9 @@ C
 C   VERTICAL LAKEBED INTERFACE (TYPE 0) DETECTED
 C
   145 M = M + 1
+      ILAKE(1,M) = N
+      ILAKE(2,M) = K
+      ILAKE(3,M) = I
       IF(M.LE.MXLKND) GO TO 147
       WRITE(IOUT,149) I,J,K
   149 FORMAT(/1X,'MAXIMUM NUMBER OF GRID CELLS ADJACENT TO LAKES HAS BEE
@@ -1239,9 +1242,12 @@ C
 C   IDENTIFY LAKE BORDER CELLS, ASSIGN CELL TYPE ID'S, COMPUTE AND
 C     ASSIGN LAKE-AQUIFER INTERFACE CONDUCTANCES.
 C
+      NLN = 0
       M = 0
+      LID = 0
       DO 180 NL=1,NODLAY(1)
       K = 1
+      NLN = NL
       IF(LKARR1(NL).EQ.0) GO TO 150
       IF(NLAY.EQ.1) GO TO 145
 C   Keep searching in vertical direction until non-lake cell is found, and define
@@ -1266,17 +1272,20 @@ C
   147 ILAKE(1,M) = NLN
       ILAKE(2,M) = K
       ILAKE(3,M) = 0
-      IF(K.GT.1.AND.LKARR1(NLN).EQ.0) LID = LKARR1(NLN-NODLAY(1))
+      IF (LKARR1(NLN).EQ.0) LID = LKARR1(NLN-NODLAY(1))
       IF(LKARR1(NLN).NE.0) LID = LKARR1(NLN)
-      ILAKE(4,M) = LID
-      ILAKE(5,M) = 6
       ILAKE(6,M) = NLN - NODLAY(1)
-      BEDLAK(M) = BDLKN1(NLN-NODLAY(1))
-      IF(K.EQ.NLAY.AND.LKARR1(NLN).NE.0) BEDLAK(M) = 0.0
+      IF(K.EQ.NLAY.AND.LKARR1(NLN).NE.0) THEN
+        BEDLAK(M) = 0.0
+      ELSE
+        BEDLAK(M) = BDLKN1(NLN-NODLAY(1))
+      END IF
       BGAREA(LID) = BGAREA(LID) + AREA(NLN)
+      ILAKE(5,M) = 6
+      ILAKE(4,M) = LKARR1(NLN)
+      IF(LKARR1(NLN).NE.0) GO TO 180
       WRITE(IOUT,5) ILAKE(1,M),ILAKE(2,M),(ILAKE(I1,M),I1=4,5),BEDLAK(M)
 5     FORMAT(4I10,10X,F10.5)
-      IF(LKARR1(NLN).NE.0) GO TO 180
 C
 C   SEARCH FOR CELL(S) ADJACENT TO LAKE
 C
@@ -1331,12 +1340,17 @@ C
       DO 350 II=1,LKNODE
       N = ILAKE(1,II)
       K = ILAKE(2,II)
+      LAKE = ILAKE(4,II)
+      IF ( NLAY.GT.1 ) THEN
 C   ILAKE(6,II) is the connected lake node
-      NTYP = ILAKE(6,II)
-      IF(N - NTYP.EQ.NODLAY(1)) THEN
-        LAKE = ILAKE(4,II)
-        IF(K.GT.1) BOTLK = BOT(N-NODLAY(1))
-        IF(K.EQ.NLAY.AND.LKARR1(N).GT.0) BOTLK = BOT(N)
+        NTYP = ILAKE(6,II)
+        IF(N - NTYP.EQ.NODLAY(1)) THEN
+          IF(K.GT.1) BOTLK = BOT(N-NODLAY(1))
+          IF(K.EQ.NLAY.AND.LKARR1(N).GT.0) BOTLK = BOT(N)
+          IF(BOTLK.LT.BOTTMS(LAKE)) BOTTMS(LAKE) = BOTLK
+        END IF
+      ELSE
+        BOTLK = BOT(N)
         IF(BOTLK.LT.BOTTMS(LAKE)) BOTTMS(LAKE) = BOTLK
       END IF
   350 CONTINUE
@@ -1683,10 +1697,11 @@ C   SPECIFICATIONS:
 C
 C-----------------------------------------------------------------------
       USE GWFLAKMODULE, ONLY: LKNODE, ILAKE, STGOLD
-      USE GLOBAL,       ONLY: IBOUND, BOT,NODLAY
+      USE GLOBAL,       ONLY: IBOUND, BOT,NODLAY,NLAY
 C-----------------------------------------------------------------------
 
       IF(LKNODE.EQ.0) RETURN
+      IF (NLAY.EQ.1) RETURN
       DO 10 L=1,LKNODE
 C  ILAKE(6,L) is the connecting node
       ITYPE = ILAKE(6,L)
@@ -3524,6 +3539,7 @@ C
       DO 350 II=1,LKNODE
       N = ILAKE(1,II)
       K = ILAKE(2,II)
+      IF ( N.GT.0 ) THEN
       IF(IUNSTR.EQ.0)THEN
         IJ = N - (K-1)*NCOL*NROW
         J = (IJ-1)/NCOL + 1   !CONVENTION IS DIFFERENT - ROW IS J AND COL IS I
@@ -3640,6 +3656,7 @@ C
      1        BEDLAK(II),CNDFC1,CNDFC2,CNDFCT(II)
           ENDIF
         END IF
+      END IF
       END IF
   350 CONTINUE
 C
@@ -4309,7 +4326,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IBOUND,IA,JA,JAS,NODLAY,IVC,IVSD,NODES
 C----------------------------------------------
-      IF(IVSD.EQ.-1)THEN
+      IF(IVSD.EQ.-1 .AND. NODES.GT.NODLAY(1))THEN
 C-------VERTICALLY ADJACENT NODE BELOW IS N + NNDLAY
         NNDLAY = NODLAY(1)
 3       CONTINUE
