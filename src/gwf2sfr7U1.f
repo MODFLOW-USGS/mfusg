@@ -215,8 +215,10 @@ Cdep  changed DSTROT to FXLKOT
       ALLOCATE (QSTRM(nstrmar,NUMTIM))
       ALLOCATE (HWTPRM(nstrmar,NUMTIM))
       ALLOCATE (DVRCH(nstrmar),DVEFF(nstrmar))        !cjm
-      ALLOCATE (DVRCELL(NCOL*NROW,2,nss))  !cjm
-      ALLOCATE (RECHSAVE(NCOL,NROW),DVRPERC(NCOL,NROW))   !cjm
+!      ALLOCATE (DVRCELL(NCOL*NROW,2,nss))  !cjm
+!      ALLOCATE (RECHSAVE(NCOL,NROW),DVRPERC(NCOL,NROW))   !cjm
+      ALLOCATE (DVRCELL(1,2,1))  !cjm
+      ALLOCATE (RECHSAVE(1,1),DVRPERC(1,1))   !cjm
       STRM = 0.0  
       HSTRM = 0.0
       QSTRM = 0.0
@@ -878,7 +880,7 @@ C
       ELSE                                                  ! UNSTRUCTURED GRID
       kkptflg = 0
       DO ichk = 1, NSTRM
-        Nrck = ISTRM(1, ichk)
+        Nrck = ISTRM(6, ichk) !RGN 5/28/2013
         jsegck = ISTRM(4, ichk)
         ireachck = ISTRM(5, ichk)
 C
@@ -1025,7 +1027,7 @@ C     ------------------------------------------------------------------
 C
 C1------SET UHC EQUAL TO VKA IF STREAM IS IN ACTIVE CELL.
       DO ichk = 1, NSTRM
-        Nrck = ISTRM(1, ichk)
+        Nrck = ISTRM(6, ichk)  !RGN 5/28/2013
         DO K = 1,NLAY
           NSTRT = NODLAY(K)
           NNDLAY = NODLAY(K+1)-1
@@ -2250,6 +2252,7 @@ C         IS GREATER THAN 1.
 C
 C23-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
           ilay = IL
+          IF ( NLAY.GT.1 ) THEN
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
               TOPCELL: DO WHILE ( ilay.LE.NLAY )
@@ -2283,6 +2286,7 @@ C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
               ENDDO
 24            CONTINUE
             ENDIF
+          END IF
           IF ( ilay.LE.NLAY ) il = ilay
 C30d----BEGIN LOOP FOR NEWTON SOLVER IF ACTIVE 
           DO ii = 1, idr
@@ -5662,16 +5666,16 @@ C10-----READ DATA SET 4G FOR SEGMENT IF SOLUTES SPECIFIED.
         END IF
 C
 C10b----READ CELL INDECES THAT RECEIVE RECHARGE: i,1 = ROW, i,2 = COL  !cjm
-        IF ( DVRCH(N).GT.0 ) THEN
-          READ(In, *)DVRCH(N),DVEFF(N)
-          totdum = 0.0
-          DO i = 1, DVRCH(N)
-            READ(In, *) DVRCELL(i,1,N),DVRCELL(i,2,N),dum
-            DVRPERC(DVRCELL(i,2,N),DVRCELL(i,1,N)) = dum
-            totdum = totdum + dum
-          END DO
-          IF ( totdum.GT.1.000001 ) WRITE(Iout,9006)totdum
-        END IF
+!        IF ( DVRCH(N).GT.0 ) THEN
+!          READ(In, *)DVRCH(N),DVEFF(N)
+!          totdum = 0.0
+!          DO i = 1, DVRCH(N)
+!            READ(In, *) DVRCELL(i,1,N),DVRCELL(i,2,N),dum
+!            DVRPERC(DVRCELL(i,2,N),DVRCELL(i,1,N)) = dum
+!            totdum = totdum + dum
+!          END DO
+!          IF ( totdum.GT.1.000001 ) WRITE(Iout,9006)totdum
+!        END IF
 C
       END DO
  9006 FORMAT(' ***Warning in SFR2*** ',/
