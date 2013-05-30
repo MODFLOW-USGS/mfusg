@@ -94,12 +94,6 @@ C
 C4------ALLOCATE SPACE FOR THE WELL DATA.
       IWELPB=MXACTW+1
       MXWELL=MXACTW+MXPW
-      IF(MXACTW.LT.1) THEN
-         WRITE(IOUT,17)
-   17    FORMAT(1X,
-     1'Deactivating the Well Package because MXACTW=0')
-         IN=0
-      END IF
       ALLOCATE (WELL(NWELVL,MXWELL))
 C
 C5------READ NAMED PARAMETERS.
