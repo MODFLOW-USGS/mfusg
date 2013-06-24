@@ -1282,7 +1282,9 @@ C
       END IF
       BGAREA(LID) = BGAREA(LID) + AREA(NLN)
       ILAKE(5,M) = 6
-      ILAKE(4,M) = LKARR1(NLN)
+clangevin -- changed to LID 6/24/2013
+      ILAKE(4,M) = LID
+clangevin      ILAKE(4,M) = LKARR1(NLN)
       IF(LKARR1(NLN).NE.0) GO TO 180
       WRITE(IOUT,5) ILAKE(1,M),ILAKE(2,M),(ILAKE(I1,M),I1=4,5),BEDLAK(M)
 5     FORMAT(4I10,10X,F10.5)
@@ -1323,7 +1325,7 @@ C               CELL LATERALLY ADJACENT TO LAKE DETECTED
             BEDLAK(M) = BDLKN1(NL)
  3162       CONTINUE
             WRITE(IOUT,6) ILAKE(1,M),ILAKE(2,M),
-     *          (ILAKE(4,M),ILAKE(6,M)), BEDLAK(M)
+     *          (ILAKE(4,M),ILAKE(5,M)), BEDLAK(M)
            ENDIF
          ENDDO
   175 CONTINUE

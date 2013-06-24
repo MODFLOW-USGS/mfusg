@@ -1115,7 +1115,7 @@ C     ******************************************************************
 C     ADJUST CBC FLUX FOR GHOST NODE TERMS
 C     ******************************************************************
       USE GLOBAL, ONLY:JA,IA,NODES,NEQS,IVC,JAS,ISYM,IBOUND,ICONCV,IOUT,
-     1                 HNEW,AMAT,TMPA
+     1                 HNEW,AMAT,FLOWJA
       USE GNCnMODULE,ONLY:NGNCn,GNCn,I2Kn,ISYMGNCn,MXADJn
       USE GWFBCFMODULE, ONLY: LAYCON
       DOUBLE PRECISION QNJ1,QMJ1,QNJ2,QMJ2,Cnm,ATERM,ALPHA,CORRECTnm,
@@ -1150,8 +1150,8 @@ C
 C6-----------ADJUST FLUXES FROM RHS
             Cnm = AMAT(II)
             CORRECTnm = ATERM * Cnm
-            TMPA(II) = TMPA(II) - CORRECTnm
-            TMPA(ISYM(II)) = TMPA(ISYM(II)) + CORRECTnm
+            FLOWJA(II) = FLOWJA(II) - CORRECTnm
+            FLOWJA(ISYM(II)) = FLOWJA(ISYM(II)) + CORRECTnm
           ENDIF
         ENDDO
       ENDDO

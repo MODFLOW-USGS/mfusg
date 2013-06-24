@@ -411,11 +411,11 @@ C     ******************************************************************
 C     ADJUST CBC FLUX FOR GHOST NODE TERMS
 C     ******************************************************************
       USE GLOBAL, ONLY:JA,IA,NODES,NEQS,IVC,JAS,ISYM,IBOUND,ICONCV,IOUT,
-     1                 HNEW,AMAT,TMPA
+     1                 HNEW,AMAT,FLOWJA
       USE GWFBCFMODULE, ONLY: LAYCON
       DIMENSION GNCb(4+2*MXADJb,MXGNCb),ADJFLUXb(NGNCb),BOTb(MXGNCb)
-      DOUBLE PRECISION QNJ1,QMJ1,QNJ2,QMJ2,Cnm,ATERM,ALPHA,CORRECTnm,SIGALJ,HD,
-     *  HNBAR,HN,BN
+      DOUBLE PRECISION QNJ1,QMJ1,QNJ2,QMJ2,Cnm,ATERM,ALPHA,CORRECTnm,
+     *  SIGALJ,HD,HNBAR,HN,BN
 C-----------------------------------------------------------------------
 C
 C1------DO FOR EACH GNCb NODE
