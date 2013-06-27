@@ -22,6 +22,7 @@ csp      USE GNC2MODULE, ONLY:ISYMGNC2
 !     LOCAL VARIABLES
 !     ------------------------------------------------------------------
       INTEGER lloc, istart, istop, i, n, K, IFDPARAM, MXVL, NPP
+      INTEGER IPCGUM
       CHARACTER(LEN=200) line
       REAL r, HCLOSEdum, HICLOSEdum,  thetadum, amomentdum,yo
       REAL akappadum, gammadum, BREDUCDUM,BTOLDUM,RESLIMDUM
@@ -196,9 +197,11 @@ C4a-------for XMD solver
 C4b-------for pcgp solver
         Write(iout,*) '***PCGU linear solver will be used***'
         CALL PCGU7U1AR(IN, NJA, NEQS, MXITER, HICLOSE, ITER1, IPRSMS,
-     +                 IFDPARAM)
+     +                 IFDPARAM, IPCGUM)
         Write(iout,*)
-        ISYMFLG = 1
+!        ISYMFLG = 1
+        ISYMFLG = 0
+        IF ( IPCGUM.EQ.1 ) ISYMFLG = 1
       ELSE
 C4c-----Incorrect linear solver flag
         Write(iout,*) '***Incorrect value for Linear solution method ',
