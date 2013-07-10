@@ -3690,9 +3690,6 @@ C-----------------------------------------------------------------------
 C
       IF(IDEALLOC_HY.EQ.0)  DEALLOCATE(HK)
       DEALLOCATE(IBCFCB)
-      DEALLOCATE(IWDFLG)
-      DEALLOCATE(IWETIT)
-      DEALLOCATE(IHDWET)
       DEALLOCATE(WETFCT)
       DEALLOCATE(HDRY)
       DEALLOCATE(LAYCON)
