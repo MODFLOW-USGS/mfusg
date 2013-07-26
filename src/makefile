@@ -32,6 +32,7 @@ USRLIB  =
 # Define all object files which make up mfusg
 # Note the order of these files is important
 OBJECTS = \
+        sparse.obj \
         gmodules.obj \
         GLO2btnU1.obj \
         gwf2chd7U1.obj \

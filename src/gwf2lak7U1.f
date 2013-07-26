@@ -623,8 +623,8 @@ C   IDENTIFY LAKE BORDER CELLS, ASSIGN CELL TYPE ID'S, COMPUTE AND
 C     ASSIGN LAKE-AQUIFER INTERFACE CONDUCTANCES.
 C
       M = 0
-      DO 180 I=1,NCOL
       DO 180 J=1,NROW
+      DO 180 I=1,NCOL
       K = 1
       N = (K-1)*NROW*NCOL + (J-1)*NCOL + I
       IF(LKARR1(N).EQ.0) GO TO 150
@@ -1282,9 +1282,11 @@ C
       END IF
       BGAREA(LID) = BGAREA(LID) + AREA(NLN)
       ILAKE(5,M) = 6
-clangevin -- changed to LID 6/24/2013
-      ILAKE(4,M) = LID
-clangevin      ILAKE(4,M) = LKARR1(NLN)
+      IF ( LKARR1(NLN).EQ.0 ) THEN
+        ILAKE(4,M) = LKARR1(NL)
+      ELSE
+        ILAKE(4,M) = LKARR1(NLN)
+      END IF
       IF(LKARR1(NLN).NE.0) GO TO 180
       WRITE(IOUT,5) ILAKE(1,M),ILAKE(2,M),(ILAKE(I1,M),I1=4,5),BEDLAK(M)
 5     FORMAT(4I10,10X,F10.5)
@@ -1294,6 +1296,7 @@ C
   150 K2 = K
       DO 175 K1=K2,NLAY
          NL1 = NL + (K1-1)*NODLAY(1)
+!         IF(LKARR1(NL1).EQ.0) CYCLE
 C
          I1 = IA(NL1)+1
          I2 = IA(NL1+1)-1
@@ -1325,7 +1328,7 @@ C               CELL LATERALLY ADJACENT TO LAKE DETECTED
             BEDLAK(M) = BDLKN1(NL)
  3162       CONTINUE
             WRITE(IOUT,6) ILAKE(1,M),ILAKE(2,M),
-     *          (ILAKE(4,M),ILAKE(5,M)), BEDLAK(M)
+     *          (ILAKE(4,M),ILAKE(6,M)), BEDLAK(M)
            ENDIF
          ENDDO
   175 CONTINUE
@@ -1380,11 +1383,11 @@ Cdep Revised estimate of DTHK to be thickness of top most
 C     layer 6/09/2009
             IF(TOP(I).GT.TOPMST) TOPMST = TOP(I)
             DTHK = TOP(I) - BOT(I)
-            IF (DTHK.LE.GTSDPH) THEN
-              TOPMST = BOT(I)+DTHK
-            ELSE
-              TOPMST = BOT(I)+GTSDPH
-            END IF
+!            IF (DTHK.LE.GTSDPH) THEN
+!              TOPMST = BOT(I)+DTHK
+!            ELSE
+!              TOPMST = BOT(I)+GTSDPH
+!            END IF
  1340     CONTINUE
           TBNC = (TOPMST-BOTTMS(L1))/150.0
 Cdep Revised looping for computing lake stage, volume,
