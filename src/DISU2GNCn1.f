@@ -647,7 +647,7 @@ C
 C---------------------------------------------------------------------------
           IF(ISYMGNCn.EQ.0)THEN
 C4----------FIND LOCATION OF GHOST CELL J IN ROW N AND SAVE
-            DO II = IA(N1)+1,IA(N1+1)-1
+            DO II = IA(N1),IA(N1+1)-1
               JJ = JA(II)
               IF(JJ.EQ.N3)THEN
                 IRGNCn(1,IADJn,IG) = II
@@ -904,6 +904,9 @@ C2------CALCULATE SATURATED THICKNESS.
       BBOT=BOT(N)
       TTOP=TOP(N)
       TOTTHICK = TTOP - BBOT
+      IF(TOTTHICK.LT.1.E-10)THEN
+        TOTTHICK = 1.E-10
+      ENDIF
       CALL SAT_THIK(N,HD,TOTTHICK,BBOT,THCK)
 C
 C3------STORE UPSTREAM SATURATION VALUE IN SUPS.
