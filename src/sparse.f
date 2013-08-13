@@ -1,23 +1,18 @@
-      module sparse
-      !cdl (7/17/2013) sparse matrix module for managing the structure
+      module sparsemodule
+      !cdl (8/12/2013) sparse matrix module for managing the structure
       !of a matrix.  Module uses FORTRAN 2003 extensions to manage
       !the data structures in an object oriented fashion.
 
           type rowtype
-              integer :: nnz
-              integer :: maxnnz
-              integer,allocatable,dimension(:) :: icolarray
+              integer :: nnz                                   !number of nonzero entries in the row
+              integer,allocatable,dimension(:) :: icolarray    !array of column numbers
           end type rowtype
 
           type, public :: sparsematrix
-              integer :: nrow
-              integer :: ncol
-              integer :: nnz
-              integer,allocatable,dimension(:) :: ia
-              integer,allocatable,dimension(:) :: ja
-              logical :: iaalloc = .false.
-              logical :: jaalloc = .false.
-              type(rowtype),allocatable,dimension(:) :: row
+              integer :: nrow                                  !number of rows in the matrix
+              integer :: ncol                                  !number of columns in the matrix
+              integer :: nnz                                   !number of nonzero matrix entries
+              type(rowtype),allocatable,dimension(:) :: row    !one rowtype for each matrix row
               contains
                 procedure :: init => initialize
                 procedure :: addconnection
@@ -28,11 +23,19 @@
           
           contains
 
+          subroutine destroy(this)
+              implicit none
+              class(sparsematrix), intent(inout) :: this
+              deallocate(this%row)
+          end subroutine destroy
+
           subroutine initialize(this,nrow,ncol,rowmaxnnz)
-              !initialize the sparse matrix.  This subroutine
+              !initial the sparse matrix.  This subroutine
               !acts a method for a sparse matrix by initializing
-              !the row data.  rowmaxnnz is a vector of the max
-              !number of values for each row.
+              !the row data.  It presently requires one maximum
+              !value for all rows, however, this can be changed
+              !to a vector of maximum values with one value for
+              !each row.
               implicit none
               class(sparsematrix), intent(inout) :: this
               integer,intent(in) :: nrow,ncol
@@ -46,31 +49,34 @@
                   allocate(this%row(i)%icolarray(rowmaxnnz(i)))
                   this%row(i)%icolarray=0
                   this%row(i)%nnz=0
-                  this%row(i)%maxnnz=rowmaxnnz(i)
               enddo
           end subroutine initialize
 
-          subroutine filliaja(this)
-              !allocate and fill the ia and ja members of the 
-              !sparsematrix.  
+          subroutine filliaja(this,ia,ja,ierror)
+              !allocate and fill the ia and ja arrays using information
+              !from the sparsematrix.
+              !ierror is returned as:
+              !  0 if no error
+              !  1 if ia is not the correct size
+              !  2 if ja is not the correct size
+              !  3 if both ia and ja are not correct size
               implicit none
               class(sparsematrix), intent(inout) :: this
+              integer,dimension(:),intent(inout) :: ia,ja
+              integer,intent(inout) :: ierror
               integer :: i,j,ipos
-              !call this%countnnz()
-              if (this%iaalloc) deallocate(this%ia)
-              if (this%jaalloc) deallocate(this%ja)
-              allocate(this%ia(this%nrow+1))
-              allocate(this%ja(this%nnz))
-              this%iaalloc = .true.
-              this%jaalloc = .true.
+              ierror=0
+              if(ubound(ia,dim=1)/=this%nrow+1) ierror=1
+              if(ubound(ja,dim=1)/=this%nnz) ierror=ierror+2
+              if(ierror/=0) return
               ipos=1
-              this%ia(1)=ipos
+              ia(1)=ipos
               do i=1,this%nrow
                   do j=1,this%row(i)%nnz
-                      this%ja(ipos)=this%row(i)%icolarray(j)
+                      ja(ipos)=this%row(i)%icolarray(j)
                       ipos=ipos+1
                   enddo
-                  this%ia(i+1)=ipos
+                  ia(i+1)=ipos
               enddo
           end subroutine filliaja
 
@@ -90,31 +96,35 @@
           subroutine insert(i, j, thisrow, inodup, iadded)
               !insert j into the icolarray for row i
               !inodup=1 means do not include duplicate connections
-              !iadded is 1 if a new entry was added (meaning that 
-              !nnz for the row was increased) iadded is 0 if duplicate 
-              !and not added.  Used to track total number of connections
+              !iadded is 1 if a new entry was added (meaning that nnz for the row was increased)
+              !iadded is 0 if duplicate and not added.  Used to track total number of connections
               implicit none
               integer,intent(in) :: i,j,inodup
               type(rowtype),intent(inout) :: thisrow
               integer,allocatable,dimension(:) :: iwk
               integer,intent(inout) :: iadded
-              integer :: jj
+              integer :: jj,maxnnz
               iadded=0
+              maxnnz=ubound(thisrow%icolarray,dim=1)
               if (thisrow%icolarray(1) == 0) then
                   thisrow%icolarray(1) = j
                   thisrow%nnz = thisrow%nnz + 1
                   iadded=1
                   return
               endif
-              if (thisrow%nnz == thisrow%maxnnz) then
+              if (thisrow%nnz == maxnnz) then
                   !increase size of the row
                   allocate(iwk(thisrow%nnz))
                   iwk=thisrow%icolarray
                   deallocate(thisrow%icolarray)
-                  thisrow%maxnnz=thisrow%maxnnz*2
-                  allocate(thisrow%icolarray(thisrow%maxnnz))
+                  !Specify how to increase the size of the icolarray.  Adding 1
+                  !will be most memory conservative, but may be a little slower
+                  !due to frequent allocate/deallocate.  Another option would be
+                  !to double the size: maxnnz=maxnnz*2
+                  maxnnz=maxnnz+1
+                  allocate(thisrow%icolarray(maxnnz))
                   thisrow%icolarray(1:thisrow%nnz)=iwk(1:thisrow%nnz)
-                  thisrow%icolarray(thisrow%nnz+1:thisrow%maxnnz)=0
+                  thisrow%icolarray(thisrow%nnz+1:maxnnz)=0
               endif
               if(inodup==1) then
                   do jj=1,thisrow%nnz
@@ -159,19 +169,4 @@
               enddo
           end subroutine sortintarray
 
-          subroutine destroy(this)
-              implicit none
-              class(sparsematrix), intent(inout) :: this
-              if(this%iaalloc) then
-                  deallocate(this%ia)
-                  this%iaalloc=.false.
-              endif
-              if(this%jaalloc) then
-                  deallocate(this%ja)
-                  this%jaalloc=.false.
-              endif
-              deallocate(this%row)
-          end subroutine destroy
-
-      end module sparse
-
+      end module sparsemodule

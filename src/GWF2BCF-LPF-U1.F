@@ -1776,119 +1776,6 @@ C
 C11----RETURN.
       RETURN
       END
-      SUBROUTINE GWF2BCFU1BDCH(KSTP,KPER)
-C     ******************************************************************
-C     COMPUTE FLOW FROM CONSTANT-HEAD CELLS
-C     ******************************************************************
-C
-C     SPECIFICATIONS:
-C     ------------------------------------------------------------------
-      USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,ITRNSP,NOVFC,
-     1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN
-      USE CLN1MODULE, ONLY: NCLNNDS,ICLNCB
-      USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,DELT,PERTIM,TOTIM,ICBCFL,
-     1                      ICHFLG
-      USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
-      USE GWTBCTMODULE, ONLY: CBCH
-      USE SMSMODULE, ONLY: AMATFL
-C
-      DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
-     *  X1,CIN,COUT
-C     ------------------------------------------------------------------
-C
-C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
-      IBD=0
-      IF(IBCFCB.LT.0 .AND. ICBCFL.NE.0) IBD=-1
-      IF(IBCFCB.GT.0) IBD=ICBCFL
-      IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
-C      IF(IBD.EQ.0) RETURN
-C
-C2------CLEAR BUDGET ACCUMULATORS.
-      ZERO=0.
-      CHIN=ZERO
-      CHOUT=ZERO
-      IBDLBL=0
-C
-C3------CLEAR BUFFER.
-      DO 5 N=1,NEQS
-        BUFF(N)=ZERO
-5     CONTINUE
-C
-C4------LOOP THROUGH EACH CELL AND CALCULATE FLOW INTO MODEL FROM EACH
-C4------CONSTANT-HEAD CELL.
-      DO 200 N=1,NEQS
-C
-C5------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
-        IF (IBOUND(N).GE.0)GO TO 200
-C
-C5A-------FIND LAYER NUMBER AND LAYCON FOR SUBSURFACE NODES
-        IF(N.LE.NODES)THEN
-          DO K=1,NLAY
-            NNDLAY = NODLAY(K)
-            NSTRT = NODLAY(K-1)+1
-            LC=LAYCON(K)
-            IF(N.GE.NSTRT.AND.N.LE.NNDLAY) GO TO 22
-          ENDDO
-22        CONTINUE
-        ENDIF
-C
-C6------CLEAR VALUES FOR FLOW RATE THROUGH EACH FACE OF CELL.
-        X1=ZERO
-        CHCH1=ZERO
-        RATE = ZERO
-C
-C7------CALCULATE FLOW THROUGH CONNECTING FACES.
-        DO 30 II = IA(N)+1,IA(N+1)-1
-          JJ = JA(II)
-C
-C7A-------IF THERE IS NO FLOW TO CALCULATE THROUGH THIS FACE, THEN GO ON
-C7A-------TO NEXT FACE.  NO FLOW OCCURS TO AN
-C7A-------ADJACENT NO-FLOW CELL, OR TO AN ADJACENT CONSTANT-HEAD CELL.
-          IF(IBOUND(JJ).EQ.0) GO TO 30
-          IF(IBOUND(JJ).LT.0 .AND. ICHFLG.EQ.0) GO TO 30
-          IIS = JAS(II)
-          IF(JJ.LT.N.AND.IVC(IIS).EQ.1)THEN  !VERTICAL DIRECTION UP
-            HD = HNEW(N)
-            IF(LC.NE.3 .AND. LC.NE.2) GO TO 122
-            IF(NOVFC.EQ.1) GO TO 122
-            TMP=HD
-            IF(TMP.LT.TOP(N)) HD=TOP(N)
- 122        HDIFF = HD - HNEW(JJ)
-          ELSEIF(IVC(IIS).EQ.1)THEN !VERTICAL DIRECTION DOWN
-            HD=HNEW(JJ)
-            IF(LAYCON(K+1).NE.3 .AND. LAYCON(K+1).NE.2) GO TO 123 !CSP 2 SHOULD BE 1
-            IF(NOVFC.EQ.1) GO TO 123
-            TMP=HD
-            IF(TMP.LT.TOP(JJ)) HD=TOP(JJ)
-123         HDIFF=HNEW(N)-HD
-          ELSE ! HORIZONTAL DIRECTION OR CONDUIT-NODE CONNECTION
-            HDIFF = HNEW(N) - HNEW(JJ)
-          ENDIF
-C
-C7B-------CALCULATE FLOW THROUGH THIS FACE INTO THE ADJACENT CELL.
-          CHCH1= HDIFF*AMATFL(II)
-          RATE = RATE + CHCH1
-          IF(IBOUND(JJ).LT.0.AND. ICHFLG.EQ.0) GO TO 30
-          X1 = CHCH1
-          XX1=X1
-C
-C7C--------ACCUMULATE POSITIVE AND NEGATIVE FLOW.
-          IF (X1.LT.ZERO) THEN
-            CHOUT=CHOUT-XX1
-          ELSE
-            CHIN=CHIN+XX1
-          END IF
-   30   CONTINUE
-C
-C8--------STORE SUM IN BUFFER.
-        BUFF(N)=RATE
-        IF(ITRNSP.GT.0) CBCH(N) = RATE
-C
-  200 CONTINUE
-C
-C9------RETURN.
-      RETURN
-      END 
 C      
       SUBROUTINE GWF2BCFU1BDCHWR(KSTP,KPER)
 C     ******************************************************************
@@ -1898,7 +1785,7 @@ C
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,ITRNSP,NOVFC,
-     1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN
+     1 TOP,IOUT,NODES,NEQS,NODLAY,IA,JA,JAS,IUNSTR,IVC,ISYM,INCLN,FLOWJA
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,DELT,PERTIM,TOTIM,ICBCFL,
      1                      ICHFLG
       USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
@@ -1920,6 +1807,12 @@ C1------SET IBD TO INDICATE IF CELL-BY-CELL BUDGET VALUES WILL BE SAVED.
 C      IF(IBD.EQ.0) RETURN
       CHIN = 0.0
       CHOUT = 0.0
+C
+C1A-----CLEAR BUFF
+      DO N=1,NODES
+          BUFF(N)=0.
+      ENDDO
+C
 C--------------------------------------------------------------------------
 C2------GWF DOMAIN
 C---------------------------------------------------------------------------
@@ -1948,13 +1841,18 @@ C
 C4------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
         IF (IBOUND(N).GE.0)GO TO 200
 C
-C5--------GET RATE FROM BUFFER
-        RATE = BUFF(N)
-        IF (RATE.LT.0.0) THEN
-            CHOUT=CHOUT-RATE
-          ELSE
-            CHIN=CHIN+RATE
-          END IF
+C5--------ACCUMULATE INDIVIDUAL CHD FLOWS FROM FLOWJA ARRAY
+          RATE=0.0
+          DO II = IA(N)+1,IA(N+1)-1
+            X1=FLOWJA(II)
+            XX1=X1
+            IF(X1.LT.ZERO) THEN
+              CHOUT=CHOUT-XX1
+            ELSE
+              CHIN=CHIN+XX1
+            ENDIF
+            RATE=RATE+X1
+          ENDDO
 C
 C6--------PRINT THE FLOW FOR THE CELL IF REQUESTED.
         IF(IBD.LT.0) THEN
@@ -1989,6 +1887,11 @@ C7------IF SAVING CELL-BY-CELL FLOW IN LIST, WRITE FLOW FOR CELL.
           ENDIF
 C--------------------------------------------------------------
         ENDIF
+C
+C8--------STORE SUM IN BUFFER.
+        BUFF(N)=RATE
+        IF(ITRNSP.GT.0) CBCH(N) = RATE
+C
   200 CONTINUE
 C--------------------------------------------------------------------------
 C
