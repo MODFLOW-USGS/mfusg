@@ -194,7 +194,7 @@ C4a-------for XMD solver
         ISYMFLG = 0
         IF(IACL.EQ.0) ISYMFLG = 1
       ELSEIF ( Linmeth==2 )Then
-C4b-------for pcgp solver
+C4b-------for pcgu solver
         Write(iout,*) '***PCGU linear solver will be used***'
         CALL PCGU7U1AR(IN, NJA, NEQS, MXITER, HICLOSE, ITER1, IPRSMS,
      +                 IFDPARAM, IPCGUM)
