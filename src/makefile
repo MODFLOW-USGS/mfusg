@@ -34,36 +34,36 @@ USRLIB  =
 OBJECTS = \
         sparse.obj \
         gmodules.obj \
-        GLO2btnU1.obj \
-        gwf2chd7U1.obj \
-        gwf2drn7U1.obj \
-        gwf2fhb7U1.obj \
-        gwf2ghb7U1.obj \
-        gwf2hfb7U1.obj \
-        gwf2riv7U1.obj \
-        gwf2rch8U1.obj \
-        gwf2evt8U1.obj \
-        Lak_Gag_Sfr_Modules.obj \
-        gwf2sfr7U1.obj \
-        gwf2str7U1.obj \
-        gwf2lak7U1.obj \
-        gwf2sub7U1.obj \
-        gwf2wel7U1.obj \
-        gwf2gag7U1.obj \
-        CLN2Props1.obj \
-        gwf2basU1.obj \
-        GWF2BCF-LPF-U1.obj \
+        glo2btnu1.obj \
+        gwf2chd7u1.obj \
+        gwf2drn7u1.obj \
+        gwf2fhb7u1.obj \
+        gwf2ghb7u1.obj \
+        gwf2hfb7u1.obj \
+        gwf2riv7u1.obj \
+        gwf2rch8u1.obj \
+        gwf2evt8u1.obj \
+        lak_gag_sfr_modules.obj \
+        gwf2sfr7u1.obj \
+        gwf2str7u1.obj \
+        gwf2lak7u1.obj \
+        gwf2sub7u1.obj \
+        gwf2wel7u1.obj \
+        gwf2gag7u1.obj \
+        cln2props1.obj \
+        gwf2basu1.obj \
+        gwf2bcf-lpf-u1.obj \
         xmdlib_2.obj \
-        DISU2GNCb1.obj \
-        DISU2GNCn1.obj \
+        disu2gncb1.obj \
+        disu2gncn1.obj \
         xmd.obj \
         parutl7.obj \
         pcgu7.obj \
-        utl7U1.obj \
-        GLO2SMS-U1.obj \
-        glo2basU1.obj \
+        utl7u1.obj \
+        glo2sms-u1.obj \
+        glo2basu1.obj \
         mfusg.obj \
-        CLN2BasU1.obj 
+        cln2basu1.obj 
 
 
 install: mfusg
