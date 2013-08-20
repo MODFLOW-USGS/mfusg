@@ -2,11 +2,13 @@
         INTEGER,SAVE,POINTER  :: ILINMETH
         INTEGER,SAVE,POINTER  :: ITER1C,IPC,ISCL,IORD,NITERC,NNZC,NIAC
         INTEGER,SAVE,POINTER  :: NIABCGS
-        INTEGER,SAVE,POINTER  :: NIAPC,NIWC
+        INTEGER,SAVE,POINTER  :: NIAPC,NJAPC,NNZAPC
         REAL   ,SAVE,POINTER  :: HCLOSEPCGU,RCLOSEPCGU
         REAL   ,SAVE,POINTER  :: RELAXPCGU
         DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: DSCALE
         DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: DSCALE2
+        INTEGER,          SAVE, POINTER, DIMENSION(:)     :: IAPC
+        INTEGER,          SAVE, POINTER, DIMENSION(:)     :: JAPC
         DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: APC
         INTEGER,          SAVE, POINTER, DIMENSION(:)     :: LORDER
         INTEGER,          SAVE, POINTER, DIMENSION(:)     :: IORDER
@@ -15,6 +17,7 @@
         DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: ARO
 C         WORKING ARRAYS        
         INTEGER,         SAVE, POINTER, DIMENSION(:)      :: IWC
+        DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: WC
         INTEGER,         SAVE, POINTER, DIMENSION(:)      :: ID
         DOUBLE PRECISION, SAVE, POINTER, DIMENSION(:)     :: XC
         DOUBLEPRECISION, SAVE, POINTER, DIMENSION(:)      :: DC
@@ -36,11 +39,13 @@ C         POINTERS FOR USE WITH BOTH ORIGINAL AND RCM ORDERINGS
         INTEGER,POINTER  :: ILINMETH
         INTEGER,POINTER  :: ITER1C,IPC,ISCL,IORD,NITERC,NNZC,NIAC
         INTEGER,POINTER  :: NIABCGS
-        INTEGER,POINTER  :: NIAPC,NIWC
+        INTEGER,POINTER  :: NIAPC,NJAPC,NNZAPC
         REAL   ,POINTER  :: HCLOSEPCGU,RCLOSEPCGU
         REAL   ,POINTER  :: RELAXPCGU
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: DSCALE
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: DSCALE2
+        INTEGER,          POINTER, DIMENSION(:)     :: IAPC
+        INTEGER,          POINTER, DIMENSION(:)     :: JAPC
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: APC
         INTEGER,          POINTER, DIMENSION(:)     :: LORDER
         INTEGER,          POINTER, DIMENSION(:)     :: IORDER
@@ -49,6 +54,7 @@ C         POINTERS FOR USE WITH BOTH ORIGINAL AND RCM ORDERINGS
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: ARO
 C         WORKING ARRAYS        
         INTEGER,         POINTER, DIMENSION(:)      :: IWC
+        DOUBLE PRECISION, POINTER, DIMENSION(:)     :: WC
         INTEGER,         POINTER, DIMENSION(:)      :: ID
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: XC
         DOUBLEPRECISION, POINTER, DIMENSION(:)      :: DC
@@ -98,6 +104,7 @@ C       DUMMY VARIABLES
 C       LOCAL VARIABLES
       INTEGER, DIMENSION(:), ALLOCATABLE :: iwork0, iwork1
       INTEGER, PARAMETER :: IZERO = 0
+      REAL, PARAMETER :: RZERO = 0.0
       DOUBLE PRECISION, PARAMETER :: DZERO = 0.0D0
       DOUBLE PRECISION, PARAMETER :: DONE  = 1.0D0
 C       DATA
@@ -138,7 +145,7 @@ C     ------------------------------------------------------------------
       ALLOCATE(ILINMETH)
       ALLOCATE(ITER1C,IPC,ISCL,IORD,NITERC,NNZC,NIAC)
       ALLOCATE(NIABCGS)
-      ALLOCATE(NIAPC,NIWC)
+      ALLOCATE(NIAPC,NJAPC,NNZAPC)
       ALLOCATE(HCLOSEPCGU,RCLOSEPCGU)
       ALLOCATE(RELAXPCGU)
 C
@@ -178,7 +185,13 @@ C-------READ AND PRINT COMMENTS
         CALL URWORD(LINE,LLOC,ISTART,ISTOP,2,IORD,R,IOUT,IN)
         CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,RCLOSEPCGU,IOUT,IN)
         IF ( IPC.EQ.3 ) THEN
-          CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,RELAXPCGU,IOUT,IN)
+          CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,RELAXPCGU,-IOUT,IN)
+          IF ( ISTART.EQ.200 ) THEN
+            IF ( ISTOP.EQ.200 ) RELAXPCGU = 1.0
+          END IF
+          IF ( RELAXPCGU.EQ.RZERO ) THEN
+            IF ( LINE(200:200).EQ.'E' ) RELAXPCGU = 1.0
+          END IF
         ELSE
           RELAXPCGU = 0.0
         END IF
@@ -190,15 +203,26 @@ C
 C-------ERROR CHECKING FOR OPTIONS
       IF ( IPC.LT.0  ) IPC  = 0
       IF ( IPC.GT.3  ) THEN
+        WRITE( IOUT,'(A)' ) 'PCGU7AR: IPC  MUST BE .LE. 3'
         CALL USTOP('PCGU7AR: IPC  MUST BE .LE. 3')
       END IF
       IF ( ISCL.LT.0 ) ISCL = 0
       IF ( ISCL.GT.2  ) THEN
+        WRITE( IOUT,'(A)' ) 'PCGU7AR: ISCL MUST BE .LE. 2'
         CALL USTOP('PCGU7AR: ISCL MUST BE .LE. 2')
       END IF
       IF ( IORD.LT.0 ) IORD = 0
       IF ( IORD.GT.2  ) THEN
+        WRITE( IOUT,'(A)' ) 'PCGU7AR: IORD MUST BE .LE. 2'
         CALL USTOP('PCGU7AR: IORD MUST BE .LE. 2')
+      END IF
+      IF ( RELAXPCGU.LT.0.0 ) THEN
+        WRITE( IOUT,'(A)' ) 'PCGU7AR: RELAXPCGU MUST BE .GE. 0.0'
+        CALL USTOP('PCGU7AR: RELAXPCGU MUST BE .GE. 0.0')
+      END IF
+      IF ( RELAXPCGU.GT.1.0 ) THEN
+        WRITE( IOUT,'(A)' ) 'PCGU7AR: RELAXPCGU MUST BE .LE. 1.0'
+        CALL USTOP('PCGU7AR: RELAXPCGU MUST BE .LE. 1.0')
       END IF
 C
 C-------PRINT MXITER,ITER1C,IPC,ISCL,IORD,HCLOSEPCGU,RCLOSEPCGU
@@ -227,20 +251,30 @@ C-------ALLOCATE AND INITIALIZE MEMORY FOR PCGU
       IF ( ISCL.NE.0 ) iscllen  = NIAC
       ALLOCATE ( DSCALE(iscllen), DSCALE2(iscllen) )
 C       ALLOCATE MEMORY FOR PRECONDITIONING MATRIX
-      NIAPC = NNZC
+      NIAPC  = NIAC
+      NJAPC  = NNZC
+      NNZAPC = NNZC
       IF ( IPC.EQ.0 ) THEN
-        NIAPC = 1
+        NIAPC  = 1
+        NJAPC  = 1
+        NNZAPC = 1
       ELSE IF ( IPC.EQ.1 ) THEN
-        NIAPC = NIAC
+        NIAPC  = 1
+        NJAPC  = 1
+        NNZAPC = NNZC
       END IF
-      ALLOCATE( APC(NIAPC) )
+      ALLOCATE( IAPC(NIAPC+1) )
+      ALLOCATE( JAPC(NJAPC) )
+      ALLOCATE( APC(NNZAPC) )
 C       ALLOCATE MEMORY FOR ILU0 AND MILU0 NON-ZERO ROW ENTRY VECTOR
+      ALLOCATE( IWC(NIAPC) )
+      ALLOCATE( WC(NIAPC) )
+C       GENERATE IAPC AND JAPC
       IF ( IPC.EQ.2 .OR. IPC.EQ.3 ) THEN
-        NIWC = NIAC
-      ELSE
-        NIWC = 1
+        CALL SPCGU_PCCRS(NIAC,NNZC,IAC,JAC,
+     2                   IAPC,JAPC,IWC)
       END IF
-      ALLOCATE( IWC(NIWC) )
+      
 C       ALLOCATE SPACE FOR PERMUTATION VECTOR
       i0     = 1
       iolen  = 1
@@ -275,7 +309,7 @@ C       INITALIZE PCGU VECTORS
         DSCALE(n)  = DONE
         DSCALE2(n) = DONE
       END DO
-      DO n = 1, NIAPC
+      DO n = 1, NNZAPC
         APC(n)  = DZERO
       END DO
 C       WORKING VECTORS
@@ -287,8 +321,9 @@ C       WORKING VECTORS
         QC(n)    = DZERO
         ZC(n)    = DZERO
       END DO
-      DO n = 1, NIWC
+      DO n = 1, NIAPC
         IWC(n)   = IZERO
+        WC(n)    = DZERO
       END DO
 C       BCGS WORKING VECTORS
       DO n = 1, NIABCGS
@@ -418,7 +453,11 @@ C-------PERMUTE ROWS, COLUMNS, AND RHS
         JA0 => JARO
         A0  => ARO
         CALL VPERM(NIAC,  XC, LORDER)  
-        CALL VPERM(NIAC, RHS, LORDER)  
+        CALL VPERM(NIAC, RHS, LORDER)
+        IF ( IPC.EQ.2 .OR. IPC.EQ.3 ) THEN
+          CALL SPCGU_PCCRS(NIAC,NNZC,IARO,JARO,
+     2                     IAPC,JAPC,IWC)
+        END IF
       ELSE
         IA0 => IAC
         JA0 => JAC
@@ -426,8 +465,8 @@ C-------PERMUTE ROWS, COLUMNS, AND RHS
       END IF
 C
 C-------UPDATE PRECONDITIONER
-      CALL SPCGUPCU(IOUT,NNZC,NIAC,NIAPC,NIWC,IPC,RELAXPCGU,
-     2              A0,APC,IA0,JA0,IWC)
+      CALL SPCGU_PCU(IOUT,NNZC,NIAC,NIAPC,NJAPC,NNZAPC,IPC,RELAXPCGU,
+     2               A0,IA0,JA0,APC,IAPC,JAPC,IWC,WC)
 C-------INITILIZE SOLUTION VARIABLE AND ARRAYS
       IF ( KITER.EQ.1 ) NITERC = 0
       irc    = 1
@@ -439,7 +478,7 @@ C-------INITILIZE SOLUTION VARIABLE AND ARRAYS
         ZC(n) = DZERO
       END DO
 C-------CALCULATE INITIAL RESIDUAL
-      CALL SPCGUMV(NNZC,NIAC,A0,XC,DC,IA0,JA0)
+      CALL SPCGU_MV(NNZC,NIAC,A0,XC,DC,IA0,JA0)
       rmax = DZERO
       DO n = 1, NIAC
         t     = DC(n)
@@ -492,11 +531,13 @@ C
         DEALLOCATE(ILINMETH)
         DEALLOCATE(ITER1C,IPC,ISCL,IORD,NITERC,NNZC,NIAC)
         DEALLOCATE(NIABCGS)
-        DEALLOCATE(NIAPC,NIWC)
+        DEALLOCATE(NIAPC,NJAPC,NNZAPC)
         DEALLOCATE(HCLOSEPCGU,RCLOSEPCGU)
         DEALLOCATE(RELAXPCGU)
         DEALLOCATE(DSCALE)
         DEALLOCATE(DSCALE2)
+        DEALLOCATE(IAPC)
+        DEALLOCATE(JAPC)
         DEALLOCATE(APC)
         DEALLOCATE(LORDER)
         DEALLOCATE(IORDER)
@@ -505,6 +546,7 @@ C
         DEALLOCATE(ARO)
 C       WORKING ARRAYS
         DEALLOCATE(IWC)
+        DEALLOCATE(WC)
         DEALLOCATE(ID)
         DEALLOCATE(XC)
         DEALLOCATE(DC)
@@ -535,12 +577,15 @@ C
       NIAC=>PCGUDAT(IGRID)%NIAC
       NIABCGS=>PCGUDAT(IGRID)%NIABCGS
       NIAPC=>PCGUDAT(IGRID)%NIAPC
-      NIWC=>PCGUDAT(IGRID)%NIWC
+      NJAPC=>PCGUDAT(IGRID)%NJAPC
+      NNZAPC=>PCGUDAT(IGRID)%NNZAPC
       HCLOSEPCGU=>PCGUDAT(IGRID)%HCLOSEPCGU
       RCLOSEPCGU=>PCGUDAT(IGRID)%RCLOSEPCGU
       RELAXPCGU=>PCGUDAT(IGRID)%RELAXPCGU
       DSCALE=>PCGUDAT(IGRID)%DSCALE
       DSCALE2=>PCGUDAT(IGRID)%DSCALE2
+      IAPC=>PCGUDAT(IGRID)%IAPC
+      JAPC=>PCGUDAT(IGRID)%JAPC
       APC=>PCGUDAT(IGRID)%APC
       LORDER=>PCGUDAT(IGRID)%LORDER
       IORDER=>PCGUDAT(IGRID)%IORDER
@@ -549,6 +594,7 @@ C
       ARO=>PCGUDAT(IGRID)%ARO
 C       WORKING ARRAYS
       IWC=>PCGUDAT(IGRID)%IWC
+      WC=>PCGUDAT(IGRID)%WC
       ID=>PCGUDAT(IGRID)%ID
       XC=>PCGUDAT(IGRID)%XC
       DC=>PCGUDAT(IGRID)%DC
@@ -584,19 +630,24 @@ C
       PCGUDAT(IGRID)%NIAC=>NIAC
       PCGUDAT(IGRID)%NIABCGS=>NIABCGS
       PCGUDAT(IGRID)%NIAPC=>NIAPC
-      PCGUDAT(IGRID)%NIWC=>NIWC
+      PCGUDAT(IGRID)%NJAPC=>NJAPC
+      PCGUDAT(IGRID)%NNZAPC=>NNZAPC
       PCGUDAT(IGRID)%HCLOSEPCGU=>HCLOSEPCGU
       PCGUDAT(IGRID)%RCLOSEPCGU=>RCLOSEPCGU
       PCGUDAT(IGRID)%RELAXPCGU=>RELAXPCGU
       PCGUDAT(IGRID)%DSCALE=>DSCALE
       PCGUDAT(IGRID)%DSCALE2=>DSCALE2
+      PCGUDAT(IGRID)%IAPC=>IAPC
+      PCGUDAT(IGRID)%JAPC=>JAPC
       PCGUDAT(IGRID)%APC=>APC
       PCGUDAT(IGRID)%LORDER=>LORDER
       PCGUDAT(IGRID)%IORDER=>IORDER
       PCGUDAT(IGRID)%IARO=>IARO
+      PCGUDAT(IGRID)%JARO=>JARO
       PCGUDAT(IGRID)%ARO=>ARO
 C       WORKING ARRAYS
       PCGUDAT(IGRID)%IWC=>IWC
+      PCGUDAT(IGRID)%WC=>WC
       PCGUDAT(IGRID)%ID=>ID
       PCGUDAT(IGRID)%XC=>XC
       PCGUDAT(IGRID)%DC=>DC
@@ -751,28 +802,32 @@ C---------RETURN
       END SUBROUTINE SPCGU_SCALE
 C
 C-------ROUTINE TO UPDATE THE PRECONDITIONER
-      SUBROUTINE SPCGUPCU(IOUT,NNZC,NIAC,NIAPC,NIWC,IPC,RELAX,
-     2                    AC,APC,IAC,JAC,IWC)
+      SUBROUTINE SPCGU_PCU(IOUT,NNZC,NIAC,NIAPC,NJAPC,NNZAPC,IPC,RELAX,
+     2                     AC,IAC,JAC,APC,IAPC,JAPC,IWC,WC)
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: IOUT
         INTEGER, INTENT(IN) :: NNZC
         INTEGER, INTENT(IN) :: NIAC
         INTEGER, INTENT(IN) :: NIAPC
-        INTEGER, INTENT(IN) :: NIWC
+        INTEGER, INTENT(IN) :: NJAPC
+        INTEGER, INTENT(IN) :: NNZAPC
         INTEGER, INTENT(IN) :: IPC
         REAL, INTENT(IN) :: RELAX
         DOUBLEPRECISION, DIMENSION(NNZC),  INTENT(IN)     :: AC
-        DOUBLEPRECISION, DIMENSION(NIAPC), INTENT(INOUT)  :: APC
-        INTEGER, DIMENSION(NIAC+1), INTENT(IN)   :: IAC
-        INTEGER, DIMENSION(NNZC), INTENT(IN)     :: JAC
-        INTEGER, DIMENSION(NIWC), INTENT(INOUT)     :: IWC
+        INTEGER, DIMENSION(NIAC+1), INTENT(IN)    :: IAC
+        INTEGER, DIMENSION(NNZC), INTENT(IN)      :: JAC
+        DOUBLEPRECISION, DIMENSION(NNZAPC), INTENT(INOUT) :: APC
+        INTEGER, DIMENSION(NIAPC+1), INTENT(INOUT) :: IAPC
+        INTEGER, DIMENSION(NJAPC), INTENT(INOUT)   :: JAPC
+        INTEGER, DIMENSION(NIAPC), INTENT(INOUT)   :: IWC
+        DOUBLEPRECISION, DIMENSION(NIAPC), INTENT(INOUT) :: WC
 C     + + + LOCAL DEFINITIONS + + +
         INTEGER :: izero
         DOUBLEPRECISION :: delta
 C     + + + FUNCTIONS + + +
 C     + + + FORMATS + + +
 2000    FORMAT (/,' MATRIX IS SEVERELY NON-DIAGONALLY DOMINANT.  CHECK',
-     &          ' INPUT FILES.',/,' -- STOP EXECUTION (SPCGUPCU)')
+     &          ' INPUT FILES.',/,' -- STOP EXECUTION (SPCGU_PCU)')
 C     + + + CODE + + +
         izero = 0
         delta = 0.0D0
@@ -781,12 +836,13 @@ C           NO PRE-CONDITIONER
           CASE (0)
 C           JACOBI PRE-CONDITIONER
           CASE (1)
-            CALL SPCGUPCJ(NNZC,NIAC,AC,APC,IAC,JAC)
+            CALL SPCGU_PCJ(NNZC,NIAC,AC,APC,IAC,JAC)
 C           ILU0 AND MILU0
           CASE (2,3)
             LUPC: DO
-              CALL SPCGUPCILU0(NNZC,NIAC,NIWC,AC,APC,IAC,JAC,IWC,
-     2                         RELAX,izero,delta)
+              CALL SPCGU_PCILU0(NNZC,NIAC,AC,IAC,JAC,
+     2                          APC,IAPC,JAPC,IWC,WC,
+     3                          RELAX,izero,delta)
               IF ( izero.NE.1 ) THEN
                 EXIT LUPC
               END IF
@@ -800,10 +856,10 @@ C           ADDITIONAL PRECONDITIONERS - ILUT, etc.
         END SELECT
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUPCU
+      END SUBROUTINE SPCGU_PCU
 C
 C-------JACOBI PRECONDITIONER - INVERSE OF DIAGONAL 
-      SUBROUTINE SPCGUPCJ(NNZC,NIAC,AC,APC,IAC,JAC)
+      SUBROUTINE SPCGU_PCJ(NNZC,NIAC,AC,APC,IAC,JAC)
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NNZC
         INTEGER, INTENT(IN) :: NIAC
@@ -836,9 +892,9 @@ C     + + + CODE + + +
         END DO
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUPCJ
+      END SUBROUTINE SPCGU_PCJ
 
-      SUBROUTINE SPCGUJACA(NIAC,A,D1,D2)
+      SUBROUTINE SPCGU_JACA(NIAC,A,D1,D2)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NIAC
@@ -858,31 +914,36 @@ C     + + + CODE + + +
         END DO
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUJACA
+      END SUBROUTINE SPCGU_JACA
 
-      SUBROUTINE SPCGUPCILU0(NNZC,NIAC,NIWC,
-     2                       AC,APC,IAC,JAC,IWC,
-     3                       RELAX,IZERO,DELTA)
+      SUBROUTINE SPCGU_PCILU0(NNZC,NIAC,AC,IAC,JAC,
+     2                        APC,IAPC,JAPC,IWC,WC,
+     3                        RELAX,IZERO,DELTA)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NNZC
         INTEGER, INTENT(IN) :: NIAC
-        INTEGER, INTENT(IN) :: NIWC
         DOUBLEPRECISION, DIMENSION(NNZC),  INTENT(IN)     :: AC
+        INTEGER, DIMENSION(NIAC+1), INTENT(IN)    :: IAC
+        INTEGER, DIMENSION(NNZC), INTENT(IN)      :: JAC
         DOUBLEPRECISION, DIMENSION(NNZC), INTENT(INOUT)   :: APC
-        INTEGER, DIMENSION(NIAC+1), INTENT(IN)   :: IAC
-        INTEGER, DIMENSION(NNZC), INTENT(IN)     :: JAC
-        INTEGER, DIMENSION(NIWC), INTENT(INOUT)  :: IWC
+        INTEGER, DIMENSION(NIAC+1), INTENT(INOUT) :: IAPC
+        INTEGER, DIMENSION(NNZC), INTENT(INOUT)   :: JAPC
+        INTEGER, DIMENSION(NIAC), INTENT(INOUT)   :: IWC
+        DOUBLEPRECISION, DIMENSION(NIAC), INTENT(INOUT)   :: WC
         REAL, INTENT(IN) :: RELAX
         INTEGER, INTENT(INOUT) :: IZERO
         DOUBLEPRECISION, INTENT(IN) :: DELTA
 C     + + + LOCAL DEFINITIONS + + +
         INTEGER :: ic0, ic1, id0
-        INTEGER :: iic0, iic1
+        INTEGER :: iic0, iic1, iid0
+        INTEGER :: iu, iiu
         INTEGER :: j, n
         INTEGER :: jj
         INTEGER :: jcol, jw
+        INTEGER :: jjcol
         DOUBLEPRECISION :: drelax
+        DOUBLEPRECISION :: c1, c2
         DOUBLEPRECISION :: sd1
         DOUBLEPRECISION :: tl
         DOUBLEPRECISION :: rs
@@ -891,59 +952,45 @@ C     + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION, PARAMETER :: DONE  = 1.0D0
 C     + + + FUNCTIONS + + +
 C     + + + CODE + + +
-        !milumult = DZERO
         drelax = DBLE( RELAX )
         IZERO    = 0
-        !IF ( IPC.EQ.3 ) milumult = DONE
-        DO n = 1, NNZC
-          APC(n) = AC(n)
-        END DO
         DO n = 1, NIAC
           IWC(n)  = 0
+          WC(n)   = DZERO
         END DO
         MAIN: DO n = 1, NIAC
           ic0 = IAC(n)
           ic1 = IAC(n+1) - 1
           DO j = ic0, ic1
             jcol      = JAC(j)
-            IWC(jcol) = j
+            IWC(jcol) = 1
+            WC(jcol) = WC(jcol) + AC(j)
           END DO
+          ic0 = IAPC(n)
+          ic1 = IAPC(n+1) - 1
+          iu  = JAPC(n)
           rs   = DZERO
-          LOWER: DO j = ic0, ic1
-            jcol = JAC(j)
-            IF ( jcol.GE.n ) CYCLE LOWER
-            iic0 = IAC(jcol) 
-            iic1 = IAC(jcol+1) - 1
-            DO jj = iic0, iic1
-              IF ( JAC(jj).EQ.jcol ) THEN
-                id0 = jj
-                EXIT
-              END IF
-            END DO
-            tl     = APC(j) * APC(id0)
-            APC(j) = tl
-            DO jj = iic0, iic1
-              IF ( JAC(jj).LE.jcol ) CYCLE
-              jw = IWC(JAC(jj))
+          LOWER: DO j = ic0, iu-1
+            jcol     = JAPC(j)
+            iic0     = IAPC(jcol) 
+            iic1     = IAPC(jcol+1) - 1
+            iiu      = JAPC(jcol)
+            tl       = WC(jcol) * APC(jcol)
+            WC(jcol) = tl
+            DO jj = iiu, iic1
+              jjcol = JAPC(jj)
+              jw    = IWC(jjcol)
               IF ( jw.NE.0 ) THEN
-                APC(jw) = APC(jw) - tl * APC(jj)
+                WC(jjcol) = WC(jjcol) - tl * APC(jj)
               ELSE
                 rs = rs + tl * APC(jj)
               END IF
             END DO
           END DO LOWER
 C           DIAGONAL - CALCULATE INVERSE OF DIAGONAL FOR SOLUTION
-          id0 = IAC(n)
-          DO j = ic0, ic1
-            jcol = JAC(j)
-            IF ( jcol.EQ.n ) THEN
-              id0 = j
-              EXIT
-            END IF
-          END DO
-          d   = APC(id0)
+          d   = WC(n)
           tl  = ( DONE + DELTA ) * d - ( drelax * rs )
-C-----------CALCULATE INVERSE OF DIAGONAL FOR SOLUTION
+C-----------ENSURE THAT THE SIGN OF THE DIAGONAL HAS NOT CHANGED AND IS NOT ZERO
           sd1 = SIGN(d,tl)
           IF ( sd1.NE.d ) THEN
             IZERO = 1
@@ -953,29 +1000,51 @@ C-----------CALCULATE INVERSE OF DIAGONAL FOR SOLUTION
             IZERO = 1
             EXIT MAIN
           END IF
-          APC(id0) = DONE / tl
+          APC(n) = DONE / tl
 C           RESET POINTER FOR IW TO ZERO
+          IWC(n) = 0
+          WC(n)  = DZERO
           DO j = ic0, ic1
-            jcol = JAC(j)
+            jcol = JAPC(j)
+            APC(j) = WC(jcol)
             IWC(jcol) = 0
+            WC(jcol) = DZERO
           END DO
         END DO MAIN
+!        do n = 1, niac
+!          ic0 = IAPC(n)
+!          ic1 = IAPC(n+1) - 1
+!          iu  = JAPC(n)
+!          do j = ic0,iu-1
+!            jcol = JAPC(j)
+!            write (10991,'(i10,i10,g15.7)' ) n, jcol, 
+!     2                                       APC(j)
+!          end do
+!          write (10991,'(i10,i10,g15.7)' ) n, n, 
+!     2                                     APC(n)
+!          do j = iu,ic1
+!            jcol = JAPC(j)
+!            write (10991,'(i10,i10,g15.7)' ) n, jcol, 
+!     2                                       APC(j)
+!          end do
+!        end do
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUPCILU0
+      END SUBROUTINE SPCGU_PCILU0
 
-      SUBROUTINE SPCGUILU0A(NNZC,NIAC,APC,IAC,JAC,R,D)
+      SUBROUTINE SPCGU_ILU0A(NNZC,NIAC,APC,IAPC,JAPC,R,D)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NNZC
         INTEGER, INTENT(IN) :: NIAC
         DOUBLEPRECISION, DIMENSION(NNZC),  INTENT(INOUT)  :: APC
-        INTEGER, DIMENSION(NIAC+1), INTENT(IN) :: IAC
-        INTEGER, DIMENSION(NNZC), INTENT(IN)   :: JAC
+        INTEGER, DIMENSION(NIAC+1), INTENT(IN) :: IAPC
+        INTEGER, DIMENSION(NNZC), INTENT(IN)   :: JAPC
         DOUBLEPRECISION, DIMENSION(NIAC),  INTENT(IN)     :: R
         DOUBLEPRECISION, DIMENSION(NIAC),  INTENT(INOUT)  :: D
 C     + + + LOCAL DEFINITIONS + + +
         INTEGER :: ic0, ic1, id0
+        INTEGER :: iu
         INTEGER :: jcol
         INTEGER :: j, n
         DOUBLEPRECISION :: t
@@ -984,34 +1053,31 @@ C     + + + CODE + + +
 C         FORWARD SOLVE - APC * D = R
         FORWARD: DO n = 1, NIAC
           t   = R(n)
-          ic0 = IAC(n)   + 1
-          ic1 = IAC(n+1) - 1
-          LOWER: DO j = ic0, ic1
-            jcol = JAC(j)
-            IF ( jcol.GE.n ) CYCLE LOWER
+          ic0 = IAPC(n)
+          ic1 = IAPC(n+1) - 1
+          iu  = JAPC(n) - 1
+          LOWER: DO j = ic0, iu
+            jcol = JAPC(j)
             t    = t - APC(j) * D(jcol)
           END DO LOWER
           D(n) = t
         END DO FORWARD
 C         BACKWARD SOLVE - D = D / U
         BACKWARD: DO n = NIAC, 1, -1
-          ic0 = IAC(n)
-          ic1 = IAC(n+1) - 1
+          ic0 = IAPC(n)
+          ic1 = IAPC(n+1) - 1
+          iu  = JAPC(n)
           t   = D(n)
-          UPPER: DO j = ic0, ic1
-            jcol = JAC(j)
-            IF ( jcol.LE.n ) THEN
-              IF ( jcol.EQ.n ) id0 = j
-              CYCLE UPPER
-            END IF
+          UPPER: DO j = iu, ic1
+            jcol = JAPC(j)
             t    = t - APC(j) * D(jcol)
           END DO UPPER
 C           COMPUTE D FOR DIAGONAL - D = D / U
-          D(n) = APC(id0) * t
+          D(n) =  t * APC(n)
         END DO BACKWARD
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUILU0A
+      END SUBROUTINE SPCGU_ILU0A
 
       SUBROUTINE SPCGU_CG(ICNVG,ITMAX,INNERIT)
         USE PCGUMODULE
@@ -1033,7 +1099,7 @@ C       + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION, PARAMETER :: DZERO = 0.0D0
         DOUBLEPRECISION, PARAMETER :: DONE  = 1.0D0
 C         + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGUDP
+        DOUBLEPRECISION :: SPCGU_DP
 C
 C         + + + CODE + + +
         INNERIT  = 0
@@ -1054,11 +1120,11 @@ C             NO PRECONDITIONER
               END DO
 C             JACOBI PRECONDITIONER
             CASE (1)
-              CALL SPCGUJACA(NIAC,APC,DC,ZC)
+              CALL SPCGU_JACA(NIAC,APC,DC,ZC)
             CASE (2,3)
-              CALL SPCGUILU0A(NNZC,NIAC,APC,IA0,JA0,DC,ZC)
+              CALL SPCGU_ILU0A(NNZC,NIAC,APC,IAPC,JAPC,DC,ZC)
           END SELECT
-          rho = SPCGUDP( NIAC, DC, ZC )
+          rho = SPCGU_DP( NIAC, DC, ZC )
 C-----------COMPUTE DIRECTIONAL VECTORS
           IF (IITER.EQ.1) THEN
             DO n = 1, NIAC
@@ -1072,9 +1138,9 @@ C-----------COMPUTE DIRECTIONAL VECTORS
           END IF
 C-----------COMPUTE ITERATES
 C           UPDATE qc
-          CALL SPCGUMV(NNZC,NIAC,A0,PC,QC,IA0,JA0)
+          CALL SPCGU_MV(NNZC,NIAC,A0,PC,QC,IA0,JA0)
 
-          alpha = rho / SPCGUDP( NIAC, PC, QC )
+          alpha = rho / SPCGU_DP( NIAC, PC, QC )
 C-----------UPDATE X AND RESIDUAL
           deltax = DZERO
           rmax   = DZERO
@@ -1126,9 +1192,11 @@ C       + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION :: numer, denom
         DOUBLEPRECISION, PARAMETER :: DZERO = 0.0D0
         DOUBLEPRECISION, PARAMETER :: DONE  = 1.0D0
+        DOUBLEPRECISION, PARAMETER :: DTWO  = 2.0D0
 C         + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGUDP
-!        DOUBLEPRECISION :: SPCGUL2N
+        DOUBLEPRECISION :: SPCGU_DP
+!        DOUBLEPRECISION :: SPCGU_RES
+!        DOUBLEPRECISION :: SPCGU_L2NORM
 C
 C         + + + CODE + + +
         INNERIT  = 0
@@ -1151,7 +1219,7 @@ C-------INNER ITERATION
            INNERIT = INNERIT + 1 
            NITERC = NITERC + 1 
 C----------CALCULATE rho
-          rho = SPCGUDP( NIAC, DHATC, DC )
+          rho = SPCGU_DP( NIAC, DHATC, DC )
 C-----------COMPUTE DIRECTIONAL VECTORS
           IF (IITER.EQ.1) THEN
             DO n = 1, NIAC
@@ -1172,15 +1240,16 @@ C             NO PRECONDITIONER
               END DO
 C             JACOBI PRECONDITIONER
             CASE (1)
-              CALL SPCGUJACA(NIAC,APC,PC,PHATC)
+              CALL SPCGU_JACA(NIAC,APC,PC,PHATC)
             CASE (2,3)
-              CALL SPCGUILU0A(NNZC,NIAC,APC,IA0,JA0,PC,PHATC)
+              CALL SPCGU_ILU0A(NNZC,NIAC,APC,IAPC,JAPC,PC,PHATC)
           END SELECT
 C-----------COMPUTE ITERATES
 C           UPDATE VC WITH A AND PHATC
-          CALL SPCGUMV(NNZC,NIAC,A0,PHATC,VC,IA0,JA0)
+          CALL SPCGU_MV(NNZC,NIAC,A0,PHATC,VC,IA0,JA0)
 C           UPDATE alpha WITH DHATC AND VC
-          denom = SPCGUDP( NIAC, DHATC, VC )
+          denom = SPCGU_DP( NIAC, DHATC, VC )
+          !denom = denom + SIGN(dsmall,denom)
           alpha = rho / denom
 C-----------UPDATE Q
           DO n = 1, NIAC
@@ -1217,26 +1286,29 @@ C             NO PRECONDITIONER
               END DO
 C             JACOBI PRECONDITIONER
             CASE (1)
-              CALL SPCGUJACA(NIAC,APC,QC,QHATC)
+              CALL SPCGU_JACA(NIAC,APC,QC,QHATC)
             CASE (2,3)
-              CALL SPCGUILU0A(NNZC,NIAC,APC,IA0,JA0,QC,QHATC)
+              CALL SPCGU_ILU0A(NNZC,NIAC,APC,IAPC,JAPC,QC,QHATC)
           END SELECT
 C           UPDATE TC WITH A AND QHATC
-          CALL SPCGUMV(NNZC,NIAC,A0,QHATC,TC,IA0,JA0)
+          CALL SPCGU_MV(NNZC,NIAC,A0,QHATC,TC,IA0,JA0)
 C-----------UPDATE omega
-          numer = SPCGUDP( NIAC, TC, QC )
-          denom = SPCGUDP( NIAC, TC, TC )
+          numer = SPCGU_DP( NIAC, TC, QC )
+          denom = SPCGU_DP( NIAC, TC, TC )
+          denom = denom + SIGN(machprec,denom)
           omega = numer / denom
 C-----------UPDATE X AND RESIDUAL
           deltax = DZERO
           rmax   = DZERO
           DO n = 1, NIAC
+C-------------X AND DX            
             t      = alpha * PHATC(n) + omega * QHATC(n)
             XC(n)  = XC(n) + t
             IF ( ISCL.NE.0 ) THEN
               t = t * DSCALE(n)
             END IF
             IF ( ABS(t).GT.ABS(deltax) ) deltax = t
+C-------------RESIDUAL
             t      = QC(n) - omega * TC(n)
             DC(n)  = t
             IF ( ISCL.NE.0 ) THEN
@@ -1261,7 +1333,7 @@ C-----------CHECK THAT CURRENT AND PREVIOUS rho, alpha, AND omega ARE DIFFERENT
           IF ( ABS( omega - omega0 ).LT.machprec ) THEN
             omega0 = omega
             EXIT INNER
-          END IF
+      END IF
 C-----------SAVE CURRENT INNER ITERATES
           rho0   = rho
           alpha0 = alpha
@@ -1291,9 +1363,98 @@ C     + + + CODE + + +
 C---------RETURN
         RETURN
       END SUBROUTINE SPCGU_TESTCNVG
+C
+C---------GENERATE IAPC AND JAPC FROM IAC AND JAC
+C         JAPC(1:NIAC) HAS THE POSITION OF THE UPPER ENTRY FOR A ROW
+C         JAPC(NIAC+1:NNZC) IS THE COLUMN POSITION FOR ENTRY
+C         APC(1:NIAC) PRECONDITIONED INVERSE OF THE DIAGONAL
+C         APC(NIAC+1:NNZC) PRECONDITIONED ENTRIES FOR OFF DIAGONALS
+        SUBROUTINE SPCGU_PCCRS(NIAC,NNZC,IAC,JAC,
+     2                         IAPC,JAPC,IWC)
+        IMPLICIT NONE
+C     + + + DUMMY ARGUMENTS + + +
+        INTEGER, INTENT(IN)         :: NIAC
+        INTEGER, INTENT(IN)         :: NNZC
+        INTEGER, DIMENSION(NIAC+1), INTENT(IN)    :: IAC
+        INTEGER, DIMENSION(NNZC), INTENT(IN)      :: JAC
+        INTEGER, DIMENSION(NIAC+1), INTENT(INOUT) :: IAPC
+        INTEGER, DIMENSION(NNZC), INTENT(INOUT)   :: JAPC
+        INTEGER, DIMENSION(NIAC+1), INTENT(INOUT) :: IWC
+C     + + + LOCAL DEFINITIONS + + +
+        INTEGER :: n, j
+        INTEGER :: i0, i1
+        INTEGER :: nlen
+        INTEGER :: ic,ip
+        INTEGER :: jcol
+        INTEGER, DIMENSION(:), ALLOCATABLE :: iarr
+C     + + + FUNCTIONS + + +
+C     + + + CODE + + +
+        DO n = 1, NIAC
+          IWC(n) = 0
+        END DO
+        ip = NIAC + 1
+        DO n = 1, NIAC
+          i0 = IAC(n)
+          i1 = IAC(n+1) - 1
+          nlen = i1 - i0
+          ALLOCATE( iarr(nlen) )
+          ic = 0
+          DO j = i0, i1
+            jcol = JAC(j)
+            IF ( jcol.EQ.n ) CYCLE
+            IWC(jcol) = j
+            ic = ic + 1
+            iarr(ic) = jcol
+          END DO
+          CALL SPCGU_ISORT(nlen,iarr)
+          IAPC(n) = ip
+          DO j = 1, nlen
+            jcol = iarr(j)
+            JAPC(ip) = jcol
+            ip = ip + 1
+          END DO
+          DEALLOCATE(iarr)
+        END DO
+        IAPC(NIAC+1) = NNZC + 1
+C---------POSITION OF THE FIRST UPPER ENTRY FOR ROW         
+        DO n = 1, NIAC
+          i0 = IAPC(n)
+          i1 = IAPC(n+1) - 1
+          JAPC(n) = IAPC(n+1)
+          DO j = i0, i1
+            jcol = JAPC(j)
+            IF ( jcol.GT.n ) THEN
+              JAPC(n) = j
+              EXIT
+            END IF
+          END DO
+        END DO
+C---------RETURN
+        RETURN
+      END SUBROUTINE SPCGU_PCCRS
+C
+C-------SIMPLE INPLACE SORTING ROUTINE FOR AN INTEGER ARRAY      
+      SUBROUTINE SPCGU_ISORT(NVAL,IARRAY)
+        IMPLICIT NONE
+C     + + + DUMMY ARGUMENTS + + +
+        INTEGER,INTENT(IN) :: NVAL
+        INTEGER,DIMENSION(NVAL),INTENT(INOUT) :: IARRAY
+C     + + + LOCAL DEFINITIONS + + +
+        integer :: i, j, itemp
+C     + + + FUNCTIONS + + +
+C     + + + CODE + + +
+        DO i = 1, NVAL-1
+            DO j = i+1, NVAL
+                if(IARRAY(i).GT.IARRAY(j)) then
+                    itemp = IARRAY(j)
+                    IARRAY(j) = IARRAY(i)
+                    IARRAY(i) = itemp
+                END IF
+            END DO
+        END DO
+      END SUBROUTINE SPCGU_ISORT
       
-      
-      SUBROUTINE SPCGUMV(NNZC,NIAC,A,D1,D2,IAC,JAC)
+      SUBROUTINE SPCGU_MV(NNZC,NIAC,A,D1,D2,IAC,JAC)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NNZC
@@ -1324,9 +1485,9 @@ C           ADD DIAGONAL AND OFF-DIAGONAL TERMS
         END DO
 C---------RETURN
         RETURN
-      END SUBROUTINE SPCGUMV
+      END SUBROUTINE SPCGU_MV
 
-      DOUBLEPRECISION FUNCTION SPCGUDP(NIAC,A,B) RESULT(C)
+      DOUBLEPRECISION FUNCTION SPCGU_DP(NIAC,A,B) RESULT(C)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NIAC
@@ -1343,10 +1504,10 @@ C     + + + CODE + + +
         END DO
 C---------RETURN
         RETURN
-      END FUNCTION SPCGUDP
+      END FUNCTION SPCGU_DP
 C
 C-------CALCULATE THE L2 NORM OF A VECTOR
-      DOUBLEPRECISION FUNCTION SPCGUL2N(NIAC,V) RESULT(value)
+      DOUBLEPRECISION FUNCTION SPCGU_L2NORM(NIAC,V) RESULT(value)
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: NIAC
@@ -1354,13 +1515,45 @@ C     + + + DUMMY ARGUMENTS + + +
 C     + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION :: dotp
 C     + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGUDP
+        DOUBLEPRECISION :: SPCGU_DP
 C     + + + CODE + + +
-        dotp = SPCGUDP(NIAC,V,V)
+        dotp  = SPCGU_DP(NIAC,V,V)
         value = SQRT(dotp)
 C---------RETURN
         RETURN
-      END FUNCTION SPCGUL2N
+      END FUNCTION SPCGU_L2NORM
+C
+C-------CALCULATE THE RESIDUAL FOR A NODE USING CURRENT VALUES OF
+C       AC, XC, AND THE RHS FOR THE NODE PASSED TO FUNCTION     
+      DOUBLEPRECISION FUNCTION SPCGU_RES(N,IAC,JAC,AC,XC,B) 
+     2  RESULT(value)
+        USE PCGUMODULE, ONLY: NIAC,NNZC
+        IMPLICIT NONE
+C     + + + DUMMY ARGUMENTS + + +
+        INTEGER, INTENT(IN) :: N
+        INTEGER, DIMENSION(NIAC+1), INTENT(IN) :: IAC
+        INTEGER, DIMENSION(NNZC), INTENT(IN)   :: JAC
+        DOUBLEPRECISION, DIMENSION(NNZC), INTENT(IN)   :: AC
+        DOUBLEPRECISION, DIMENSION(NIAC), INTENT(IN)   :: XC
+        DOUBLEPRECISION, INTENT(IN)   :: B
+C     + + + LOCAL DEFINITIONS + + +
+        INTEGER :: j
+        INTEGER :: i0, i1
+        INTEGER :: jcol
+C     + + + FUNCTIONS + + +
+        DOUBLEPRECISION :: SPCGU_DP
+C     + + + CODE + + +
+        value = 0.0
+        i0 = IAC(N)
+        i1 = IAC(N+1) - 1
+        DO j = i0, i1
+          jcol = JAC(j)
+          value = value + AC(j) * XC(jcol)
+        END DO
+        value = B - value
+C---------RETURN
+        RETURN
+      END FUNCTION SPCGU_RES
 C
 C-------ROUTINES FROM SPARSKIT TO PERMUTATE A LINEAR SYSTEM OF EQUATIONS
 C       IN ORDER TO REORDER THE MATRIX TO MINIMIZE THE BANDWIDTH USING
