@@ -1328,7 +1328,7 @@ C               CELL LATERALLY ADJACENT TO LAKE DETECTED
             BEDLAK(M) = BDLKN1(NL)
  3162       CONTINUE
             WRITE(IOUT,6) ILAKE(1,M),ILAKE(2,M),
-     *          (ILAKE(4,M),ILAKE(6,M)), BEDLAK(M)
+     *           ILAKE(4,M),ILAKE(6,M), BEDLAK(M)
            ENDIF
          ENDDO
   175 CONTINUE
