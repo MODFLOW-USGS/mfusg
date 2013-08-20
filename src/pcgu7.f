@@ -187,10 +187,10 @@ C-------READ AND PRINT COMMENTS
         IF ( IPC.EQ.3 ) THEN
           CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,RELAXPCGU,-IOUT,IN)
           IF ( ISTART.EQ.200 ) THEN
-            IF ( ISTOP.EQ.200 ) RELAXPCGU = 1.0
+            IF ( ISTOP.EQ.200 ) RELAXPCGU = 0.97
           END IF
           IF ( RELAXPCGU.EQ.RZERO ) THEN
-            IF ( LINE(200:200).EQ.'E' ) RELAXPCGU = 1.0
+            IF ( LINE(200:200).EQ.'E' ) RELAXPCGU = 0.97
           END IF
         ELSE
           RELAXPCGU = 0.0
