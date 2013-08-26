@@ -1851,29 +1851,32 @@ C       THE REVERSE CUTHILL MCKEE ALGORITHM
       end
 !
       SUBROUTINE SET_PCGUINPUT(IFDPARAM)
-      USE PCGUMODULE, ONLY:  IPC,ISCL,IORD,RCLOSEPCGU
+      USE PCGUMODULE, ONLY:  IPC,ISCL,IORD,RCLOSEPCGU,RELAXPCGU,ILINMETH
       INTEGER IFDPARAM
 C Simple option
       SELECT CASE ( IFDPARAM )
       CASE(1)
+        ILINMETH=1
         IPC = 2
-        ISCL = 2
-        IORD = 2
-        RCLOSEPCGU = 1.0e-4
+        ISCL = 0
+        IORD = 0
+        RCLOSEPCGU = 1.0e-1
         RELAXPCGU = 0.0
 C Moderate
       CASE(2)
+        ILINMETH=2
         IPC = 3
-        ISCL = 2
-        IORD = 2
-        RCLOSEPCGU = 1.0e-4
-        RELAXPCGU = 1.0
+        ISCL = 0
+        IORD = 0
+        RCLOSEPCGU = 1.0e-1
+        RELAXPCGU = 0.97
 C Complex
       CASE(3)
+        ILINMETH=2
         IPC = 3
-        ISCL = 2
-        IORD = 2
-        RCLOSEPCGU = 1.0e-4
+        ISCL = 0
+        IORD = 0
+        RCLOSEPCGU = 1.0e-1
         RELAXPCGU = 0.97
       END SELECT
       RETURN
