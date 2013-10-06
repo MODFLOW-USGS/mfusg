@@ -1,0 +1,112 @@
+# Makefile for MODFLOW-USG unix distribution.
+# This file has only been used with the make utility
+# To compile on the mac, or other unix-based systems
+# it may be necessary to change settings in
+# openspec.inc.  Depending on the compiler it is
+# likely that DATA FORM will need to be changed
+# from 'BINARY' to 'UNFORMATTED'. Testing also
+# suggests that changing DATA ACCESS from
+# 'SEQUENTIAL' TO 'STREAM' can make it easier to
+# work with the binary files created by MODFLOW-USG.
+# Note, however, that if using 'STREAM', it may be
+# necessary to manually delete all output binary
+# files before running MODFLOW-USG (or use the
+# REPLACE option in the name file).
+# To compile run: make -f makefile.mac
+# To clean run: make -f makefile.mac clean
+
+SOURCELOC = 
+UTILITYLOC = 
+NEWMOD = 
+PROGRAM = mfusg
+INCDIR= .
+
+# Define the Fortran compiler flags
+
+#release
+F90FLAGS= -O2
+
+#debug
+#F90FLAGS= -debug:full -traceback -heap-arrays:0
+
+#Fortran compiler
+F90= gfortran
+
+# 
+# Define the C compile flags
+#CFLAGS= -D_UF -O3 
+#CC= gcc
+CFLAGS= 
+CC= cl
+
+# Define the libraries
+USRLIB  = 
+
+# Define all object files which make up mfusg
+# Note the order of these files is important
+OBJECTS = \
+        sparse.o \
+        gmodules.o \
+        glo2btnu1.o \
+        gwf2chd7u1.o \
+        gwf2drn7u1.o \
+        gwf2fhb7u1.o \
+        gwf2ghb7u1.o \
+        gwf2hfb7u1.o \
+        gwf2riv7u1.o \
+        gwf2rch8u1.o \
+        gwf2evt8u1.o \
+        lak_gag_sfr_modules.o \
+        gwf2sfr7u1.o \
+        gwf2str7u1.o \
+        gwf2lak7u1.o \
+        gwf2sub7u1.o \
+        gwf2wel7u1.o \
+        gwf2gag7u1.o \
+        cln2props1.o \
+        gwf2basu1.o \
+        gwf2bcf-lpf-u1.o \
+        xmdlib_2.o \
+        disu2gncb1.o \
+        disu2gncn1.o \
+        xmd.o \
+        parutl7.o \
+        pcgu7.o \
+        utl7u1.o \
+        glo2sms-u1.o \
+        glo2basu1.o \
+        mfusg.o \
+        cln2basu1.o 
+
+
+install: mfusg
+
+# Define Task Function Program Modtools
+
+all: mfusg
+
+# Define what mfusg is
+
+mfusg: $(OBJECTS)
+	-$(F90) $(F90FLAGS) -o mfusg $(OBJECTS) $(USRLIB) $(SYSLIBS)
+
+# mfusg_Object codes
+
+mfusg.o: mfusg.f
+	$(F90) $(F90FLAGS) -c mfusg.f
+
+# Pth_Object codes of mfusg
+
+.f.o:
+	$(F90) $(F90FLAGS) -c $<
+
+.f90.o:
+	$(F90) $(F90FLAGS) -c $<
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	- rm *.o rm *.mod
+#
+#  end

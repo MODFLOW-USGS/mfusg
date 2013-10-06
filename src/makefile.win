@@ -1,0 +1,99 @@
+# Makefile for MODFLOW-USG distribution.
+# This file has only been used with the NMAKE utility
+# NMAKE clean should be used prior to each build to
+# avoid dependency issues with Fortran modules.
+SOURCELOC = 
+UTILITYLOC = 
+NEWMOD = 
+PROGRAM = mfusg
+INCDIR= .
+
+# Define the Fortran compiler flags
+
+#release
+F90FLAGS= -O2 -heap-arrays:0 -fpe:0 -traceback
+
+#debug
+#F90FLAGS= -debug:full -traceback -heap-arrays:0
+
+#Fortran compiler
+F90= ifort
+
+# 
+# Define the C compile flags
+#CFLAGS= -D_UF -O3 
+#CC= gcc
+CFLAGS= 
+CC= cl
+
+# Define the libraries
+USRLIB  = 
+
+# Define all object files which make up mfusg
+# Note the order of these files is important
+OBJECTS = \
+        sparse.obj \
+        gmodules.obj \
+        glo2btnu1.obj \
+        gwf2chd7u1.obj \
+        gwf2drn7u1.obj \
+        gwf2fhb7u1.obj \
+        gwf2ghb7u1.obj \
+        gwf2hfb7u1.obj \
+        gwf2riv7u1.obj \
+        gwf2rch8u1.obj \
+        gwf2evt8u1.obj \
+        lak_gag_sfr_modules.obj \
+        gwf2sfr7u1.obj \
+        gwf2str7u1.obj \
+        gwf2lak7u1.obj \
+        gwf2sub7u1.obj \
+        gwf2wel7u1.obj \
+        gwf2gag7u1.obj \
+        cln2props1.obj \
+        gwf2basu1.obj \
+        gwf2bcf-lpf-u1.obj \
+        xmdlib_2.obj \
+        disu2gncb1.obj \
+        disu2gncn1.obj \
+        xmd.obj \
+        parutl7.obj \
+        pcgu7.obj \
+        utl7u1.obj \
+        glo2sms-u1.obj \
+        glo2basu1.obj \
+        mfusg.obj \
+        cln2basu1.obj 
+
+
+install: mfusg
+
+# Define Task Function Program Modtools
+
+all: mfusg
+
+# Define what mfusg is
+
+mfusg: $(OBJECTS)
+	-$(F90) $(F90FLAGS) -o mfusg $(OBJECTS) $(USRLIB) $(SYSLIBS)
+
+# mfusg_Object codes
+
+mfusg.obj: mfusg.f
+	$(F90) $(F90FLAGS) -c mfusg.f
+
+# Pth_Object codes of mfusg
+
+.f.obj:
+	$(F90) $(F90FLAGS) -c $<
+
+.f90.obj:
+	$(F90) $(F90FLAGS) -c $<
+
+.c.obj:
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	- del *.obj del *.mod
+#
+#  end
