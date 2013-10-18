@@ -146,11 +146,7 @@ C       OUTPUT FORMATS
      &        ' MATRIX PRECONDITIONING TYPE           =',1X,A,/,
      &        ' MATRIX SCALING APPROACH               =',1X,A,/,
      &        ' MATRIX REORDERING APPROACH            =',1X,A,/,
-<<<<<<< HEAD
      &        ' REORDER INACTIVE NODES                =',1X,L1,/,
-=======
-     &        ' REORDER INACTIVE NODES                =',1X,L5,/,
->>>>>>> b2d7a76a8f76bc1a3a4bad4a2a175c1850dcecf6
      &        ' HEAD CHANGE CRITERION FOR CLOSURE     =',E15.5,/,
      &        ' RESIDUAL CHANGE CRITERION FOR CLOSURE =',E15.5,/,
      &        ' RELAXATION FACTOR                     =',E15.5,/,
