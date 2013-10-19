@@ -1,0 +1,108 @@
+# Makefile example for compiling MODFLOW-2005:
+
+# Makefile for non-USGS distribution
+#
+.SUFFIXES : .o .f90 .f .c
+PROGRAM = mfusg
+BINDIR := ../bin
+SRCDIR := src
+OBJDIR := obj
+
+MKDIR_P = mkdir -p
+
+# Define the Fortran compile flags
+
+F90FLAGS= 
+F90= ifort
+
+# 
+# Define the C compile flags
+# -D_UF defines UNIX naming conventions for mixed language compilation.
+# 
+CFLAGS= -D_UF
+CC= icc
+
+# Define the libraries
+
+SYSLIBS= -lc
+USRLIB  = 
+
+# Define all Fortran object files which make up MODFLOW
+
+_OBJECTS = \
+        sparse.o \
+        gmodules.o \
+        glo2btnu1.o \
+        gwf2chd7u1.o \
+        gwf2drn7u1.o \
+        gwf2fhb7u1.o \
+        gwf2ghb7u1.o \
+        gwf2hfb7u1.o \
+        gwf2riv7u1.o \
+        gwf2rch8u1.o \
+        gwf2evt8u1.o \
+        lak_gag_sfr_modules.o \
+        gwf2sfr7u1.o \
+        gwf2str7u1.o \
+        gwf2lak7u1.o \
+        gwf2sub7u1.o \
+        gwf2wel7u1.o \
+        gwf2gag7u1.o \
+        cln2props1.o \
+        gwf2basu1.o \
+        gwf2bcf-lpf-u1.o \
+        xmdlib_2.o \
+        disu2gncb1.o \
+        disu2gncn1.o \
+        xmd.o \
+        parutl7.o \
+        pcgu7.o \
+        utl7u1.o \
+        glo2sms-u1.o \
+        glo2basu1.o \
+        mfusg.o \
+        cln2basu1.o 
+OBJECTS = $(patsubst %,$(OBJDIR)/%,$(_OBJECTS))
+
+.PHONY: create_dirs
+        
+# Define Task Function
+
+all: F90FLAGS += -O3
+all: CC += O3
+all: create_dirs create_exe
+
+debug: F90FLAGS += -debug full -O0
+debug: CC += -debug full -O0
+debug: create_dirs create_exe
+
+
+# Define how to build mfusg
+
+create_exe: $(OBJECTS)
+	-$(F90) $(F90FLAGS) -o $(BINDIR)/$(PROGRAM) $(OBJECTS)  -module $(OBJDIR) $(USRLIB) $(SYSLIBS)
+
+# Object codes
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.f90
+	$(F90) $(F90FLAGS) -c $< -o $@ -module $(OBJDIR)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.f
+	$(F90) $(F90FLAGS) -c $< -o $@ -module $(OBJDIR)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	- rm $(OBJDIR)/*.*
+	- rmdir $(OBJDIR)
+
+create_dirs: ${OBJDIR} ${BINDIR}
+
+${OBJDIR}:
+	${MKDIR_P} ${OBJDIR}
+
+${BINDIR}:
+	${MKDIR_P} ${BINDIR}
+    
+#  end
