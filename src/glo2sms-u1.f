@@ -1580,6 +1580,11 @@ C-----------------------------------------------------------------------
       SUBROUTINE GWF2SMS7U1DA
       USE SMSMODULE
 C
+C-------DEALLOCATE PCGU ALLOCATED MEMORY
+      IF (LINMETH.EQ.2) THEN
+        CALL PCGU7DA
+      END IF
+C-------DEALLOCATE REMAINDER OF SMS ALLOCATED MEMORY
       DEALLOCATE(HTEMP)
       DEALLOCATE (Hncg,Lrch)
       DEALLOCATE (Akappa,Gamma,Amomentum,Breduc,Btol,Numtrack,THETA)
