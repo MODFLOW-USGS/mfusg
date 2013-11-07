@@ -202,6 +202,14 @@ C4b-------for pcgu solver
 !        ISYMFLG = 1
         ISYMFLG = 0
         IF ( IPCGUM.EQ.1 ) ISYMFLG = 1
+      ELSEIF ( Linmeth==3 )Then
+C4b-------for pcgu class solver
+        Write(iout,*) '***CPCGU linear solver will be used***'
+        CALL CPCGU7U1AR(IN, NJA, NEQS, MXITER, HICLOSE, ITER1, 
+     +                 IFDPARAM, IPCGUM)
+        Write(iout,*)
+        ISYMFLG = 0
+        IF ( IPCGUM.EQ.1 ) ISYMFLG = 1
       ELSE
 C4c-----Incorrect linear solver flag
         Write(iout,*) '***Incorrect value for Linear solution method ',
@@ -558,7 +566,13 @@ C--------------------------------------------------------------
 C2B---------CALL PCGC SOLVER
 C
           CALL PCGU7U1AP(AMAT, RHS, SOLN, IA, JA,
-     &               ICNVG,KITER,IN_ITER,IOUT)
+     &               ICNVG,KSTP,KITER,IN_ITER,IOUT)
+C          
+        ELSEIF(LINMETH.EQ.3)THEN
+C2B---------CALL CPCGC SOLVER
+C
+          CALL CPCGU7U1AP(NEQS,NJA,AMAT,RHS,SOLN,
+     &                     ICNVG,KSTP,KITER,IN_ITER)
         ENDIF
 C
 C ----------------------------------------------------------------------
@@ -1583,6 +1597,11 @@ C
 C-------DEALLOCATE PCGU ALLOCATED MEMORY
       IF (LINMETH.EQ.2) THEN
         CALL PCGU7DA
+      END IF
+C
+C-------DEALLOCATE CPCGU ALLOCATED MEMORY
+      IF (LINMETH.EQ.3) THEN
+        CALL CPCGU7DA
       END IF
 C-------DEALLOCATE REMAINDER OF SMS ALLOCATED MEMORY
       DEALLOCATE(HTEMP)
