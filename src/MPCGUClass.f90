@@ -148,7 +148,7 @@ module MPCGUClass
       end subroutine destroy
 
       ! initialize instance of pcgu solver class using passed solver parameters
-      integer function initialize(this,iout,maxinner,ilinmeth,ipc,iscl,iord,iaord,icnvgopt,hclose,rclose,relax,nia,nnz,ia,ja) result(ival)
+      subroutine initialize(this,iout,maxinner,ilinmeth,ipc,iscl,iord,iaord,icnvgopt,hclose,rclose,relax,nia,nnz,ia,ja)
         implicit none
         ! dummy variables
         class(pcgusolver), intent(inout) :: this
@@ -162,9 +162,7 @@ module MPCGUClass
         integer, dimension(nnz), intent(in)   :: ja
         ! local variables
         ! code
-        ival = 0
         if ( this%initialized .ne. 0 ) return
-        ival = 1
         this%initialized = 1
         this%iout        = iout
         this%maxinner    = maxinner
@@ -184,14 +182,14 @@ module MPCGUClass
         this%nnz_all     = nnz
         this%nnz         = nnz
         ! fill ia and ja and allocate space
-        ival = this%initialize_crs( ia, ja )
+        call this%initialize_crs( ia, ja )
         ! return
         return
-      end function initialize
+      end subroutine initialize
       
       ! fill class instance with ia and ja and then allocate
       ! memory for solver arrays based on specified solver parameters
-      integer function initialize_crs(this, ia, ja) result(ival)
+      subroutine initialize_crs(this, ia, ja)
         implicit none
         class(pcgusolver), intent(inout) :: this
         integer, dimension(this%nia+1), intent(in) :: ia
@@ -204,7 +202,6 @@ module MPCGUClass
         doubleprecision, parameter :: dzero = 0.0d0
         doubleprecision, parameter :: done = 1.0d0
         ! code
-        ival = 0
         if ( this%initialized .eq. 0 ) return
         ! allocate crs data
         allocate(this%ia(this%nia+1))
@@ -337,7 +334,7 @@ module MPCGUClass
         END IF
         ! return
         return
-      end function initialize_crs
+      end subroutine initialize_crs
       
       ! subroutine to solve linear system of equations defined in instance of pcgu solver class
       subroutine solve(this, kstp, kiter, icelconv, ibound, ac, hnew, rhs, icnvg, innerit)

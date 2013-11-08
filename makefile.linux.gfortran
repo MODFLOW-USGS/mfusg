@@ -32,6 +32,7 @@ USRLIB  =
 _OBJECTS = \
         sparse.o \
         gmodules.o \
+        mpcguclass.o \
         glo2btnu1.o \
         gwf2chd7u1.o \
         gwf2drn7u1.o \
@@ -57,6 +58,7 @@ _OBJECTS = \
         xmd.o \
         parutl7.o \
         pcgu7.o \
+        cpcgu7.o \
         utl7u1.o \
         glo2sms-u1.o \
         glo2basu1.o \

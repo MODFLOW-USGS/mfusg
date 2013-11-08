@@ -192,10 +192,10 @@ C       PRECONDITIONERS IF RCM OR MINIMUM DEGREE ORDERING IS USED
       END IF
 C
 C-------INITIALIZE MFUSG_PCGU
-      i = MFUSG_PCGU%init(IOUT,ITER1C,ILINMETH,IPC,
-     2                    ISCL,IORD,IAORD,ICNVGOPT,
-     3                    HCLOSE,RCLOSE,RELAX,
-     4                    NEQS,NJA,IA,JA )
+      CALL MFUSG_PCGU%init(IOUT,ITER1C,ILINMETH,IPC,
+     2                     ISCL,IORD,IAORD,ICNVGOPT,
+     3                     HCLOSE,RCLOSE,RELAX,
+     4                     NEQS,NJA,IA,JA )
 C
 C-------RETURN
       RETURN
@@ -243,7 +243,7 @@ C  Deallocate CPCGU DATA
       USE CPCGUMODULE
       IMPLICIT NONE
 C     + + + CODE + + +
-      call MFUSG_PCGU%destroy()
+      CALL MFUSG_PCGU%destroy()
 C
 C-------RETURN
       RETURN
