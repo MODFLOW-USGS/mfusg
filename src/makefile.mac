@@ -15,9 +15,9 @@
 # To compile run: make -f makefile.mac
 # To clean run: make -f makefile.mac clean
 
-SOURCELOC = 
-UTILITYLOC = 
-NEWMOD = 
+SOURCELOC =
+UTILITYLOC =
+NEWMOD =
 PROGRAM = mfusg
 INCDIR= .
 
@@ -32,15 +32,15 @@ F90FLAGS= -O2
 #Fortran compiler
 F90= gfortran
 
-# 
+#
 # Define the C compile flags
-#CFLAGS= -D_UF -O3 
+#CFLAGS= -D_UF -O3
 #CC= gcc
-CFLAGS= 
+CFLAGS=
 CC= cl
 
 # Define the libraries
-USRLIB  = 
+USRLIB  =
 
 # Define all object files which make up mfusg
 # Note the order of these files is important
@@ -76,7 +76,8 @@ OBJECTS = \
         glo2sms-u1.o \
         glo2basu1.o \
         mfusg.o \
-        cln2basu1.o 
+        tibu7.o \
+        cln2basu1.o
 
 
 install: mfusg

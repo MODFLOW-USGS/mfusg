@@ -2,9 +2,9 @@
 # This file has only been used with the NMAKE utility
 # NMAKE clean should be used prior to each build to
 # avoid dependency issues with Fortran modules.
-SOURCELOC = 
-UTILITYLOC = 
-NEWMOD = 
+SOURCELOC =
+UTILITYLOC =
+NEWMOD =
 PROGRAM = mfusg
 INCDIR= .
 
@@ -19,15 +19,15 @@ F90FLAGS= -O2 -heap-arrays:0 -fpe:0 -traceback
 #Fortran compiler
 F90= ifort
 
-# 
+#
 # Define the C compile flags
-#CFLAGS= -D_UF -O3 
+#CFLAGS= -D_UF -O3
 #CC= gcc
-CFLAGS= 
+CFLAGS=
 CC= cl
 
 # Define the libraries
-USRLIB  = 
+USRLIB  =
 
 # Define all object files which make up mfusg
 # Note the order of these files is important
@@ -63,7 +63,8 @@ OBJECTS = \
         glo2sms-u1.obj \
         glo2basu1.obj \
         mfusg.obj \
-        cln2basu1.obj 
+        tibu7.obj \
+        cln2basu1.obj
 
 
 install: mfusg
