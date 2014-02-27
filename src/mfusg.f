@@ -29,7 +29,7 @@ C
 C
       CHARACTER*4 CUNIT(NIUNIT)
       DATA CUNIT/'BCF6', 'WEL ', 'DRN ', 'RIV ', 'EVT ', '    ', 'GHB ',  !  7
-     &           'RCH ', '    ', 'TIB ', '    ', 'OC  ', 'SMS ', 'PCB ',  ! 14
+     &           'RCH ', '    ', '    ', '    ', 'OC  ', 'SMS ', 'PCB ',  ! 14
      &           'BCT ', 'FHB ', 'RES ', 'STR ', 'IBS ', 'CHD ', 'HFB6',  ! 21
      &           'LAK ', 'LPF ', 'DIS ', 'DISU', 'PVAL', '    ', 'HOB ',  ! 28
      &           'CLN ', '    ', 'ZONE', 'MULT', 'DROB', 'RVOB', 'GBOB',  ! 35
@@ -136,9 +136,6 @@ C---------------------------------------------------------------------------
 C7------SIMULATE EACH STRESS PERIOD.
       DO 100 KPER = 1, NPER
         KKPER = KPER
-C7B1------READ TRANSIENT IBOUND INFORMATION
-        IF(IUNIT(10).GT.0) CALL GWF2TIB1RP(IUNIT(10))
-C-----------------------------------------------------        
         CALL GWF2BAS8ST(KKPER)
 CSP        IF(IUNIT(19).GT.0) CALL GWF2IBS7ST(KKPER,IGRID)
         IF(IUNIT(54).GT.0) CALL GWF2SUB7ST(KKPER)
