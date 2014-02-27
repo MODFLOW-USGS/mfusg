@@ -37,7 +37,7 @@ F90= gfortran
 #CFLAGS= -D_UF -O3
 #CC= gcc
 CFLAGS=
-CC= cl
+CC= gfortran
 
 # Define the libraries
 USRLIB  =
@@ -108,6 +108,6 @@ mfusg.o: mfusg.f
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	$(RM) *.o *.mod
+	- rm *.o rm *.mod
 #
 #  end
