@@ -107,6 +107,6 @@ mfusg.o: mfusg.f
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	- rm *.o rm *.mod
+	$(RM) *.o *.mod
 #
 #  end

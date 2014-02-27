@@ -80,8 +80,7 @@ C1------READ NAMED PARAMETERS.
         LSTSUM=ICHDPB
         DO 120 K=1,NPCHD
           LSTBEG=LSTSUM
-          CALL UPARLSTRP(LSTSUM,MXCHD,IN,IOUT,IP,'CHD','CHD',IPRCHD,
-     &                  NUMINST)
+          CALL UPARLSTRP(LSTSUM,MXCHD,IN,IOUT,IP,'CHD','CHD',1,NUMINST)
           NLST=LSTSUM-LSTBEG
           IF (NUMINST.GT.1) NLST = NLST/NUMINST
 C         ASSIGN STARTING INDEX FOR READING INSTANCES
@@ -201,17 +200,21 @@ C5------SET CHDS(1,II) TO GLOBAL NODE NUMBER AND
 C5------SET IBOUND NEGATIVE AT SPECIFIED-HEAD CELLS.
       IF(IUNSTR.EQ.0)THEN
         DO 250 II=1,NCHDS
-        IL=CHDS(1,II)
-        IR=CHDS(2,II)
-        IC=CHDS(3,II)
-        N = IC + NCOL*(IR-1) + (IL-1)*NROW*NCOL
-        CHDS(1,II) = N
+        IF(ITMP.LT.0) THEN
+          N=CHDS(1,II)
+        ELSE
+          IL=CHDS(1,II)
+          IR=CHDS(2,II)
+          IC=CHDS(3,II)
+          N = IC + NCOL*(IR-1) + (IL-1)*NROW*NCOL
+          CHDS(1,II) = N
+        ENDIF
         IF(IBOUND(N).GT.0) IBOUND(N)=-IBOUND(N)
         IF(IBOUND(N).EQ.0) THEN
            WRITE(IOUT,6) IL,IR,IC
     6      FORMAT(1X,'CELL (',I3,',',I5,',',I5,') IS NO FLOW (IBOUND=0)'
      1      ,/1X,'NO-FLOW CELLS CANNOT BE CONVERTED TO SPECIFIED HEAD')
-c           CALL USTOP(' ')
+           CALL USTOP(' ')
         END IF
   250   CONTINUE
       ELSE
@@ -222,7 +225,7 @@ c           CALL USTOP(' ')
            WRITE(IOUT,8) N
     8      FORMAT(1X,'CELL (',I9,') IS NO FLOW (IBOUND=0)',/
      1      1X,'NO-FLOW CELLS CANNOT BE CONVERTED TO SPECIFIED HEAD')
-c           CALL USTOP(' ')
+           CALL USTOP(' ')
         END IF
   251   CONTINUE
       ENDIF
