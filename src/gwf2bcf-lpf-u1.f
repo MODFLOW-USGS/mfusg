@@ -573,7 +573,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,IFREFM,
      1              IUNSTR,NODES,NJA,NJAS,NJAG,IA,PGF,FAHL,ARAD,JA,JAS,
-     2              NODLAY,IDSYMRD,IATMP,NJATMP
+     2              NODLAY,IDSYMRD,IATMP,NJATMP,TOP,BOT
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,HK,SC1,SC2,WETDRY,IHANISO,
      2                      IKCFLAG,IKVFLAG,laywet
@@ -674,12 +674,15 @@ C3G-----READ EFFECTIVE SATURATED CONDUCTIVITY OF CONNECTION
         ALLOCATE(TEMP(NJAS))
         CALL U1DRELNJA(TEMP(1),IATMP,ANAME(3),NJATMP,IN,IOUT,IDSYMRD)
         DO N=1,NODES
+          THICK1 = TOP(N) - BOT(N)
           DO II = IA(N)+1,IA(N+1)-1
             JJ = JA(II)
             IF(JJ.LE.N) CYCLE
             IIS = JAS(II)
             IF(IKCFLAG.EQ.1)THEN
-              PGF(IIS) = PGF(IIS) * TEMP(IIS)
+              THICK2 = TOP(JJ) - BOT(JJ)
+              THICK = 0.5 * (THICK1 + THICK2)
+              PGF(IIS) = PGF(IIS) * TEMP(IIS) * THICK
             ELSE
               PGF(IIS) = TEMP(IIS)
             ENDIF
@@ -1794,7 +1797,7 @@ C     ------------------------------------------------------------------
 C
       CHARACTER*16 TEXT(1)
       DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
-     *  X1,CIN,COUT
+     *  X1,CIN,COUT,ZERO
 C
       DATA TEXT(1) /'   CONSTANT HEAD'/
 C     ------------------------------------------------------------------
@@ -1836,6 +1839,7 @@ C
 C3------LOOP THROUGH EACH CELL AND WRITE FLOW FROM EACH
 C3------CONSTANT-HEAD CELL.
       IBDLBL = 0
+      ZERO = 0.0
       DO 200 N=1,NODES
 C
 C4------IF CELL IS NOT CONSTANT HEAD SKIP IT & GO ON TO NEXT CELL.
@@ -2871,7 +2875,7 @@ C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,LAYCBD,
      1                 NCNFBD,IBOUND,BUFF,NBOTM,DELR,DELC,IOUT,ARAD,
      2                 NODES,IFREFM,IUNSTR,PGF,NJA,NJAS,NJAG,
-     3                 NODLAY,IA,JA,IDSYMRD,IATMP,NJATMP
+     3                 NODLAY,IA,JA,IDSYMRD,IATMP,NJATMP,TOP,BOT,JAS
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,SC1,SC2,WETDRY,
      2                      IKCFLAG,laywet,ISFAC,ITHFLG,
@@ -3029,6 +3033,20 @@ C4--------READ EFFECTIVE SATURATED K OF CONNECTION
         IF(IKCFLAG.EQ.1)THEN
           DO IIS=1,NJAS
             PGF(IIS) = PGF(IIS) * TEMP(IIS)
+          ENDDO
+C-----------INCLUDE THICKNESS TERM          
+          DO N=1,NODES
+            THICK1 = TOP(N) - BOT(N)
+C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
+            DO II = IA(N)+1,IA(N+1)-1
+              JJ = JA(II)
+              IF(JJ.GE.N)THEN
+                THICK2 = TOP(JJ) - BOT(JJ)
+                THICK = 0.5 * (THICK1 + THICK2)
+                IIS = JAS(II)
+                PGF(IIS) = PGF(IIS) * THICK
+              ENDIF
+            ENDDO
           ENDDO
         ELSE
           DO IIS=1,NJAS
