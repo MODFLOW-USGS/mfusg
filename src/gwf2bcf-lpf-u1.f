@@ -3040,7 +3040,7 @@ C-----------INCLUDE THICKNESS TERM
 C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
             DO II = IA(N)+1,IA(N+1)-1
               JJ = JA(II)
-              IF(JJ.GE.N)THEN
+              IF(JJ.GE.N .and. jj.le.nodes)THEN
                 THICK2 = TOP(JJ) - BOT(JJ)
                 THICK = 0.5 * (THICK1 + THICK2)
                 IIS = JAS(II)
