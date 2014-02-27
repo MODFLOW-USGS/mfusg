@@ -79,9 +79,9 @@
 		<File RelativePath="..\..\parutl7.f"/>
 		<File RelativePath="..\..\pcgu7.f">
 			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" WarnInterfaces="false"/></FileConfiguration></File>
-		<File RelativePath=".\TIBU7.f"/>
+				<Tool Name="VFFortranCompilerTool" WarnInterfaces="false" UninitializedVariablesCheck="false"/></FileConfiguration></File>
 		<File RelativePath="..\..\sparse.f"/>
+		<File RelativePath=".\TIBU7.f"/>
 		<File RelativePath="..\..\utl7u1.f"/>
 		<File RelativePath="..\..\xmd.f"/>
 		<File RelativePath="..\..\xmdlib_2.f"/></Filter></Files>
