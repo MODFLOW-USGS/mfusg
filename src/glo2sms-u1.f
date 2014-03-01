@@ -915,7 +915,7 @@ C     ------------------------------------------------------------------
      2                NODES,NEQS,INCLN,IWADICLN
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,CLNCON,NCLN,NNDCLN,
      1      ACLNGWC,NCLNGWC,IFLINCLN,DWADICC,DWADICG,
-     1      ICCWADICLN,ICGWADICLN
+     1      ICCWADICLN,ICGWADICLN,IA_CLN,JA_CLN 
             USE SMSMODULE, ONLY: DKDH,DKDHC,NONMETH,EPSILON
 C
       DOUBLE PRECISION HD,BBOT,TTOP,THCK,ZERO,CONSTERM,FLOWTERM,
@@ -942,13 +942,14 @@ C1A-------CALCULATE SATURATED THICKNESS DERIVATIVE USING FORWARD DERIVATIVE FOR 
 C-----------------------------------------------------------------------------
 C2------FILL DKDHC WITH UPSTREAM DKDH OF THE CONNECTION FOR ALL CLN-CLN CONNECTIONS
 C-----------------------------------------------------------------------------
-      DO IFR = 1,NCLN
-        NN = NNDCLN(IFR)
-        NB = NNDCLN(IFR-1)+1
-        DO N = NB,NN-1
-C2A---------CONNECTION WITH NEXT CLN-NODE OF A SEGMENT
-          ND1 = CLNCON(N)
-          ND2 = CLNCON(N+1)
+C2A------LOOP OVER ALL CLN NODES 
+      DO NC1 = 1,NCLNNDS
+C----------loop over all connections of node NC1 
+        DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
+          NC2 = JA_CLN(II_CLN)
+          IF(NC2.GT.NC1) CYCLE
+          ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
+          ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
 C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
           IF(ND2.GT.ND1)THEN
@@ -1110,7 +1111,8 @@ C     ------------------------------------------------------------------
      1                IOUT,NODLAY,AMAT,RHS,IA,JA,JAS,PGF,IVC,ICONCV,
      2                NODES,NEQS,INCLN,NOVFC,IWADICLN
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,CLNCON,NCLN,NNDCLN,
-     1                ACLNGWC,HWADICC,DWADICC,HWADICG,DWADICG,NCLNGWC
+     1                ACLNGWC,HWADICC,DWADICC,HWADICG,DWADICG,NCLNGWC,
+     2                IA_CLN,JA_CLN
       USE GWFBCFMODULE,ONLY:LAYCON,HWADIGW,DWADIGW
       USE SMSMODULE, ONLY: DKDHC,NONMETH,EPSILON
 C
@@ -1162,13 +1164,13 @@ C------------------------------------------------------------------
 C-----------------------------------------------------------------------
 C2-------FILL HWADI AND DWADI FOR CLN-CLN D/S CONNECTIONS
 C----------------------------------------------------------------------
-      DO IFR = 1,NCLN
-        NN = NNDCLN(IFR)
-        NB = NNDCLN(IFR-1)+1
-        DO N = NB,NN-1
-C2A---------CONNECTION WITH NEXT CLN-NODE OF A SEGMENT
-          ND1 = CLNCON(N)
-          ND2 = CLNCON(N+1)
+      DO NC1 = 1,NCLNNDS
+C----------loop over all connections of node NC1 
+        DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
+          NC2 = JA_CLN(II_CLN)
+          IF(NC2.GT.NC1) CYCLE
+          ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
+          ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
 C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
           IF(ND2.GT.ND1)THEN
@@ -1253,7 +1255,7 @@ C     ------------------------------------------------------------------
       USE SMSMODULE, ONLY: DKDHC,NONMETH,EPSILON
 C
       DOUBLE PRECISION HD,BBOT,TTOP,THCK,ZERO,CONSTERM,FLOWTERM,
-     *  TERM,TOTTHICK,FILLEDTERM
+     *  TERM,TOTTHICK,FILLEDTERM,HDS
 C     ------------------------------------------------------------------
       ZERO=0.
 C----------------------------------------------------------------------------
@@ -1345,13 +1347,14 @@ C
 C-------------------------------------------------------------------------
 C------- COMPUTE CLN-CLN NEWTON TERMS AND FILL AMAT AND RHS
 CC      IF(INCLN.EQ.0) GO TO 102
-CC      DO IFR = 1,NCLN
-CC        NN = NNDCLN(IFR)
-CC        NB = NNDCLN(IFR-1)+1
-CC        DO N = NB,NN-1
-CCC---------CONNECTION WITH NEXT CLN CELL OF A CLN SEGMENT
-CC          ND1 = CLNCON(N)
-CC          ND2 = CLNCON(N+1)
+CCC3A------LOOP OVER ALL CLN NODES 
+CC      DO NC1 = 1,NCLNNDS
+CCC----------loop over all connections of node NC1 
+CC        DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
+CC            IF(NC2.GT.NC1) CYCLE
+CC          NC2 = JA_CLN(II_CLN)
+CC          ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
+CC          ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
 CC          IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
 CCC---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
 CC          IF(ND2.GT.ND1)THEN
