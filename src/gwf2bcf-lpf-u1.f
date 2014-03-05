@@ -573,7 +573,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,IFREFM,
      1              IUNSTR,NODES,NJA,NJAS,NJAG,IA,PGF,FAHL,ARAD,JA,JAS,
-     2              NODLAY,IDSYMRD,IATMP,NJATMP,TOP,BOT
+     2              NODLAY,IDSYMRD,IATMP,NJATMP,TOP,BOT,CL1
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,HK,SC1,SC2,WETDRY,IHANISO,
      2                      IKCFLAG,IKVFLAG,laywet
@@ -677,7 +677,7 @@ C3G-----READ EFFECTIVE SATURATED CONDUCTIVITY OF CONNECTION
           THICK1 = TOP(N) - BOT(N)
           DO II = IA(N)+1,IA(N+1)-1
             JJ = JA(II)
-            IF(JJ.LE.N) CYCLE
+            IF(JJ.LE.N.OR.JJ.GT.NODES) CYCLE
             IIS = JAS(II)
             IF(IKCFLAG.EQ.1)THEN
               THICK2 = TOP(JJ) - BOT(JJ)
@@ -688,6 +688,25 @@ C3G-----READ EFFECTIVE SATURATED CONDUCTIVITY OF CONNECTION
             ENDIF
           ENDDO
         ENDDO
+C-------SET HK FOR THEIM SOLUTION CONNECTION
+          DO N=1,NODES
+            THICK = TOP(N) - BOT(N)
+            AKN = 0.0
+            IKN = 0
+C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
+            DO II = IA(N)+1,IA(N+1)-1
+              JJ = JA(II)
+              IF(JJ.GE.N.AND.JJ.LE.NODES)THEN
+                 IIS = JAS(II)
+                AKN = AKN + PGF(IIS) / THICK * CL1(ISS)
+                IKN = IKN + 1
+              ENDIF
+            ENDDO
+            IF(IKN.GT.0) THEN 
+              HK(N) = AKN / INK
+            ENDIF
+          ENDDO
+C-----------------------------------------------------        
         DEALLOCATE(TEMP)
       ENDIF
 C
@@ -2874,7 +2893,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,LAYCBD,
      1                 NCNFBD,IBOUND,BUFF,NBOTM,DELR,DELC,IOUT,ARAD,
-     2                 NODES,IFREFM,IUNSTR,PGF,NJA,NJAS,NJAG,
+     2                 NODES,IFREFM,IUNSTR,PGF,NJA,NJAS,NJAG,CL1,
      3                 NODLAY,IA,JA,IDSYMRD,IATMP,NJATMP,TOP,BOT,JAS
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,SC1,SC2,WETDRY,
@@ -3040,7 +3059,7 @@ C-----------INCLUDE THICKNESS TERM
 C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
             DO II = IA(N)+1,IA(N+1)-1
               JJ = JA(II)
-              IF(JJ.GE.N .and. jj.le.nodes)THEN
+              IF(JJ.GE.N.AND.JJ.LE.NODES)THEN
                 THICK2 = TOP(JJ) - BOT(JJ)
                 THICK = 0.5 * (THICK1 + THICK2)
                 IIS = JAS(II)
@@ -3053,6 +3072,25 @@ C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
             PGF(IIS) = TEMP(IIS)
           ENDDO
         ENDIF
+C-------SET HK FOR THEIM SOLUTION CONNECTION
+          DO N=1,NODES
+            THICK = TOP(N) - BOT(N)
+            AKN = 0.0
+            IKN = 0
+C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
+            DO II = IA(N)+1,IA(N+1)-1
+              JJ = JA(II)
+              IF(JJ.GE.N.AND.JJ.LE.NODES)THEN
+                 IIS = JAS(II)
+                AKN = AKN + PGF(IIS) / THICK * CL1(ISS)
+                IKN = IKN + 1
+              ENDIF
+            ENDDO
+            IF(IKN.GT.0) THEN
+              HK(N) = AKN / INK
+            ENDIF
+          ENDDO
+C-----------------------------------------------------
         DEALLOCATE(TEMP)
       ENDIF
 C
