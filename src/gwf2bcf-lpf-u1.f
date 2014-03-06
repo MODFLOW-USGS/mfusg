@@ -703,7 +703,7 @@ C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
               ENDIF
             ENDDO
             IF(IKN.GT.0) THEN 
-              HK(N) = AKN / INK
+              HK(N) = AKN / IKN
             ENDIF
           ENDDO
 C-----------------------------------------------------        
@@ -3087,7 +3087,7 @@ C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
               ENDIF
             ENDDO
             IF(IKN.GT.0) THEN
-              HK(N) = AKN / INK
+              HK(N) = AKN / IKN
             ENDIF
           ENDDO
 C-----------------------------------------------------
