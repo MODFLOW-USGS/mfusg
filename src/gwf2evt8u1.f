@@ -342,9 +342,10 @@ C7B------IF INIEVT=>0 THEN READ INDICATOR ARRAY.
             DO I=1,NROW
             DO J=1,NCOL
               N=N+1
-              IEVT(N)=ITEMP(J,I)
+               IEVT(N)= (ITEMP(J,I)-1)*NROW*NCOL + (I-1)*NCOL + J
             ENDDO
             ENDDO
+            NIEVT = NROW*NCOL
           ELSE ! FOR UNSTRUCTURED GRID
             CALL U2DINT(IEVT,ANAME(1),1,NIEVT,0,IN,IOUT)
           ENDIF
@@ -453,6 +454,7 @@ C     ------------------------------------------------------------------
      *  NIEVT,EVTF
 C
       DOUBLE PRECISION RATOUT,QQ,HH,SS,DD,XX,HHCOF,RRHS
+      INTEGER,ALLOCATABLE,DIMENSION(:,:) :: ITEMP
       CHARACTER*16 TEXT
       DATA TEXT /'              ET'/
 C     ------------------------------------------------------------------
@@ -519,8 +521,19 @@ C13-----MODULE SAVE THEM.
       IF(IUNSTR.EQ.0)THEN
         IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IEVTCB,BUFF,NCOL,NROW,
      1                          NLAY,IOUT)
-        IF(IBD.EQ.2) CALL UBDSV3(KSTP,KPER,TEXT,IEVTCB,BUFF,IEVT,NEVTOP,
-     1                   NCOL,NROW,NLAY,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        IF(IBD.EQ.2) THEN
+          ALLOCATE(ITEMP(NCOL,NROW))
+          N=0
+          DO I=1,NROW
+            DO J=1,NCOL
+              N=N+1
+              ITEMP(J,I)= (IEVT(N)-1) / (NCOL*NROW) + 1
+            ENDDO
+          ENDDO
+          CALL UBDSV3(KSTP,KPER,TEXT,IEVTCB,BUFF,ITEMP,NEVTOP,
+     1                NCOL,NROW,NLAY,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+          DEALLOCATE(ITEMP)
+        ENDIF
       ELSE
         IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IEVTCB,BUFF,NODES,
      1                          IOUT,PERTIM,TOTIM)

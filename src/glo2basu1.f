@@ -503,13 +503,8 @@ C7C-------IF CLN DOMAIN IS ACTIVE THEN ADD ITS NODES TO THE SPARSEMODULE DATA ST
         IF(INCLN.NE.0) THEN
           CALL ADDIAJA_CLN (SMAT)
         ENDIF
-C---------------------------------------------------------------------------------
-C7D------ALLOCATE JA AND FILL THE IA AND JA ARRAYS AFTER ALL SPARSEMODULE DATA STRUCTURES ARE FILLED
-      NJA=SMAT%NNZ
-      ALLOCATE(JA(NJA))
-      CALL SMAT%FILLIAJA(IA,JA,IERR)
 C
-C7E-------IF GNC DOMAIN IS ACTIVE THEN ADD ITS CONNECTIONS TO IA AND JA
+C7D-------IF GNC DOMAIN IS ACTIVE THEN ADD ITS CONNECTIONS TO IA AND JA
 csp        IF(INGNC.NE.0) THEN
 csp          CALL ADDIAJA_GNC
 csp        ENDIF    
@@ -517,13 +512,19 @@ csp        IF(INGNC2.NE.0) THEN
 csp          CALL ADDIAJA_GNCT
 csp        ENDIF
         IF(INGNCn.NE.0) THEN
-          CALL ADDIAJA_GNCn
+          CALL ADDIAJA_GNCn(SMAT)
         ENDIF
 C------------------------------------------------------------------------------------
+C---------------------------------------------------------------------------------
+C7E------ALLOCATE JA AND FILL THE IA AND JA ARRAYS AFTER ALL SPARSEMODULE DATA STRUCTURES ARE FILLED
+      NJA=SMAT%NNZ
+      ALLOCATE(JA(NJA))
+      CALL SMAT%FILLIAJA(IA,JA,IERR)
 C
 C7F------DESTROY THE SPARSEROW MATRIX
       CALL SMAT%DESTROY
-C7D-------PRINT NEW IA AND JA INFORMATION IF PRINTFV OPTION IS SET 
+C
+C7G-------PRINT NEW IA AND JA INFORMATION IF PRINTFV OPTION IS SET 
         IF(IPRCONN.NE.0)THEN
           WRITE(IOUT,54)NEQS,NJA
 54        FORMAT(1X,'NEQS = ',I10,';  NJA = ',I10,';')
@@ -535,7 +536,13 @@ C7D-------PRINT NEW IA AND JA INFORMATION IF PRINTFV OPTION IS SET
         ENDIF
       ELSE
         JAFL => JA
-      ENDIF        
+      ENDIF
+C        
+C7H-----SET GNC CONNECTION ARRAYS FROM JA STRUCTURE     
+      IF(INGNCn.NE.0) THEN
+        CALL SGNCn2DISU1MC
+      ENDIF
+C
 C---------------------------------------------------------------------------------
 C-------MAKE DIAGONALS OF JA POSITIVE  ***** SHOULD ALREADY BE POSITIVE. 
 C      DO N=1,NODES
