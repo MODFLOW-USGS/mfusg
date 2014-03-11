@@ -342,9 +342,10 @@ C7B------IF INIEVT=>0 THEN READ INDICATOR ARRAY.
             DO I=1,NROW
             DO J=1,NCOL
               N=N+1
-              IEVT(N)=ITEMP(J,I)
+              IEVT(N)= (ITEMP(J,I)-1)*NROW*NCOL + (I-1)*NCOL + J
             ENDDO
             ENDDO
+            NIEVT = NROW*NCOL
           ELSE ! FOR UNSTRUCTURED GRID
             CALL U2DINT(IEVT,ANAME(1),1,NIEVT,0,IN,IOUT)
           ENDIF

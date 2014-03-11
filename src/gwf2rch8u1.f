@@ -221,8 +221,9 @@ C5B---------INIRCH=>0, SO CALL U2DINT TO READ LAYER INDICATOR ARRAY(IRCH)
      1            I4,'  ROW',I4,'  :',I4)
                  CALL USTOP(' ')
                 END IF
-                IRCH(N) = ITEMP(IC,IR)
+                IRCH(N) = (ITEMP(IC,IR)-1)*NROW*NCOL + (IR-1)*NCOL + IC 
    57         CONTINUE
+              NIRCH = NROW*NCOL
             ELSE
               CALL U2DINT(IRCH,ANAME(1),1,NIRCH,0,IN,IOUT)
             END IF

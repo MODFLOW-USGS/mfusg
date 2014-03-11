@@ -698,12 +698,12 @@ C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
               JJ = JA(II)
               IF(JJ.GE.N.AND.JJ.LE.NODES)THEN
                  IIS = JAS(II)
-                AKN = AKN + PGF(IIS) / THICK * CL1(ISS)
+                AKN = AKN + PGF(IIS) / THICK * CL1(IIS)
                 IKN = IKN + 1
               ENDIF
             ENDDO
             IF(IKN.GT.0) THEN 
-              HK(N) = AKN / INK
+              HK(N) = AKN / IKN
             ENDIF
           ENDDO
 C-----------------------------------------------------        

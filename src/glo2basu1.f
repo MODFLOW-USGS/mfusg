@@ -534,7 +534,11 @@ C7D-------PRINT NEW IA AND JA INFORMATION IF PRINTFV OPTION IS SET
         ENDIF
       ELSE
         JAFL => JA
-      ENDIF        
+      ENDIF
+C-------SET GNC CONNECTION ARRAYS FROM JA STRUCTURE      
+      IF(INGNCn.NE.0) THEN
+        CALL SGNCn2DISU1MC 
+      ENDIF      
 C---------------------------------------------------------------------------------
 C-------MAKE DIAGONALS OF JA POSITIVE  ***** SHOULD ALREADY BE POSITIVE. 
 C      DO N=1,NODES
