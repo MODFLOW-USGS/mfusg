@@ -26,11 +26,31 @@ C
 C2------ALLOCATE SCALAR VARIABLES AND INITIALIZE.
       ALLOCATE(NCLN,ICLNCB,ICLNHD,ICLNDD,ICLNIB,NCLNNDS,NCLNGWC,NJA_CLN)
       ALLOCATE(NCONDUITYP) !OTHER CLN TYPES CAN BE DIMENSIONED HERE
+      ALLOCATE(ICLNTIB) !TRANSIENT IBOUND OPTION
+      ICLNTIB=0
       NCLN = 0
 C
-C3------READ MAXIMUM NUMBER OF CLN NODES AND UNIT OR FLAGS FOR CLN
-C3------DOMAIN OUTPUT OF HEAD, DRAWDOWN AND CELL-BY-CELL FLOW TERMS.
       CALL URDCOM(INCLN,IOUT,LINE)
+C
+C3A-----CHECK FOR OPTIONS KEYWORD AT TOP OF FILE
+      IOPTFOUND=0
+      LLOC=1
+      CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,I,R,IOUT,IN)
+      IF(LINE(ISTART:ISTOP).EQ.'OPTIONS') THEN
+        IOPTFOUND=1
+   70   CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,I,R,IOUT,IN)
+        IF(LINE(ISTART:ISTOP).EQ.'TRANSIENT') THEN
+          ICLNTIB=1
+          WRITE(IOUT,71)
+   71     FORMAT(1X,'TRANSIENT IBOUND OPTION:',/,
+     1     1X,'READ TRANSIENT IBOUND RECORDS FOR EACH STRESS PERIOD.')
+        ENDIF
+        IF(LLOC.LT.200) GO TO 70
+      END IF
+      IF(IOPTFOUND.GT.0) CALL URDCOM(INCLN,IOUT,LINE)
+C
+C3B------READ MAXIMUM NUMBER OF CLN NODES AND UNIT OR FLAGS FOR CLN
+C3B------DOMAIN OUTPUT OF HEAD, DRAWDOWN AND CELL-BY-CELL FLOW TERMS.
       IF(IFREFM.EQ.0) THEN
         READ(LINE,'(8I10)') NCLN,ICLNNDS,ICLNCB,ICLNHD,ICLNDD,
      1    ICLNIB,NCLNGWC,NCONDUITYP
@@ -48,7 +68,7 @@ C3------DOMAIN OUTPUT OF HEAD, DRAWDOWN AND CELL-BY-CELL FLOW TERMS.
 CADD----ADD NUMBER OF OTHER CLN NODE TYPES HERE TO CATALOGUE THEM        
       END IF
 C---------------------------------------------------------------------------
-C3A-----REFLECT FLAGS IN OUTPUT LISTING FILE
+C3C-----REFLECT FLAGS IN OUTPUT LISTING FILE
       WRITE(IOUT,3) NCLN,ICLNNDS,NCLNGWC
     3 FORMAT(1X,'FLAG (0) OR MAXIMUM NUMBER OF LINEAR NODES (NCLN) =',I7
      1  /1X,'FLAG (-VE) OR NUMBER OF LINEAR NODES (+VE)',
@@ -490,6 +510,217 @@ C6------RETURN
       RETURN
       END
 C
+      SUBROUTINE CLN1RP(IN)
+C     ******************************************************************
+C     UPDATE IBOUND IF TRANSIENT IBOUND OPTION SPECIFIED
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE CLN1MODULE, ONLY: ICLNTIB,NCLNNDS
+      USE GLOBAL,      ONLY:IOUT,IFREFM,IUNSTR,IBOUND,HNEW,IA,JA,NODES
+      USE GWFBASMODULE, ONLY: HNOFLO
+      IMPLICIT NONE
+      INTEGER, DIMENSION(:),ALLOCATABLE  ::ITEMP
+      CHARACTER*24 ANAME
+      CHARACTER(LEN=200) line
+      INTEGER,INTENT(IN) :: IN
+      INTEGER :: LLOC,NIB0,NIB1,NIBM1,ISTART,ISTOP,I,ICELL,IB,IAVHEAD,
+     1           IHEAD,IBOUNDKP,ISUM,JJ
+      REAL :: R,HEAD
+      DATA ANAME /'     ZEROED IBOUND CELLS'/
+C     ------------------------------------------------------------------
+C
+C1-----RETURN IF ITIB IS 0 OR FIRST STRESS PERIOD
+      IF(ICLNTIB.EQ.0) RETURN
+C
+C3------READ FLAGS      
+      READ(IN,'(A)',END=100) LINE
+      IF(IFREFM.EQ.0)THEN
+        READ(LINE,'(3I10)') NIB0,NIB1,NIBM1
+      ELSE
+        LLOC = 1
+        CALL URWORD(line, lloc, istart, istop, 2, NIB0, r, Iout, In)
+        CALL URWORD(line, lloc, istart, istop, 2, NIB1, r, Iout, In)
+        CALL URWORD(line, lloc, istart, istop, 2, NIBM1, r, Iout, In)
+      END IF
+C------------------------------------------------------------------------
+C4------CHECK IF IBOUND IS TO BE ZEROED OUT.
+      IF(NIB0.LE.0) THEN
+C
+C4A-----NIB0=<0, SO NO CELLS INACTIVATED.
+        WRITE(IOUT,3)
+    3  FORMAT(1X,/1X,'NO CLN CELLS INACTIVATED FROM LAST STRESS PERIOD')
+      ELSE
+C
+C4B-----NIB0>0, SO READ LIST OF INACTIVATED CELLS AND SET IBOUND TO ZERO
+        ALLOCATE (ITEMP(NIB0))
+        CALL U1DINT(ITEMP,ANAME,NIB0,0,IN,IOUT)
+        DO I=1,NIB0
+          ICELL = ITEMP(I)
+          IF(ICELL.LT.1 .OR. ICELL.GT.NCLNNDS) THEN
+            WRITE(IOUT,*) 'ERROR IN TRANSIENT CLN NODE SPECIFICATION.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER NOT BETWEEN 1 AND NCLNNDS.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER: ', ICELL
+            WRITE(IOUT,*) 'NCLNNDS: ', NCLNNDS
+            CALL USTOP('')
+          ENDIF
+          ICELL = ICELL + NODES
+          IBOUND(ICELL) = 0 
+          HNEW(ICELL) = HNOFLO  
+        ENDDO
+        DEALLOCATE(ITEMP)
+      ENDIF
+C------------------------------------------------------------------------
+C5------CHECK IF IBOUND IS TO BE ACTIVATED.
+      IF(NIB1.LE.0) THEN
+C
+C5A-----NIB1=<0, SO NO CELLS ACTIVATED.
+        WRITE(IOUT,4)
+4       FORMAT(1X,/1X,'NO CLN CELLS ACTIVATED FROM LAST STRESS PERIOD')
+      ELSE
+C
+C5B-----NIB1>0, SO READ LIST OF ACTIVATED CELLS AND SET IBOUND TO 1
+        DO IB=1,NIB1
+C5C-------READ CELL NUMBER  
+          CALL URDCOM(In, Iout, line)
+          LLOC = 1
+          IF(IFREFM.EQ.0)THEN
+            READ(LINE,'(I10)') ICELL
+          ELSE
+            CALL URWORD(line, lloc, istart, istop, 2, ICELL, r,Iout, In)
+          END IF              
+C
+C5CA----CHECK FOR VALID CELL NUMBER THEN CONVERT TO GLOBAL NUMBER
+          IF(ICELL.LT.1 .OR. ICELL.GT.NCLNNDS) THEN
+            WRITE(IOUT,*) 'ERROR IN TRANSIENT CLN NODE SPECIFICATION.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER NOT BETWEEN 1 AND NCLNNDS.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER: ', ICELL
+            WRITE(IOUT,*) 'NCLNNDS: ', NCLNNDS
+            CALL USTOP('')
+          ENDIF
+          ICELL = ICELL + NODES
+C
+C5D--------GET OPTIONS 
+          IAVHEAD=0
+          IHEAD = 0
+          IF(LINE(ISTART:ISTOP).EQ.'HEAD') THEN
+C5D1---------READ KEYWORD OPTION FOR HEAD TO BE READ.   
+            IHEAD = 1
+            CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,HEAD,IOUT,IN)
+          ELSEIF(LINE(ISTART:ISTOP).EQ.'AVHEAD') THEN
+C5D2----------READ KEYWORD OPTION FOR AVERAGE HEAD TO BE READ.          
+             IAVHEAD=1
+          ENDIF
+C5E-----------SET IBOUND AND HEADS
+          IBOUNDKP = IBOUND(ICELL)
+          IBOUND(ICELL) = 1
+          IF(IHEAD.EQ.1)THEN
+C5E1--------HEAD IS SET TO GIVEN VALUE              
+            HNEW(ICELL) = HEAD  
+          ELSEIF(IAVHEAD.EQ.1)THEN
+C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS              
+            HEAD = 0.0
+            ISUM = 0
+            DO I=IA(ICELL)+1,IA(ICELL+1)-1
+              IF(IBOUND(I).NE.0) THEN
+                JJ = JA(I)
+                HEAD = HEAD + HNEW(JJ)  
+                ISUM = ISUM + 1
+              ENDIF
+            ENDDO
+            HEAD = HEAD / ISUM
+          ELSE
+C5E3--------CHECK TO SEE IF NODE WAS PREVIOUSLY INACTIVE
+            IF(IBOUNDKP.EQ.0)THEN
+              WRITE(IOUT,11)ICELL
+11            FORMAT(1X,'*** NEED TO SET HEAD IF INACTIVE CELL IS MADE'
+     1        1X,'ACTIVE FOR CELL ',I9,', STOPPING ***')
+              STOP
+            ENDIF  
+          ENDIF
+        ENDDO
+      ENDIF      
+C------------------------------------------------------------------------
+C6------CHECK IF IBOUND IS TO BE MADE MINUS ONE (PRESCRIBED HEAD).
+      IF(NIBM1.LE.0) THEN
+C
+C5A-----NIBM1=<0, SO NO CELLS MADE PRESCRIBED HEAD.
+        WRITE(IOUT,5)
+5     FORMAT(/1X,'NO CLN CELLS PRESCRIBED HEAD FROM LAST STRESS PERIOD')
+      ELSE
+C
+C5B-----NIBM1>0, SO READ LIST OF PRESCRIBED HEAD CELLS AND SET IBOUND TO -1
+        DO IB=1,NIBM1
+C5C-------READ CELL NUMBER  
+          CALL URDCOM(In, Iout, line)
+          LLOC = 1
+          IF(IFREFM.EQ.0)THEN
+            READ(LINE,'(I10)') ICELL
+          ELSE
+            CALL URWORD(line, lloc, istart, istop, 2, ICELL, r,Iout, In)
+          END IF              
+C
+C5CA----CHECK FOR VALID CELL NUMBER THEN CONVERT TO GLOBAL NUMBER
+          IF(ICELL.LT.1 .OR. ICELL.GT.NCLNNDS) THEN
+            WRITE(IOUT,*) 'ERROR IN TRANSIENT CLN NODE SPECIFICATION.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER NOT BETWEEN 1 AND NCLNNDS.'
+            WRITE(IOUT,*) 'CLN NODE NUMBER: ', ICELL
+            WRITE(IOUT,*) 'NCLNNDS: ', NCLNNDS
+            CALL USTOP('')
+          ENDIF
+          ICELL = ICELL + NODES
+C
+C5D--------GET OPTIONS 
+          IAVHEAD=0
+          IHEAD = 0
+          IF(LINE(ISTART:ISTOP).EQ.'HEAD') THEN
+C5D1---------READ KEYWORD OPTION FOR HEAD TO BE READ.   
+            IHEAD = 1
+            CALL URWORD(LINE,LLOC,ISTART,ISTOP,3,I,HEAD,IOUT,IN)
+          ELSEIF(LINE(ISTART:ISTOP).EQ.'AVHEAD') THEN
+C5D2----------READ KEYWORD OPTION FOR AVERAGE HEAD TO BE READ.          
+             IAVHEAD=1
+          ENDIF
+C5E-----------SET IBOUND AND HEADS
+          IBOUNDKP = IBOUND(ICELL)
+          IBOUND(ICELL) = -1
+          IF(IHEAD.EQ.1)THEN
+C5E1--------HEAD IS SET TO GIVEN VALUE              
+            HNEW(ICELL) = HEAD  
+          ELSEIF(IAVHEAD.EQ.1)THEN
+C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS              
+            HEAD = 0.0
+            ISUM = 0
+            DO I=IA(ICELL)+1,IA(ICELL+1)-1
+              IF(IBOUND(ICELL).NE.0) THEN
+                HEAD = HEAD + HNEW(ICELL)  
+                ISUM = ISUM + 1
+              ENDIF
+            ENDDO
+            HEAD = HEAD / ISUM
+          ELSE
+C5E3--------CHECK TO SEE IF NODE WAS PREVIOUSLY INACTIVE
+            IF(IBOUNDKP.EQ.0)THEN
+              WRITE(IOUT,12)ICELL
+12            FORMAT(1X,'*** NEED TO SET HEAD IF INACTIVE CELL IS MADE'
+     1        1X,'PRESCRIBED HEAD FOR CELL ',I9,', STOPPING ***')
+              STOP
+            ENDIF  
+          ENDIF
+        ENDDO
+      ENDIF
+      GOTO 200            
+C
+C6-----ERROR READING RECORD
+  100 WRITE(IOUT,*) 'ERROR READING TRANSIENT IBOUND RECORD FOR CLN.'
+      WRITE(IOUT,*) 'STOPPING...'
+      CALL USTOP('')
+  200 CONTINUE
+C
+C6------RETURN
+      RETURN
+      END
 C -----------------------------------------------------------------------
       SUBROUTINE SFILLPGF_CLN
 C     ******************************************************************
