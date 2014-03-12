@@ -8,6 +8,7 @@ csp      USE GNCMODULE, ONLY:ISYMGNC
 csp      USE GNC2MODULE, ONLY:ISYMGNC2
       USE GNCnMODULE, ONLY:ISYMGNCn
       USE XMDMODULE, ONLY: IACL
+      USE PCGUMODULE,ONLY:PCGU7U1AR
       IMPLICIT NONE
 !     ------------------------------------------------------------------
 !     SPECIFICATIONS:
@@ -506,6 +507,7 @@ C-----------------------------------------------------------------------------
 C******************************************************************
 C PREPARE FOR SPARSE SOLVER, AND CHECK CONVERGENCE OF NONLINEARITIES
 C******************************************************************
+      USE PCGUMODULE,ONLY:PCGU7U1AP
       USE SMSMODULE
       USE XMDMODULE
       USE GLOBAL, ONLY: NCOL,NROW,IUNSTR,IA,JA,NSTP,NLAY

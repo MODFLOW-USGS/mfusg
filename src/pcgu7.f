@@ -1,4 +1,7 @@
       MODULE PCGUMODULE
+        PRIVATE
+        PUBLIC :: PCGU7U1AR
+        PUBLIC :: PCGU7U1AP
         INTEGER,SAVE,POINTER  :: ILINMETH
         INTEGER,SAVE,POINTER  :: ITER1C,IPC,ISCL,IORD,NITERC,NNZC,NIAC
         INTEGER,SAVE,POINTER  :: NIABCGS
@@ -73,9 +76,9 @@ C         POINTERS FOR USE WITH BOTH ORIGINAL, RCM, AND MINIMUM DEGREE ORDERINGS
         DOUBLE PRECISION, POINTER, DIMENSION(:)     :: A0
       END TYPE
       TYPE(PCGUTYPE), SAVE ::PCGUDAT(10)
-      END MODULE PCGUMODULE
 
-
+      CONTAINS
+      
       SUBROUTINE PCGU7U1AR(IN, NJA, NEQS, MXITER, HICLOSE, ITER1, 
      1   IPRSMS,IFDPARAM,IPCGUM)
 C     ******************************************************************
@@ -85,7 +88,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,   ONLY:IOUT, IAC=>IA, JAC=>JA
-      USE PCGUMODULE
+      !USE PCGUMODULE
 C       DUMMY VARIABLES
       CHARACTER*200 LINE
       CHARACTER (LEN= 10) :: clin(1:2)
@@ -407,7 +410,7 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE PCGUMODULE
+      !USE PCGUMODULE
       IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
       DOUBLEPRECISION, TARGET,  DIMENSION(NNZC), INTENT(INOUT) :: AC
@@ -525,7 +528,7 @@ C
 C
       SUBROUTINE PCGU7DA(IGRID)
 C  Deallocate PCGU DATA
-      USE PCGUMODULE
+      !USE PCGUMODULE
 C
       CALL PCGU7PNT(IGRID)
         DEALLOCATE(ILINMETH)
@@ -565,7 +568,7 @@ C
       
       SUBROUTINE PCGU7PNT(IGRID)
 C  Set pointers to PCGU data for a grid
-      USE PCGUMODULE
+      !USE PCGUMODULE
 C
       ILINMETH=>PCGUDAT(IGRID)%ILINMETH
       ITER1C=>PCGUDAT(IGRID)%ITER1C
@@ -618,7 +621,7 @@ C
 
       SUBROUTINE PCGU7PSV(IGRID)
 C  Save pointers to PCGU data
-      USE PCGUMODULE
+      !USE PCGUMODULE
 C
       PCGUDAT(IGRID)%ILINMETH=>ILINMETH
       PCGUDAT(IGRID)%ITER1C=>ITER1C
@@ -1080,7 +1083,7 @@ C---------RETURN
       END SUBROUTINE SPCGU_ILU0A
 
       SUBROUTINE SPCGU_CG(ICNVG,ITMAX,INNERIT)
-        USE PCGUMODULE
+        !USE PCGUMODULE
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(INOUT) :: ICNVG
@@ -1099,7 +1102,7 @@ C       + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION, PARAMETER :: DZERO = 0.0D0
         DOUBLEPRECISION, PARAMETER :: DONE  = 1.0D0
 C         + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGU_DP
+C        DOUBLEPRECISION :: SPCGU_DP
 C
 C         + + + CODE + + +
         INNERIT  = 0
@@ -1171,7 +1174,7 @@ C---------RETURN
       END SUBROUTINE SPCGU_CG
 
       SUBROUTINE SPCGU_BCGS(ICNVG,ITMAX,INNERIT)
-        USE PCGUMODULE
+        !USE PCGUMODULE
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(INOUT) :: ICNVG
@@ -1194,7 +1197,7 @@ C       + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION, PARAMETER :: DONE  = 1.0D0
         DOUBLEPRECISION, PARAMETER :: DTWO  = 2.0D0
 C         + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGU_DP
+!        DOUBLEPRECISION :: SPCGU_DP
 !        DOUBLEPRECISION :: SPCGU_RES
 !        DOUBLEPRECISION :: SPCGU_L2NORM
 C
@@ -1515,7 +1518,7 @@ C     + + + DUMMY ARGUMENTS + + +
 C     + + + LOCAL DEFINITIONS + + +
         DOUBLEPRECISION :: dotp
 C     + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGU_DP
+!        DOUBLEPRECISION :: SPCGU_DP
 C     + + + CODE + + +
         dotp  = SPCGU_DP(NIAC,V,V)
         value = SQRT(dotp)
@@ -1527,7 +1530,7 @@ C-------CALCULATE THE RESIDUAL FOR A NODE USING CURRENT VALUES OF
 C       AC, XC, AND THE RHS FOR THE NODE PASSED TO FUNCTION     
       DOUBLEPRECISION FUNCTION SPCGU_RES(N,IAC,JAC,AC,XC,B) 
      2  RESULT(value)
-        USE PCGUMODULE, ONLY: NIAC,NNZC
+        !USE PCGUMODULE, ONLY: NIAC,NNZC
         IMPLICIT NONE
 C     + + + DUMMY ARGUMENTS + + +
         INTEGER, INTENT(IN) :: N
@@ -1541,7 +1544,7 @@ C     + + + LOCAL DEFINITIONS + + +
         INTEGER :: i0, i1
         INTEGER :: jcol
 C     + + + FUNCTIONS + + +
-        DOUBLEPRECISION :: SPCGU_DP
+!        DOUBLEPRECISION :: SPCGU_DP
 C     + + + CODE + + +
         value = 0.0
         i0 = IAC(N)
@@ -1631,7 +1634,7 @@ C       THE REVERSE CUTHILL MCKEE ALGORITHM
 !
       return
 !-------end-of-dperm----------------------------------------------------
-      end
+      end subroutine
 !-----------------------------------------------------------------------
       subroutine rperm (nrow,a,ja,ia,ao,jao,iao,perm,job)
       integer nrow,ja(*),ia(nrow+1),jao(*),iao(nrow+1),perm(nrow),job
@@ -1704,7 +1707,7 @@ C       THE REVERSE CUTHILL MCKEE ALGORITHM
       return
 !---------end-of-rperm -------------------------------------------------
 !-----------------------------------------------------------------------
-      end
+      end subroutine
 
 !-----------------------------------------------------------------------
       subroutine cperm (nrow,a,ja,ia,ao,jao,iao,perm,job)
@@ -1773,7 +1776,7 @@ C       THE REVERSE CUTHILL MCKEE ALGORITHM
       return
 !---------end-of-cperm--------------------------------------------------
 !-----------------------------------------------------------------------
-      end
+      end subroutine
 !----------------------------------------------------------------------- 
       subroutine vperm (n, x, perm) 
       integer n, perm(n) 
@@ -1848,10 +1851,10 @@ C       THE REVERSE CUTHILL MCKEE ALGORITHM
       return
 !-------------------end-of-vperm--------------------------------------- 
 !-----------------------------------------------------------------------
-      end
+      end subroutine
 !
       SUBROUTINE SET_PCGUINPUT(IFDPARAM)
-      USE PCGUMODULE, ONLY:  IPC,ISCL,IORD,RCLOSEPCGU,RELAXPCGU,ILINMETH
+      !USE PCGUMODULE, ONLY:  IPC,ISCL,IORD,RCLOSEPCGU,RELAXPCGU,ILINMETH
       INTEGER IFDPARAM
 C Simple option
       SELECT CASE ( IFDPARAM )
@@ -1880,5 +1883,6 @@ C Complex
         RELAXPCGU = 0.97
       END SELECT
       RETURN
-      END
+      END SUBROUTINE
       
+      END MODULE PCGUMODULE
