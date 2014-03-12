@@ -587,6 +587,7 @@ C5C-------READ CELL NUMBER
           LLOC = 1
           IF(IFREFM.EQ.0)THEN
             READ(LINE,'(I10)') ICELL
+            LLOC=11
           ELSE
             CALL URWORD(line, lloc, istart, istop, 2, ICELL, r,Iout, In)
           END IF              
@@ -604,6 +605,7 @@ C
 C5D--------GET OPTIONS 
           IAVHEAD=0
           IHEAD = 0
+          CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,I,R,IOUT,IN)
           IF(LINE(ISTART:ISTOP).EQ.'HEAD') THEN
 C5D1---------READ KEYWORD OPTION FOR HEAD TO BE READ.   
             IHEAD = 1
@@ -623,8 +625,8 @@ C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS
             HEAD = 0.0
             ISUM = 0
             DO I=IA(ICELL)+1,IA(ICELL+1)-1
-              IF(IBOUND(I).NE.0) THEN
-                JJ = JA(I)
+              JJ = JA(I)
+              IF(IBOUND(JJ).NE.0) THEN
                 HEAD = HEAD + HNEW(JJ)  
                 ISUM = ISUM + 1
               ENDIF
@@ -657,6 +659,7 @@ C5C-------READ CELL NUMBER
           LLOC = 1
           IF(IFREFM.EQ.0)THEN
             READ(LINE,'(I10)') ICELL
+            LLOC=11
           ELSE
             CALL URWORD(line, lloc, istart, istop, 2, ICELL, r,Iout, In)
           END IF              
@@ -674,6 +677,7 @@ C
 C5D--------GET OPTIONS 
           IAVHEAD=0
           IHEAD = 0
+          CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,I,R,IOUT,IN)
           IF(LINE(ISTART:ISTOP).EQ.'HEAD') THEN
 C5D1---------READ KEYWORD OPTION FOR HEAD TO BE READ.   
             IHEAD = 1
@@ -693,8 +697,9 @@ C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS
             HEAD = 0.0
             ISUM = 0
             DO I=IA(ICELL)+1,IA(ICELL+1)-1
-              IF(IBOUND(ICELL).NE.0) THEN
-                HEAD = HEAD + HNEW(ICELL)  
+              JJ=JA(I)
+              IF(IBOUND(JJ).NE.0) THEN
+                HEAD = HEAD + HNEW(JJ)  
                 ISUM = ISUM + 1
               ENDIF
             ENDDO
