@@ -1,0 +1,55 @@
+
+New functionality has been added to the CLN Process to change the IBOUND value of CLN cell at any stress period of the simulation. This is advantageous to activate wellbores only when they are drilled, or inactivate them after they are plugged. It also provides a mechanism for turning on and off prescribed head CLN cells. 
+
+
+FOR EACH SIMULATION
+-------------------
+
+0. [#text]
+Item 0 is optional—“#” must be in column 1. Item 0 can be repeated multiple times.
+
+1. [OPTIONS]
+This optional item must start with the keyword "OPTIONS"
+
+*** CLN input as described in mfusg version 1.1 goes here ***** 
+
+FOR EACH STRESS PERIOD (if "TRANSIENT" is specified as a CLNOPTS)
+
+1. NIB0 NIB1 NIBM1
+
+Read item 2 only if NIB0 is greater than zero
+2. [IBO(NIB0)] -- U1DINT 
+
+Read item 3 only if NIB1 is greater than zero
+3.	IB1 [HEADOPT]
+Note that item 3 is read NIB1 times, one record for each node for which IBOUND is activated. 
+
+Read item 4 only if NIBM1 is greater than zero
+4. IBM1 [HEADOPT]
+Note that item 4 is read NIBM1 times, one record for each node for which IBOUND is made into a prescribed head. 
+
+Explanation of New Variables Read by the CLN Process:
+-------------------------------------------------
+OPTIONS are keyword options. The following option is supported:
+
+TRANSIENT indicates that transient IBOUND information will be read for each stress period.
+
+NIB0—is the number of IBOUND values that will be turned to zero in this stress period. 
+
+NIB1—is the number of IBOUND values that will be turned to active (one) in this stress period. 
+
+NIBM1—is the number of IBOUND values that will be turned to prescribed head (minus one) in this stress period. 
+
+IB0—is the array of cell numbers for which IBOUND values will be set to zero. 
+
+IB1—is the cell number for which IBOUND is set to active (one). 
+
+HEADOPT are keywords to indicate how head values will be set for nodes that are activated: 
+
+HEAD [hvalue] indicates that the head value is input and the number following the keyword HEAD is the value to be used as the initial head at the given cell. 
+
+AVHEAD indicates that the average head of all connected cells that are not inactive, will be used as the initial head at the given cell. 
+
+Note that if no options are provided, then the head from the previous stress period will be used at this node which is turned active. If the node was inactive in the previous stress period, an option is required to provide a head value to the cell that is made active or prescribed head, otherwise the simulation will be aborted. 
+
+IBM1—is the cell number for which IBOUND is set to prescribed head (minus one). Note that the same options follow IBMI as do IB1 for each cell for which the head will be prescribed in this stress period. 
