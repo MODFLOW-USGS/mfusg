@@ -156,9 +156,13 @@ def main():
 
     platform = sys.platform
     if platform.lower() == 'darwin':
-       fc = 'gfortran'
-       compileflags = []
-       compilemac(orderedsourcefiles, fc, compileflags, target, makeclean)
+        fc = 'gfortran'
+        compileflags = []
+        try:
+            compilemac(orderedsourcefiles, fc, compileflags, target, makeclean)
+        except:
+            print 'Error.  Could not build target...'
+       
     else:
         fc = 'ifort.exe'
         if platform == 'ia32_intel64' or platform == 'intel64':
@@ -170,14 +174,19 @@ def main():
                        '-traceback',
                        ]
         #create a 32-bit executable
-        compilewin(orderedsourcefiles, fc, compileflags, target, makeclean,
+        try:
+            compilewin(orderedsourcefiles, fc, compileflags, target, makeclean,
                   'ia32')
+        except:
+            print 'Error.  Could not build 32-bit target...'
 
         #create a 64-bit executable
-        compilewin(orderedsourcefiles, fc, compileflags, target, makeclean,
-                  'intel64')
+        try:
+            compilewin(orderedsourcefiles, fc, compileflags, target+'_x64', 
+                  makeclean, 'intel64')
+        except:
+            print 'Error.  Could not build 64-bit target...'
                   
-
     print 'Done...'
     return
 
