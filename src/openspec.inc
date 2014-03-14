@@ -16,6 +16,14 @@ C    Standard Fortran -- Use unless there is a reason to do otherwise.
       DATA ACCESS/'SEQUENTIAL'/
 C
 C
+c    Standard Fortran that causes code compiled by gfortran
+C    on personal computers to use unstructured non-formatted
+C    files.  This may make it possible for the non-formatted files used
+C    by MODFLOW to be used with programs that are compiled by other
+C    compilers.
+C
+C      DATA ACCESS/'STREAM'/
+C
 C  FORM specifier --
 C
 C    Standard Fortran, which results in vender dependent (non-portable)

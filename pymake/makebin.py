@@ -109,43 +109,26 @@ def main():
     """
     Create the binary executable(s)
     """
-    srcdir = '../src'
+    
     target = 'mfusg'
     makeclean = True
-    srcfiles = ['gmodules.f',
-                 'sparse.f',
-                 'glo2btnu1.f', 
-                 'gwf2chd7u1.f', 
-                 'gwf2drn7u1.f', 
-                 'gwf2fhb7u1.f', 
-                 'gwf2ghb7u1.f', 
-                 'gwf2hfb7u1.f', 
-                 'gwf2riv7u1.f', 
-                 'gwf2rch8u1.f', 
-                 'gwf2evt8u1.f', 
-                 'lak_gag_sfr_modules.f', 
-                 'gwf2sfr7u1.f', 
-                 'gwf2str7u1.f', 
-                 'gwf2lak7u1.f', 
-                 'gwf2sub7u1.f', 
-                 'gwf2wel7u1.f', 
-                 'gwf2gag7u1.f', 
-                 'cln2props1.f', 
-                 'gwf2basu1.f', 
-                 'gwf2bcf-lpf-u1.f', 
-                 'xmdlib_2.f', 
-                 'disu2gncb1.f', 
-                 'disu2gncn1.f', 
-                 'xmd.f', 
-                 'parutl7.f', 
-                 'pcgu7.f', 
-                 'utl7u1.f', 
-                 'glo2sms-u1.f', 
-                 'glo2basu1.f', 
-                 'mfusg.f', 
-                 'cln2basu1.f' 
-                 ]
-
+    
+    #copy the original source to a src directory
+    originsrcdir = os.path.join('..', 'src')
+    try:
+        shutil.rmtree('src')
+    except:
+        pass
+    shutil.copytree(originsrcdir, 'src')
+    srcdir = os.path.join('.', 'src')
+        
+    #create a list of all f and f90 source files
+    templist = os.listdir(srcdir)
+    srcfiles = []
+    for f in templist:
+        if f.endswith('.f') or f.endswith('.f90'):
+            srcfiles.append(f)
+            
     srcfileswithpath = []
     for srcfile in srcfiles:
         s = os.path.join(srcdir, srcfile)
@@ -157,7 +140,22 @@ def main():
     platform = sys.platform
     if platform.lower() == 'darwin':
         fc = 'gfortran'
-        compileflags = []
+        compileflags = ['-O2']
+        
+        #need to change openspec.inc
+        fname = os.path.join(srcdir, 'openspec.inc')
+        f = open(fname, 'w')
+        f.write(
+'''c -- created by makebin.py   
+      CHARACTER*20 ACCESS,FORM,ACTION(2)
+      DATA ACCESS/'STREAM'/
+      DATA FORM/'UNFORMATTED'/
+      DATA (ACTION(I),I=1,2)/'READ','READWRITE'/
+c -- end of include file
+'''
+        )
+        f.close()
+
         try:
             compilemac(orderedsourcefiles, fc, compileflags, target, makeclean)
         except:
