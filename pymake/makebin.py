@@ -165,8 +165,7 @@ def main():
        
     else:
         fc = 'ifort.exe'
-        if platform == 'ia32_intel64' or platform == 'intel64':
-           target += '_x64'
+        #production version compile flags
         compileflags = [
                        '-O2',
                        '-heap-arrays:0',
