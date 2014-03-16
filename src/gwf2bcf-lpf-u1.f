@@ -573,7 +573,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,IFREFM,
      1              IUNSTR,NODES,NJA,NJAS,NJAG,IA,PGF,FAHL,ARAD,JA,JAS,
-     2              NODLAY,IDSYMRD,IATMP,NJATMP,TOP,BOT,CL1
+     2              NODLAY,IDSYMRD,IATMP,NJATMP,TOP,BOT,CL1,CL2
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,HK,SC1,SC2,WETDRY,IHANISO,
      2                      IKCFLAG,IKVFLAG,laywet
@@ -696,9 +696,13 @@ C-------SET HK FOR THEIM SOLUTION CONNECTION
 C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
             DO II = IA(N)+1,IA(N+1)-1
               JJ = JA(II)
-              IF(JJ.GE.N.AND.JJ.LE.NODES)THEN
-                 IIS = JAS(II)
-                AKN = AKN + PGF(IIS) / THICK * CL1(IIS)
+              IF(JJ.LE.NODES)THEN
+                IIS = JAS(II) 
+                IF(JJ.GT.N)THEN
+                  AKN = AKN + PGF(IIS) / THICK * CL1(IIS)
+                ELSE
+                  AKN = AKN + PGF(IIS) / THICK * CL2(IIS) 
+                ENDIF
                 IKN = IKN + 1
               ENDIF
             ENDDO

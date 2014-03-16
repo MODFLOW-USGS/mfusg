@@ -12,8 +12,8 @@
 # necessary to manually delete all output binary
 # files before running MODFLOW-USG (or use the
 # REPLACE option in the name file).
-# To compile run: make -f makefile.mac
-# To clean run: make -f makefile.mac clean
+# To compile run: make -f makefile.linux
+# To clean run: make -f makefile.linux clean
 
 SOURCELOC =
 UTILITYLOC =
