@@ -46,16 +46,6 @@ def compilewin(srcfiles, fc, compileflags, target, makeclean, platform):
 
     #run the batch file
     subprocess.check_call(['compileusg.bat', ],)
-
-    #clean things up
-    if makeclean:
-        print 'making clean...'
-        filelist = os.listdir('.')
-        delext = ['.mod', '.obj']
-        for f in filelist:
-            for ext in delext:
-                if f.endswith(ext):
-                    os.remove(f)
     return
 
 def compilemac(srcfiles, fc, compileflags, target, makeclean):
@@ -92,17 +82,6 @@ def compilemac(srcfiles, fc, compileflags, target, makeclean):
         cmdlist.append(objfile)
     print 'check call: ', cmdlist
     subprocess.check_call(cmdlist)
-
-    #clean things up
-    if makeclean:
-        print 'making clean...'
-        filelist = os.listdir('.')
-        delext = ['.mod', '.o']
-        for f in filelist:
-            for ext in delext:
-                if f.endswith(ext):
-                    os.remove(f)
-
     return
 
 def main():
@@ -110,20 +89,27 @@ def main():
     Create the binary executable(s)
     """
     
-    target = 'mfusg'
     makeclean = True
+    targetpth = os.path.join('..', 'bin')
+    target = os.path.join(targetpth, 'mfusg')
+
+    #remove the target if it already exists
+    try:
+        os.remove(target)
+    except:
+        pass    
     
     #copy the original source to a src directory
-    originsrcdir = os.path.join('..', 'src')
+    srcdir_origin = os.path.join('..', 'src')
     try:
         shutil.rmtree('src')
     except:
         pass
-    shutil.copytree(originsrcdir, 'src')
-    srcdir = os.path.join('.', 'src')
+    shutil.copytree(srcdir_origin, 'src')
+    srcdir_temp = os.path.join('.', 'src')
         
     #create a list of all f and f90 source files
-    templist = os.listdir(srcdir)
+    templist = os.listdir(srcdir_temp)
     srcfiles = []
     for f in templist:
         if f.endswith('.f') or f.endswith('.f90'):
@@ -131,7 +117,7 @@ def main():
             
     srcfileswithpath = []
     for srcfile in srcfiles:
-        s = os.path.join(srcdir, srcfile)
+        s = os.path.join(srcdir_temp, srcfile)
         srcfileswithpath.append(s)
 
     #order the source files using the directed acyclic graph in dag.py
@@ -143,7 +129,7 @@ def main():
         compileflags = ['-O2']
         
         #need to change openspec.inc
-        fname = os.path.join(srcdir, 'openspec.inc')
+        fname = os.path.join(srcdir_temp, 'openspec.inc')
         f = open(fname, 'w')
         f.write(
 '''c -- created by makebin.py   
@@ -184,6 +170,17 @@ c -- end of include file
         except:
             print 'Error.  Could not build 64-bit target...'
                   
+    #clean things up
+    if makeclean:
+        print 'making clean...'
+        filelist = os.listdir('.')
+        delext = ['.mod', '.o']
+        for f in filelist:
+            for ext in delext:
+                if f.endswith(ext):
+                    os.remove(f)
+        shutil.rmtree(srcdir_temp)
+
     print 'Done...'
     return
 
