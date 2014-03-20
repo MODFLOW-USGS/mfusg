@@ -3,7 +3,7 @@
 Make the binary executable for MODFLOW-USG.
 """
 __author__ = "Christian D. Langevin"
-__date__ = "March 14, 2014"
+__date__ = "March 20, 2014"
 __version__ = "1.0.0"
 __maintainer__ = "Christian D. Langevin"
 __email__ = "langevin@usgs.gov"
@@ -127,6 +127,7 @@ def main():
     if platform.lower() == 'darwin':
         fc = 'gfortran'
         compileflags = ['-O2']
+        objext = '.o'
         
         #need to change openspec.inc
         fname = os.path.join(srcdir_temp, 'openspec.inc')
@@ -156,6 +157,8 @@ c -- end of include file
                        '-fpe:0',
                        '-traceback',
                        ]
+        objext = '.obj'
+        
         #create a 32-bit executable
         try:
             compilewin(orderedsourcefiles, fc, compileflags, target, makeclean,
@@ -174,7 +177,7 @@ c -- end of include file
     if makeclean:
         print 'making clean...'
         filelist = os.listdir('.')
-        delext = ['.mod', '.o']
+        delext = ['.mod', objext]
         for f in filelist:
             for ext in delext:
                 if f.endswith(ext):

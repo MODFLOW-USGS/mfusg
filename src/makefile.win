@@ -63,7 +63,6 @@ OBJECTS = \
         glo2sms-u1.obj \
         glo2basu1.obj \
         mfusg.obj \
-        tibu7.obj \
         cln2basu1.obj
 
 

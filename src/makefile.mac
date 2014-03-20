@@ -76,7 +76,6 @@ OBJECTS = \
         glo2sms-u1.o \
         glo2basu1.o \
         mfusg.o \
-        tibu7.o \
         cln2basu1.o
 
 

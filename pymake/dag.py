@@ -2,10 +2,17 @@
 
 Set of classes for building a directed acyclic graph.  Can be used to
 determine the order of dependencies.  Can be used to determine compiling
-order, for example.  Topological sort pseudocode obtained from:
+order, for example.  Topological sort pseudocode based on:
 http://en.wikipedia.org/wiki/Topological_sorting
 
 """
+
+__author__ = "Christian D. Langevin"
+__date__ = "March 20, 2014"
+__version__ = "1.0.0"
+__maintainer__ = "Christian D. Langevin"
+__email__ = "langevin@usgs.gov"
+__status__ = "Production"
 
 class Node(object):
     def __init__(self, name):
