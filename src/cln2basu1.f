@@ -1747,7 +1747,7 @@ C4A------LOOP OVER ALL CLN NODES
 C4B----------loop over all connections of node NC1 
         DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
           NC2 = JA_CLN(II_CLN)
-          IF(NC2.GT.NC1) CYCLE
+          !IF(NC2.GT.NC1) CYCLE
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE

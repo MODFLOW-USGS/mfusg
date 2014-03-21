@@ -90,7 +90,8 @@ def main():
     """
     
     makeclean = True
-    targetpth = os.path.join('..', 'bin')
+    #targetpth = os.path.join('..', 'bin')
+    targetpth = '.'  #put in current directory
     target = os.path.join(targetpth, 'mfusg')
 
     #remove the target if it already exists
