@@ -547,7 +547,7 @@ C     ------------------------------------------------------------------
       CHARACTER(LEN=200) line
       INTEGER,INTENT(IN) :: IN
       INTEGER :: LLOC,NIB0,NIB1,NIBM1,ISTART,ISTOP,I,ICELL,IB,IAVHEAD,
-     1           IHEAD,IBOUNDKP,ISUM,JJ
+     1           IHEAD,IBOUNDKP,ISUM,JJ,NODCLN
       REAL :: R,HEAD
       DATA ANAME /'     ZEROED IBOUND CELLS'/
 C     ------------------------------------------------------------------
@@ -621,6 +621,7 @@ C5CA----CHECK FOR VALID CELL NUMBER THEN CONVERT TO GLOBAL NUMBER
             WRITE(IOUT,*) 'NCLNNDS: ', NCLNNDS
             CALL USTOP('')
           ENDIF
+          NODCLN = ICELL
           ICELL = ICELL + NODES
 C
 C5D--------GET OPTIONS 
@@ -652,7 +653,15 @@ C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS
                 ISUM = ISUM + 1
               ENDIF
             ENDDO
-            HEAD = HEAD / ISUM
+            IF(ISUM.GT.0) THEN
+              HEAD = HEAD / ISUM
+            ELSE
+              WRITE(IOUT,*) 'ERROR ACTIVATING CLN CELL: ', NODCLN
+              WRITE(IOUT,*) 'CANNOT CALCULATE AN AVERAGE STARTING HEAD.'
+              WRITE(IOUT,*) 'BECAUSE NO CONNECTED CELLS ARE ACTIVE.'
+              WRITE(IOUT,*) 'STOPPING...'
+              CALL USTOP('')              
+            ENDIF
             HNEW(ICELL) = HEAD
           ELSE
 C5E3--------CHECK TO SEE IF NODE WAS PREVIOUSLY INACTIVE
@@ -694,6 +703,7 @@ C5CA----CHECK FOR VALID CELL NUMBER THEN CONVERT TO GLOBAL NUMBER
             WRITE(IOUT,*) 'NCLNNDS: ', NCLNNDS
             CALL USTOP('')
           ENDIF
+          NODCLN = ICELL
           ICELL = ICELL + NODES
 C
 C5D--------GET OPTIONS 
@@ -725,7 +735,15 @@ C5E2--------HEAD IS SET TO AVERAGE OF CONNECTING ACTIVE CELLS
                 ISUM = ISUM + 1
               ENDIF
             ENDDO
-            HEAD = HEAD / ISUM
+            IF(ISUM.GT.0) THEN
+              HEAD = HEAD / ISUM
+            ELSE
+              WRITE(IOUT,*) 'ERROR CONVERTING CLN TO CONSTANT: ', NODCLN
+              WRITE(IOUT,*) 'CANNOT CALCULATE AN AVERAGE STARTING HEAD.'
+              WRITE(IOUT,*) 'BECAUSE NO CONNECTED CELLS ARE ACTIVE.'
+              WRITE(IOUT,*) 'STOPPING...'
+              CALL USTOP('')              
+            ENDIF
             HNEW(ICELL) = HEAD
           ELSE
 C5E3--------CHECK TO SEE IF NODE WAS PREVIOUSLY INACTIVE
