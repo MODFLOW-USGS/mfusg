@@ -917,7 +917,7 @@ C     ------------------------------------------------------------------
      2                NODES,NEQS,INCLN,IWADICLN
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,CLNCON,NCLN,NNDCLN,
      1      ACLNGWC,NCLNGWC,IFLINCLN,DWADICC,DWADICG,
-     1      ICCWADICLN,ICGWADICLN,IA_CLN,JA_CLN 
+     1      ICCWADICLN,ICGWADICLN,IA_CLN,JA_CLN,IDXGLO_CLN  
             USE SMSMODULE, ONLY: DKDH,DKDHC,NONMETH,EPSILON
 C
       DOUBLE PRECISION HD,BBOT,TTOP,THCK,ZERO,CONSTERM,FLOWTERM,
@@ -953,34 +953,23 @@ C----------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C2C---------COMPUTE AND FILL DKDHC TERM FOR CLN-CLN CONNECTION
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
 C2D---------FIND UPSTREAM NODE AND HIGHER BOT NODE
-            IUPS = NL
-            IF(HNEW(JJ).GT.HNEW(NL)) IUPS = JJ
-            IHBOT = NL
-            BNL = ACLNNDS(NL-NODES,5)
-            BJJ = ACLNNDS(JJ-NODES,5)
-            BHBOT =BNL
-            IF(BJJ.GT.BNL) THEN
-                IHBOT = JJ
-                BHBOT = BJJ
+            IUPS = ND1
+            IF(HNEW(ND2).GT.HNEW(ND1)) IUPS = ND2
+            IHBOT = ND1
+            BC1 = ACLNNDS(NC1,5)
+            BC2 = ACLNNDS(NC2,5)
+            BHBOT =BC1
+            IF(BC2.GT.BC1) THEN
+                IHBOT = ND2
+                BHBOT = BC2
             ENDIF
 C2E---------FILL DKDHC FOR CONNECTION
             INDK = 0
             IF(IUPS.EQ.IHBOT) INDK = 1
-            IF(ABS(BJJ-BNL).LT.0.01) INDK = 1
+            IF(ABS(BC2-BC1).LT.0.01) INDK = 1
             IF(INDK.EQ.1)THEN
               DKDHC(IIS) = DKDH(IUPS)
             ELSEIF(IBOUND(IUPS).GT.0) THEN  !DKDH IS ZERO ON CONSTANT HEAD NODE
@@ -992,7 +981,6 @@ C2E---------FILL DKDHC FOR CONNECTION
               CALL CLN_THIK(ICLN,HD,BHBOT,THCK)
               DKDHC(IIS) = (THCK - DKDHC(IIS))/(EPSILON)
             ENDIF
-          ENDDO
 C
         ENDDO
       ENDDO
@@ -1114,7 +1102,7 @@ C     ------------------------------------------------------------------
      2                NODES,NEQS,INCLN,NOVFC,IWADICLN
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,CLNCON,NCLN,NNDCLN,
      1                ACLNGWC,HWADICC,DWADICC,HWADICG,DWADICG,NCLNGWC,
-     2                IA_CLN,JA_CLN
+     2                IA_CLN,JA_CLN,IDXGLO_CLN
       USE GWFBCFMODULE,ONLY:LAYCON,HWADIGW,DWADIGW
       USE SMSMODULE, ONLY: DKDHC,NONMETH,EPSILON
 C
@@ -1174,24 +1162,13 @@ C----------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C2C---------FILL ARRAYS FOR CLN-CLN CONNECTION
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
 C2D---------FIND UPSTREAM AND DOWNSTREAM NODES
-            IUPS = NL
-            IF(HNEW(NH).GT.HNEW(NL)) IUPS = NH
-            IDN = NL
-            IF(IUPS.EQ.NL) IDN = NH
+            IUPS = ND1
+            IF(HNEW(ND2).GT.HNEW(ND1)) IUPS = ND2
+            IDN = ND1
+            IF(IUPS.EQ.ND1) IDN = ND2
 C
             IF(IWADICLN.EQ.1)THEN
 C2E-------------FILL ARRAYS WITH CORRECTED DOWNSTREAM HEADS OR HNEW STORED IN HWADICC
@@ -1203,7 +1180,6 @@ C2F-------------FILL ARRAYS WITH ORIGINAL DOWNSTREAM HEADS
               HWADI(IIS) = HNEW(IDN)
               DWADI(IIS) = 1.0
              ENDIF
-          ENDDO
         ENDDO
       ENDDO
 C-----------------------------------------------------------------------------

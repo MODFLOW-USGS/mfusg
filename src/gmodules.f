@@ -126,6 +126,7 @@ C ------------------------------------------------------------------------------
         INTEGER, SAVE,    DIMENSION(:),ALLOCATABLE  ::CLNCON
         INTEGER, SAVE,    DIMENSION(:),POINTER  ::IA_CLN
         INTEGER, SAVE,    DIMENSION(:),POINTER  ::JA_CLN        
+        INTEGER, SAVE,    DIMENSION(:),POINTER  ::IDXGLO_CLN        
         REAL, SAVE,    DIMENSION(:,:),ALLOCATABLE  ::ACLNNDS
         REAL, SAVE,    DIMENSION(:,:),ALLOCATABLE  ::ACLNGWC
         REAL, SAVE,    DIMENSION(:,:),ALLOCATABLE  ::ACLNCOND

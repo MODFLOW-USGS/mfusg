@@ -537,8 +537,13 @@ C7G-------PRINT NEW IA AND JA INFORMATION IF PRINTFV OPTION IS SET
       ELSE
         JAFL => JA
       ENDIF
+C--------------------------------------------------------------------------
+C7H------PREPARE IDXGLO ARRAY FOR CLN DOMAIN
+      IF(INCLN.NE.0)THEN
+        CALL FILLIDXGLO_CLN
+      ENDIF      
 C        
-C7H-----SET GNC CONNECTION ARRAYS FROM JA STRUCTURE     
+C7I-----SET GNC CONNECTION ARRAYS FROM JA STRUCTURE     
       IF(INGNCn.NE.0) THEN
         CALL SGNCn2DISU1MC
       ENDIF

@@ -351,6 +351,35 @@ C14-----RETURN
       RETURN
       END            
 C ---------------------------------------------------------------------
+      SUBROUTINE FILLIDXGLO_CLN
+C     ******************************************************************
+C      FILL POINTER ARRAY FOR CLN DOMAIN TO GLOBAL MATRIX IDXGLO_CLN
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE CLN1MODULE, ONLY: IDXGLO_CLN,NJA_CLN,NCLNNDS,ACLNNDS
+      USE GLOBAL, ONLY: IA,JA,NODES
+C     ------------------------------------------------------------------
+      ALLOCATE(IDXGLO_CLN(NJA_CLN))
+C1--------LOOP OVER ALL CLN NODES
+      IPOS = 1
+      DO NC1 = 1,NCLNNDS
+        ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES          
+C2-------LOOP OVER ALL CONNECTIONS OF NODE NC1 IN GLOBAL ARRAY
+        DO II = IA(ND1),IA(ND1+1)-1
+          ND2 = JA(II)
+          IF(ND2.GT.NODES.AND.ND2.LE.NODES+NCLNNDS)THEN
+            IDXGLO_CLN(IPOS) = II
+            IPOS = IPOS + 1
+          ENDIF
+        ENDDO
+      ENDDO
+C----------------------------------------------------------------------------------------
+C3------RETURN
+      RETURN
+      END
+C ---------------------------------------------------------------------
       SUBROUTINE SCLN2DIS1SR
 C     ******************************************************************
 C      READ PROPERTIES FOR CLN DOMAIN FOR A STRUCTURED GRID
@@ -777,7 +806,7 @@ C     ******************************************************************
       USE GLOBAL, ONLY:NODES,NJA,IA,PGF,FAHL,TOP,BOT,CL1,CL2,NODES,NLAY,
      1            NODLAY,IBOUND,JA,JAS,IVC,ISYM,AREA,IDEALLOC_HY
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,NNDCLN,ACLNGWC,NCLNGWC,
-     1                  ACLNCOND,NCLN,CLNCON,IA_CLN,JA_CLN
+     1                  ACLNCOND,NCLN,CLNCON,IA_CLN,JA_CLN,IDXGLO_CLN
       USE GWFBCFMODULE,ONLY:HK,CV,LAYCON,LAYAVG,IKVFLAG
       DOUBLE PRECISION FK,AREAF,EL,RADFSQ,CWCn,RO,ROD,CWND,DEX,DEXN,DEZ,
      1  AREAF1,AREAF2,FK1,FK2,FPER,FRAD,FANISO,EL1,EL2,AKVAL
@@ -792,23 +821,9 @@ C2----------loop over all connections of node NC1
         DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
           NC2 = JA_CLN(II_CLN)
           IF(NC2.GT.NC1) CYCLE
-          ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
-          ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IC1 = ACLNNDS(NC1,2)     !CLN TYPE FOR NODE 1
           IC2 = ACLNNDS(NC2,2)     !CLN TYPE FOR NODE 2
-C1C---------FIND LOWER ROW NUMBER TO FILL UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C--------------------------------------------------------------------------------------
-C2---------COMPUTE AND FILL CONDUCTANCE TERM FOR CLN-CLN CONNECTION IN PGF
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
 C
             CALL CLNA(IC1,AREAF1)
@@ -829,7 +844,6 @@ C3-----------ALSO FILL AREA, IVC, CL1, CL2 - NEEDED FOR TRANSPORT
             IVC(IIS) = 3
             CL1(IIS) = ACLNNDS(NC1,4)  !DIVIDE BY 2?
             CL2(IIS) = ACLNNDS(NC2,4)  !DIVIDE BY 2?
-          ENDDO
         ENDDO
       ENDDO
 C
@@ -1001,7 +1015,7 @@ C     ------------------------------------------------------------------
      1    NODLAY,AMAT,RHS,IA,JA,JAS,PGF
       USE CLN1MODULE, ONLY:  NCLN,NNDCLN,NCLNNDS,ACLNNDS,CLNCON,
      1   ACLNGWC,NCLNGWC,IFLINCLN,HWADICC,HWADICG,ICCWADICLN,ICGWADICLN,
-     2   IA_CLN,JA_CLN
+     2   IA_CLN,JA_CLN,IDXGLO_CLN
       USE GWFBCFMODULE,ONLY:IWDFLG,WETFCT,IHDWET,IWETIT,LAYCON,HDRY,
      1                      HK,WETDRY,LAYAVG
       USE SMSMODULE, ONLY: EPSILON
@@ -1032,34 +1046,19 @@ C2A----------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C2C---------COMPUTE AND FILL CORRECTION TERM FOR CLN-CLN CONNECTION
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
 C2D---------FIND UPSTREAM AND DOWNSTREAM NODES
-            IUP = NL
-            IF(HNEW(NH).GT.HNEW(NL)) IUP = NH
-            IDN = NL
-            IF(IUP.EQ.NL) IDN = NH
+            IUP = ND1
+            IF(HNEW(ND2).GT.HNEW(ND1)) IUP = ND2
+            IDN = ND1
+            IF(IUP.EQ.ND1) IDN = ND2
 C2E---------SKIP CORRECTION IF DOWNSTREAM NODE DOES NOT NEED CORRECTION
             IDNL = IDN - NODES
             IF(ICCWADICLN(IDNL).EQ.0) CYCLE
-C2F-----------FIND MATRIX LOCATION OF DOWNSTREAM NODE          
-            ILOC = II  !MATRIX LOCATION FOR NL BEING DOWNSTREAM NODE
-            IF(NH.EQ.IDN) ILOC = ISYM(II)            
-C2G---------FILL CORRECTION FOR CONNECTION 
-            RHS(IDN) = RHS(IDN) + AMAT(ILOC)*(HWADICC(IDNL) - HNEW(IDN))
-            RHS(IUP) = RHS(IUP) - AMAT(ILOC)*(HWADICC(IDNL) - HNEW(IDN))
-          ENDDO
+C2F---------FILL CORRECTION FOR CONNECTION 
+            RHS(IDN) = RHS(IDN) + AMAT(II)*(HWADICC(IDNL) - HNEW(IDN))
+            RHS(IUP) = RHS(IUP) - AMAT(II)*(HWADICC(IDNL) - HNEW(IDN))
         ENDDO
       ENDDO
 C-----------------------------------------------------------------------------
@@ -1115,7 +1114,7 @@ C     ------------------------------------------------------------------
       USE GLOBAL, ONLY:NODES,NLAY,IBOUND,HNEW,BUFF,BOT,TOP,ISYM,IOUT,
      1    NODLAY,AMAT,RHS,IA,JA,JAS,PGF,ICONCV,Sn,AKRC,AKR,iunsat
       USE CLN1MODULE, ONLY:  NCLN,NNDCLN,NCLNNDS,ACLNNDS,CLNCON,
-     1    ACLNGWC,NCLNGWC,ACLNCOND,IFLINCLN,IA_CLN,JA_CLN
+     1    ACLNGWC,NCLNGWC,ACLNCOND,IFLINCLN,IA_CLN,JA_CLN,IDXGLO_CLN
       USE GWFBCFMODULE,ONLY:IWDFLG,WETFCT,IHDWET,IWETIT,LAYCON,HDRY,
      1                      HK,WETDRY,LAYAVG
       USE SMSMODULE, ONLY: EPSILON
@@ -1154,30 +1153,19 @@ C------------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C2B---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C2C---------COMPUTE AND FILL AKRC TERM FOR CLN-CLN CONNECTION
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
 C2D---------FIND UPSTREAM NODE AND HIGHER BOT NODE
-            IUPS = NL
-            IF(HNEW(JJ).GT.HNEW(NL)) IUPS = JJ
-            IHBOT = NL
-            BNL = ACLNNDS(NL-NODES,5)
-            BJJ = ACLNNDS(JJ-NODES,5)
-            IF(BJJ.GT.BNL) IHBOT = JJ
+            IUPS = ND1
+            IF(HNEW(ND2).GT.HNEW(ND1)) IUPS = ND2
+            IHBOT = NC1
+            BC1 = ACLNNDS(NC1,5)
+            BC2 = ACLNNDS(NC2,5)
+            IF(BC2.GT.BC1) IHBOT = ND2
 C2E---------FILL AKRC FOR CONNECTION
             INDK = 0
             IF(IUPS.EQ.IHBOT) INDK = 1
-            IF(ABS(BJJ-BNL).LT.0.01) INDK = 1
+            IF(ABS(BC2-BC1).LT.0.01) INDK = 1
             IF(INDK.EQ.1)THEN
               AKRC(IIS) = AKR(IUPS)
             ELSE
@@ -1189,7 +1177,6 @@ C2E---------FILL AKRC FOR CONNECTION
               CALL CLN_THIK(ICLN,HD,BBOT,THCK)
               AKRC(IIS) = THCK
             ENDIF
-          ENDDO
         ENDDO
       ENDDO
 C-----------------------------------------------------------------------------
@@ -1258,28 +1245,16 @@ C3B----------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C3C---------FIND LOWER ROW NUMBER FOR UPPER DIAGONAL OF PGF
-          IF(ND2.GT.ND1)THEN
-            NL = ND1
-            NH = ND2
-          ELSE
-            NL = ND2
-            NH = ND1
-          ENDIF
-C3D---------COMPUTE AND FILL AMAT TERM FOR CONDUIT-CONDUIT CONNECTION
-          DO II = IA(NL)+1,IA(NL+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.NH) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IIS = JAS(II)
-            IUPS = JJ
-            IF(HNEW(JJ).LT.HNEW(NL)) IUPS = NL
-C3D1--------FILL OFFDIAGONAL TERMS IN ROWS NL AND NH
+            IUPS = ND2
+            IF(HNEW(ND2).LT.HNEW(ND1)) IUPS = ND1
+C3D1--------FILL OFFDIAGONAL TERMS IN ROWS ND1 AND ND2
             AMAT(II) = PGF(IIS)*AKRC(IIS)
             AMAT(ISYM(II)) = PGF(IIS)*AKRC(IIS)
 C3D2--------ADD TO DIAGONAL TERMS IN ROWS NL AND NH
-            AMAT(IA(NL)) = AMAT(IA(NL)) - PGF(IIS)*AKRC(IIS)
-            AMAT(IA(NH)) = AMAT(IA(NH)) - PGF(IIS)*AKRC(IIS)
-          ENDDO
+            AMAT(IA(ND1)) = AMAT(IA(ND1)) - PGF(IIS)*AKRC(IIS)
+            AMAT(IA(ND2)) = AMAT(IA(ND2)) - PGF(IIS)*AKRC(IIS)
 C
         ENDDO
       ENDDO
@@ -1725,7 +1700,7 @@ C     ------------------------------------------------------------------
       USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,AMAT,NODLAY,
      1    TOP,IOUT,NODES,NJA,IA,JA,JAS,IUNSTR,ISYM,ITRNSP,FLOWJA
       USE CLN1MODULE, ONLY: ICLNCB,NCLN,NNDCLN,CLNCON,NCLNNDS,ACLNNDS,
-     1    NCLNGWC,ACLNGWC,IA_CLN,JA_CLN,NJA_CLN
+     1    NCLNGWC,ACLNGWC,IA_CLN,JA_CLN,NJA_CLN,IDXGLO_CLN
       USE GWFBASMODULE,ONLY:ICBCFL,DELT,PERTIM,TOTIM,ICHFLG
       USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
       USE GWTBCTMODULE, ONLY: CBCF
@@ -1769,17 +1744,13 @@ C4B----------loop over all connections of node NC1
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
-C4B---------FILL FLOW TERM FOR CLN-CLN CONNECTION
-          DO II = IA(ND1)+1,IA(ND1+1)-1
-            JJ = JA(II)
-            IF(JJ.NE.ND2) CYCLE
+          II = IDXGLO_CLN(II_CLN)
             IF(ICHFLG.EQ.0) THEN
-              IF((IBOUND(ND1).LE.0) .AND. (IBOUND(JJ).LE.0)) CYCLE
+              IF((IBOUND(ND1).LE.0) .AND. (IBOUND(ND2).LE.0)) CYCLE
             END IF
             IIS = JAS(II)
             FLOWCLNCLN(II_CLN)= -FLOWJA(II)
             IF(ITRNSP.GT.0) CBCF(IIS) = FLOWJA(II)
-          ENDDO
         ENDDO
       ENDDO
 C4D------RECORD CLN-CLN FLOW
