@@ -21,7 +21,7 @@ C     ******************************************************************
 C
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,       ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,NODES,IUNSTR
+      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,NODES,IUNSTR,NEQS
       USE GWFDRNMODULE, ONLY:NDRAIN,MXDRN,NDRNVL,IDRNCB,IPRDRN,NPDRN,
      1                       IDRNPB,NNPDRN,DRNAUX,DRAI
       CHARACTER*200 LINE
@@ -103,7 +103,7 @@ C5A-----READ PARAMETER WITHOUT INSTANCES
             ELSE
              CALL ULSTRDU(NLST,DRAI,LSTBEG,NDRNVL,MXDRN,1,IN,IOUT,
      1       'DRAIN NO.      NODE         DRAIN EL.  CONDUCTANCE',
-     2       DRNAUX,5,NAUX,IFREFM,NODES,5,5,IPRDRN)
+     2       DRNAUX,5,NAUX,IFREFM,NEQS,5,5,IPRDRN)
             ENDIF
           ELSE
 C5B-----READ INSTANCES
@@ -118,7 +118,7 @@ C5B-----READ INSTANCES
             ELSE
               CALL ULSTRDU(NINLST,DRAI,LSTBEG,NDRNVL,MXDRN,1,IN,IOUT,
      1        'DRAIN NO.      NODE         DRAIN EL.  CONDUCTANCE',
-     2        DRNAUX,20,NAUX,IFREFM,NODES,5,5,IPRDRN)
+     2        DRNAUX,20,NAUX,IFREFM,NEQS,5,5,IPRDRN)
             ENDIF
 
   110       CONTINUE
@@ -136,7 +136,7 @@ C     ******************************************************************
 C
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,       ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,IUNSTR,NODES
+      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,IUNSTR,NODES,NEQS
       USE GWFDRNMODULE, ONLY:NDRAIN,MXDRN,NDRNVL,IPRDRN,NPDRN,
      1                       IDRNPB,NNPDRN,DRNAUX,DRAI
 C     ------------------------------------------------------------------
@@ -193,7 +193,7 @@ C3------IF THERE ARE NEW NON-PARAMETER DRAINS, READ THEM.
          ELSE
            CALL ULSTRDU(NNPDRN,DRAI,1,NDRNVL,MXDRN,1,IN,IOUT,
      1     'DRAIN NO.      NODE         DRAIN EL.  CONDUCTANCE',
-     2     DRNAUX,20,NAUX,IFREFM,NODES,5,5,IPRDRN)
+     2     DRNAUX,20,NAUX,IFREFM,NEQS,5,5,IPRDRN)
          ENDIF
       END IF
       NDRAIN=NNPDRN
