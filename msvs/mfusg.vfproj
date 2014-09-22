@@ -39,6 +39,7 @@
 		<File RelativePath="..\src\gwf2basu1.f"/>
 		<File RelativePath="..\src\gwf2bcf-lpf-u1.f"/>
 		<File RelativePath="..\src\gwf2chd7u1.f"/>
+		<File RelativePath="..\src\gwf2dpf1u1.f"/>
 		<File RelativePath="..\src\gwf2drn7u1.f"/>
 		<File RelativePath="..\src\gwf2evt8u1.f"/>
 		<File RelativePath="..\src\gwf2fhb7u1.f"/>
@@ -52,6 +53,8 @@
 		<File RelativePath="..\src\gwf2str7u1.f"/>
 		<File RelativePath="..\src\gwf2sub7u1.f"/>
 		<File RelativePath="..\src\gwf2wel7u1.f"/>
+		<File RelativePath="..\src\gwt2bndsu1.f"/>
+		<File RelativePath="..\src\gwt2dptu1.f"/>
 		<File RelativePath="..\src\lak_gag_sfr_modules.f"/>
 		<File RelativePath="..\src\mfusg.f"/>
 		<File RelativePath="..\src\parutl7.f"/>

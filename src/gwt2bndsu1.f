@@ -1,0 +1,1927 @@
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2STO1BD(KSTP,KPER,ICOMP,ISS)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET TERMS FOR ALL TRANSPORT CELLS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1  AMAT,IA,JA,TOP,BOT,AREA,Sn,So,NEQS,INCLN
+      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM,DELT
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IBCTCB,
+     1 IADSORB,ADSORB,FLICH,PRSITY,CONCO,ICT
+C
+      CHARACTER*16 TEXT(2)
+      DOUBLE PRECISION RATIN,RATOUT,QQ,VODT,ADSTERM,FL,CW,CWO,ALENG,
+     *  DTERMS,RTERMS,VOLU
+      DATA TEXT(1) /'    MASS STORAGE'/
+      DATA TEXT(2) /'CLN MASS STORAGE'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IBCTCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IBCTCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NEQS
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C5------LOOP THROUGH EACH NODE AND CALCULATE STORAGE
+      DO 100 N=1,NEQS
+C
+C5B-----IF THE CELL IS NOT PCB OR WRONG COMPONENT SPECIES, IGNORE IT.
+      IF(ICBUND(N).EQ.0)GO TO 99
+C
+      IF(N.LE.NODES)THEN
+        ALENG = TOP(N) - BOT(N)
+      ELSE
+        ALENG = ACLNNDS(N-NODES,5)
+      ENDIF
+      VOLU = AREA(N) * ALENG
+      VODT = VOLU / DELT
+      QQ = 0.0
+      IF(ICT.EQ.0)THEN
+C-------STORAGE TERM ON SOIL
+        IF(N.LE.NODES.AND.IADSORB.EQ.1)THEN
+          ADSTERM = ADSORB(N,ICOMP) * VODT
+          QQ = ADSTERM * (CONC(N,ICOMP) - CONCO(N,ICOMP))
+        ELSEIF(N.LE.NODES.AND.IADSORB.EQ.2)THEN
+          ADSTERM = ADSORB(N,ICOMP) * VODT
+          FL = FLICH(N,ICOMP)
+          CW = 0.0
+          CWO = 0.0
+          IF(CONC(N,ICOMP).GT.0.0) CW = CONC(N,ICOMP)
+          IF(CONCO(N,ICOMP).GT.0.0) CWO = CONCO(N,ICOMP)
+          QQ = ADSTERM * (CW**FL - CWO**FL)
+        ENDIF
+C-----------------------------------------------------
+C-------STORAGE TERM IN WATER
+        DTERMS = 0.0
+        RTERMS = 0.0
+        CALL GWT2BCT1STOW(N,ICOMP,DTERMS,RTERMS,VODT,VOLU,ALENG,ISS)
+        QQ = QQ - DTERMS * CONC(N,ICOMP) + RTERMS
+      ELSE   !-----------------------TOTAL CONCENTRATION FORMULATION
+C-------NET STORAGE TERM FOR TOTAL CONCENTRATION FORMULATION
+        QQ = QQ + VODT * CONC(N,ICOMP)
+     *          - VODT * CONCO(N,ICOMP)
+      ENDIF
+      QQ = - QQ  ! STORAGE TERM NEGATIVE IS INFLOW AS PER MODFLOW CONVENTION
+      Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+      IF(IBD.LT.0) THEN
+         IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61    FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+        IF(IUNSTR.EQ.0.AND.N.LE.NODES)THEN
+          IL = (N-1) / (NCOL*NROW) + 1
+          IJ = N - (IL-1)*NCOL*NROW
+          IR = (IJ-1)/NCOL + 1
+          IC = IJ - (IR-1)*NCOL
+           WRITE(IOUT,62) L,IL,IR,IC,Q
+   62    FORMAT(1X,'CBC  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',I5,
+     1       '   FLUX ',1PG15.6)
+        ELSE
+           WRITE(IOUT,63) L,N,Q
+   63    FORMAT(1X,'CBC  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+        ENDIF
+        IBDLBL=1
+      END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+      BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+      IF(QQ.GE.ZERO) THEN
+C
+C5G-----POSITIVE FLOW RATE. ADD IT TO RATIN
+        RATIN=RATIN+QQ
+      ELSE
+C
+C5H-----NEGATIVE FLOW RATE. ADD IT TO RATOUT
+        RATOUT=RATOUT-QQ
+      END IF
+   99 CONTINUE
+C
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IBD.EQ.1)THEN
+        IF(IUNSTR.EQ.0)THEN
+          CALL UBUDSV(KSTP,KPER,TEXT(1),IBCTCB,BUFF,NCOL,NROW,
+     1                          NLAY,IOUT)
+        ELSE
+          CALL UBUDSVU(KSTP,KPER,TEXT(1),IBCTCB,BUFF,NODES,
+     1                          IOUT,PERTIM,TOTIM)
+        ENDIF
+        IF(INCLN.GT.0)THEN
+           CALL UBUDSVU(KSTP,KPER,TEXT(2),IBCTCB,BUFF(NODES+1:NEQS),
+     1                 NCLNNDS,IOUT,PERTIM,TOTIM)
+        ENDIF
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT(1)
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2DCY1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS DECAY TERMS FOR ALL TRANSPORT CELLS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1  AMAT,IA,JA,TOP,BOT,AREA,Sn,So,NEQS,INCLN
+      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS     
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM,DELT
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IBCTCB,
+     1 IADSORB,ADSORB,FLICH,PRSITY,CONCO,ICT,IZOD,IFOD,ZODRW,FODRW,
+     1  ZODRS,FODRS
+C
+      CHARACTER*16 TEXT(2)
+      DOUBLE PRECISION RATIN,RATOUT,QQ,VOLU,ADSTERM,FL,CW,CWO,ALENG,X,Y,
+     1  CEPS,EPS,CT
+      DATA TEXT(1) /'      MASS DECAY'/
+      DATA TEXT(2) /'  CLN MASS DECAY'/
+C     ------------------------------------------------------------------
+C1------RETURN IF NO DECAY IN SIMULATION
+      IF(IZOD.EQ.0.AND.IFOD.EQ.0) RETURN 
+C2------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C2------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IBCTCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IBCTCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NEQS
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C5------LOOP THROUGH EACH NODE AND CALCULATE STORAGE
+      DO 100 N=1,NEQS
+C
+C5B-----IF THE CELL IS NOT PCB OR WRONG COMPONENT SPECIES, IGNORE IT.
+      IF(ICBUND(N).EQ.0)GO TO 99
+C
+      IF(N.LE.NODES)THEN
+        ALENG = TOP(N) - BOT(N)
+      ELSE
+        ALENG = ACLNNDS(N-NODES,5)
+      ENDIF
+      VOLU = AREA(N) * ALENG
+      QQ = 0.0
+C-----------------------------------------------------------------------------      
+      IF(ICT.EQ.0)THEN  !----------WATER PHASE CONCENTRATION FORMULATION 
+C-----------------------------------------------------------------------------
+C-------DECAY TERM ON SOIL (NO ADSORPTION ON CLN)
+        IF(N.LE.NODES)THEN
+C
+C---------ZERO ORDER DECAY ON SOIL 
+          IF(IZOD.GE.2.AND.IADSORB.GT.0)THEN
+            CT = - VOLU * ZODRS(N,ICOMP)
+            EPS = 0.01
+            CEPS = MAX(0.0,CONC(N,ICOMP))
+            X = CEPS /EPS
+            CALL SMOOTH(X,Y)
+            QQ =  CT * Y
+          ENDIF
+C
+C---------FIRST ORDER DECAY ON SOIL
+          IF(IFOD.GE.2.AND.IADSORB.GT.0)THEN
+            CT = -ADSORB(N,ICOMP) * VOLU * FODRS(N,ICOMP)
+            IF(IADSORB.EQ.1)THEN
+C--------------FOR LINEAR ADSORPTION                
+              QQ = QQ + CT * CONC(N,ICOMP)
+            ELSE
+C--------------FOR NON-LINEAR ADSORPTION FILL AS NEWTON
+              ETA = FLICH(N,ICOMP)
+              QQ =  CT * CONC(N,ICOMP) ** ETA
+            ENDIF    
+          ENDIF
+        ENDIF
+C-----------------------------------------------------------------------------
+C-------DECAY TERM IN WATER
+C-----------------------------------------------------------------------------
+C-------ZERO ORDER DECAY IN WATER 
+        IF(IZOD.EQ.1.OR.IZOD.EQ.3)THEN
+          CT = -Sn(N)* VOLU * ZODRW(N,ICOMP)
+          EPS = 0.01
+          CEPS = MAX(0.0,CONC(N,ICOMP))
+          X = CEPS /EPS
+          CALL SMOOTH(X,Y)
+          QQ =  QQ + CT * Y
+        ENDIF
+C
+C-------FIRST ORDER DECAY IN WATER
+        IF(IFOD.EQ.1.OR.IFOD.EQ.3)THEN
+          CT =  -Sn(N)* VOLU * FODRW(N,ICOMP)
+          QQ = QQ + CT * CONC(N,ICOMP)
+        ENDIF
+      ELSE
+CSP FINISH TOTAL CONCENTRATION FORMULATION
+      ENDIF
+      Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+      IF(IBD.LT.0) THEN
+         IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT(1),KPER,KSTP
+   61    FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+        IF(IUNSTR.EQ.0.AND.N.LE.NODES)THEN
+          IL = (N-1) / (NCOL*NROW) + 1
+          IJ = N - (IL-1)*NCOL*NROW
+          IR = (IJ-1)/NCOL + 1
+          IC = IJ - (IR-1)*NCOL
+           WRITE(IOUT,62) L,IL,IR,IC,Q
+   62    FORMAT(1X,'CBC  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',I5,
+     1       '  DECAY ',1PG15.6)
+        ELSE
+           WRITE(IOUT,63) L,N,Q
+   63    FORMAT(1X,'CBC  ',I6,'    NODE ',I8,'  DECAY ',1PG15.6)
+        ENDIF
+        IBDLBL=1
+      END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+      BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+      IF(QQ.GE.ZERO) THEN
+C
+C5G-----POSITIVE FLOW RATE. ADD IT TO RATIN
+        RATIN=RATIN+QQ
+      ELSE
+C
+C5H-----NEGATIVE FLOW RATE. ADD IT TO RATOUT
+        RATOUT=RATOUT-QQ
+      END IF
+   99 CONTINUE
+C
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IBD.EQ.1)THEN
+        IF(IUNSTR.EQ.0)THEN
+          CALL UBUDSV(KSTP,KPER,TEXT(1),IBCTCB,BUFF,NCOL,NROW,
+     1                          NLAY,IOUT)
+        ELSE
+          CALL UBUDSVU(KSTP,KPER,TEXT(1),IBCTCB,BUFF,NODES,
+     1                          IOUT,PERTIM,TOTIM)
+        ENDIF
+        IF(INCLN.GT.0)THEN
+           CALL UBUDSVU(KSTP,KPER,TEXT(2),IBCTCB,BUFF(NODES+1:NEQS),
+     1                 NCLNNDS,IOUT,PERTIM,TOTIM)
+        ENDIF
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT(1)
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      MODULE GWTPCBMODULE
+        INTEGER,SAVE,POINTER  ::NPCB,MXPCB,IPCBCB,NPCBVL,IPRPCB
+        INTEGER,SAVE,POINTER  ::NPPCB,IPCBPB,NNPPCB
+        CHARACTER(LEN=16),SAVE, DIMENSION(:),   ALLOCATABLE     ::PCBAUX
+        REAL,             SAVE, DIMENSION(:,:), ALLOCATABLE     ::PCB
+        REAL,       SAVE, DIMENSION(:,:), ALLOCATABLE  ::AMATDIAG,RHSKPT
+      END MODULE GWTPCBMODULE
+C
+      SUBROUTINE GWT2PCB1AR(IN)
+C     ******************************************************************
+C     ALLOCATE ARRAY STORAGE FOR PRESCRIBED CONCENTRATION BOUNDARY PACKAGE
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,  ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,NODES,IUNSTR,ITRNSP,
+     1                  NEQS
+      USE GWTPCBMODULE
+      USE GWTBCTMODULE, ONLY: MCOMP
+C
+      CHARACTER*200 LINE
+C     ------------------------------------------------------------------
+C-----PCB REQUIRED ONLY IF TRANSPORT SIMULATION IS PERFORMED
+      IF(ITRNSP.EQ.0)THEN
+        IN = 0
+        RETURN
+      ENDIF
+C     ------------------------------------------------------------------
+      ALLOCATE(NPCB,MXPCB,IPCBCB,NPCBVL,IPRPCB)
+      ALLOCATE(NPPCB,IPCBPB,NNPPCB)
+C
+C1------IDENTIFY PACKAGE AND INITIALIZE NPCB.
+      WRITE(IOUT,1)IN
+    1 FORMAT(1X,/1X,'PCB -- PRESCRIBED CONCENTRATION PACKAGE,',1X,
+     1 'VERSION 7, 2/2/2010 INPUT READ FROM UNIT ',I4)
+      NPCB=0
+      NNPPCB=0
+C
+C2------READ MAXIMUM NUMBER OF PCBS AND UNIT OR FLAG FOR
+C2------CELL-BY-CELL FLOW TERMS.
+      CALL URDCOM(IN,IOUT,LINE)
+      CALL UPARLSTAL(IN,IOUT,LINE,NPPCB,MXPW)
+      IF(IFREFM.EQ.0) THEN
+         READ(LINE,'(2I10)') MXPCB,IPCBCB
+         LLOC=21
+      ELSE
+         LLOC=1
+         CALL URWORD(LINE,LLOC,ISTART,ISTOP,2,MXPCB,R,IOUT,IN)
+         CALL URWORD(LINE,LLOC,ISTART,ISTOP,2,IPCBCB,R,IOUT,IN)
+      END IF
+      WRITE(IOUT,3) MXPCB
+    3 FORMAT(1X,'MAXIMUM OF ',I6,' ACTIVE PRESCRIBED CONCS AT ONE TIME')
+      IF(IPCBCB.LT.0) WRITE(IOUT,7)
+    7 FORMAT(1X,'CELL-BY-CELL FLUXES WILL BE PRINTED WHEN ISPCFL NOT 0')
+      IF(IPCBCB.GT.0) WRITE(IOUT,8) IPCBCB
+    8 FORMAT(1X,'CELL-BY-CELL FLOXES WILL BE SAVED ON UNIT ',I4)
+C
+C3------READ PRINT FLAG.
+      ALLOCATE(PCBAUX(20))
+      IPRPCB=1
+   10 CALL URWORD(LINE,LLOC,ISTART,ISTOP,1,N,R,IOUT,IN)
+      IF(LINE(ISTART:ISTOP).EQ.'NOPRINT') THEN
+         WRITE(IOUT,13)
+   13    FORMAT(1X,'LIST OF PRESCRIBED CONC CELLS WILL NOT BE PRINTED')
+         IPRPCB = 0
+         GO TO 10
+      END IF
+C
+C4------ALLOCATE SPACE FOR THE PCB DATA.
+      IPCBPB=MXPCB+1
+      MXPCB=MXPCB+MXPW
+      IF(MXPCB.LT.1) THEN
+         WRITE(IOUT,17)
+   17    FORMAT(1X,
+     1'Deactivating the PCBl Package because MXPCB=0')
+         IN=0
+      END IF
+      NPCBVL = 5
+      NAUX = 0
+      ALLOCATE (PCB(NPCBVL,MXPCB))
+      ALLOCATE (AMATDIAG(MXPCB,MCOMP),RHSKPT(MXPCB,MCOMP))
+C
+C5------READ NAMED PARAMETERS.
+      WRITE(IOUT,18) NPPCB
+   18 FORMAT(1X,//1X,I5,' PCB parameters')
+      IF(NPPCB.GT.0) THEN
+        LSTSUM=IPCBPB
+        DO 120 K=1,NPPCB
+          LSTBEG=LSTSUM
+          CALL UPARLSTRP(LSTSUM,MXPCB,IN,IOUT,IP,'PCB','Q',1,
+     &                   NUMINST)
+          NLST=LSTSUM-LSTBEG
+          IF(NUMINST.EQ.0) THEN
+C5A-----READ PARAMETER WITHOUT INSTANCES.
+            IF(IUNSTR.EQ.0)THEN
+              CALL ULSTRD(NLST,PCB,LSTBEG,NPCBVL,MXPCB,1,IN,IOUT,
+     &      '  PCB NO.  LAYER   ROW   COL   SPECIES NO.  STRESS FACTOR',
+     &        PCBAUX,20,NAUX,IFREFM,NCOL,NROW,NLAY,5,5,IPRPCB)
+            ELSE
+             CALL ULSTRDU(NLST,PCB,LSTBEG,NPCBVL,MXPCB,1,IN,IOUT,
+     &      '  PCB NO.  LAYER   ROW   COL   SPECIES NO.  STRESS FACTOR',
+     &        PCBAUX,20,NAUX,IFREFM,NEQS,5,5,IPRPCB)
+            ENDIF
+          ELSE
+C5B-----READ INSTANCES.
+            NINLST=NLST/NUMINST
+            DO 110 I=1,NUMINST
+            CALL UINSRP(I,IN,IOUT,IP,IPRPCB)
+            IF(IUNSTR.EQ.0)THEN
+              CALL ULSTRD(NINLST,PCB,LSTBEG,NPCBVL,MXPCB,1,IN,IOUT,
+     &      '  PCB NO.  LAYER   ROW   COL   SPECIES NO.  STRESS FACTOR',
+     &        PCBAUX,20,NAUX,IFREFM,NCOL,NROW,NLAY,5,5,IPRPCB)
+            ELSE
+             CALL ULSTRDU(NINLST,PCB,LSTBEG,NPCBVL,MXPCB,1,IN,IOUT,
+     &      '  PCB NO.  LAYER   ROW   COL   SPECIES NO.  STRESS FACTOR',
+     &        PCBAUX,20,NAUX,IFREFM,NEQS,5,5,IPRPCB)
+            ENDIF
+            LSTBEG=LSTBEG+NINLST
+  110       CONTINUE
+          END IF
+  120   CONTINUE
+      END IF
+C
+C6------RETURN
+      RETURN
+      END
+      SUBROUTINE GWT2PCB1RP(IN)
+C     ******************************************************************
+C     READ PRESCRIBED CONCENTRATION DATA FOR A STRESS PERIOD
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IFREFM,NODES,IUNSTR,NEQS
+      USE GWTPCBMODULE, ONLY:NPCB,MXPCB,NPCBVL,IPRPCB,NPPCB,
+     1                       IPCBPB,NNPPCB,PCBAUX,PCB
+C
+      CHARACTER*6 CPCB
+C     ------------------------------------------------------------------
+C
+C1------IDENTIFY PACKAGE.
+      WRITE(IOUT,1)IN
+   1  FORMAT(1X,/1X,'PCB -- PRESCRIBED CONCENTRATION PACKAGE,',1X,
+     1 'VERSION 7, 2/2/2010 INPUT READ FROM UNIT ',I4)
+C
+C1----READ NUMBER OF PCBS (OR FLAG SAYING REUSE WELL DATA).
+C1----AND NUMBER OF PARAMETERS
+      IF(NPPCB.GT.0) THEN
+        IF(IFREFM.EQ.0) THEN
+           READ(IN,'(2I10)') ITMP,NP
+        ELSE
+           READ(IN,*) ITMP,NP
+        END IF
+      ELSE
+         NP=0
+         IF(IFREFM.EQ.0) THEN
+            READ(IN,'(I10)') ITMP
+         ELSE
+            READ(IN,*) ITMP
+         END IF
+      END IF
+C
+C------Calculate some constants.
+      NAUX=NPCBVL-5
+      IOUTU = IOUT
+      IF (IPRPCB.EQ.0) IOUTU=-IOUTU
+C
+C1A-----IF ITMP LESS THAN ZERO REUSE NON-PARAMETER DATA. PRINT MESSAGE.
+C1A-----IF ITMP=>0, SET NUMBER OF NON-PARAMETER WELLS EQUAL TO ITMP.
+      IF(ITMP.LT.0) THEN
+         WRITE(IOUT,6)
+    6    FORMAT(1X,/
+     1    1X,'REUSING NON-PARAMETER WELLS FROM LAST STRESS PERIOD')
+      ELSE
+         NNPPCB=ITMP
+      END IF
+C
+C1B-----IF THERE ARE NEW NON-PARAMETER PCBs, READ THEM.
+      MXPCB=IPCBPB-1
+      IF(ITMP.GT.0) THEN
+         IF(NNPPCB.GT.MXPCB) THEN
+            WRITE(IOUT,99) NNPPCB,MXPCB
+   99       FORMAT(1X,/1X,'THE NUMBER OF ACTIVE PCBs (',I6,
+     1                     ') IS GREATER THAN MXPCB(',I6,')')
+            CALL USTOP(' ')
+         END IF
+         IF(IUNSTR.EQ.0)THEN
+           CALL ULSTRD(NNPPCB,PCB,1,NPCBVL,MXPCB,0,IN,IOUT,
+     &      'PCB  NO.  LAYER   ROW   COL  COMPONENT NO.  STRESS RATE',
+     2             PCBAUX,20,NAUX,IFREFM,NCOL,NROW,NLAY,5,5,IPRPCB)
+          ELSE
+             CALL ULSTRDU(NNPPCB,PCB,1,NPCBVL,MXPCB,0,IN,IOUT,
+     &      'PCB  NO.  LAYER   ROW   COL  COMPONENT NO.  STRESS FACTOR',
+     &        PCBAUX,20,NAUX,IFREFM,NEQS,5,5,IPRPCB)
+          ENDIF
+      END IF
+      NPCB=NNPPCB
+C
+C1C-----IF THERE ARE ACTIVE PCB PARAMETERS, READ THEM AND SUBSTITUTE
+      CALL PRESET('Q')
+      NREAD=NPCBVL-1
+      IF(NP.GT.0) THEN
+         DO 30 N=1,NP
+         CALL UPARLSTSUB(IN,'PCB',IOUTU,'Q',PCB,NPCBVL,MXPCB,NREAD,
+     1                MXPCB,NPCB,5,5,
+     &      'PCB  NO.  LAYER   ROW   COL  COMPONENT NO.  STRESS RATE',
+     3            PCBAUX,20,NAUX)
+   30    CONTINUE
+      END IF
+C
+C3------PRINT NUMBER OF WELLS IN CURRENT STRESS PERIOD.
+      CPCB=' PCBs '
+      IF(NPCB.EQ.1) CPCB=' PCBS '
+      WRITE(IOUT,101) NPCB,CPCB
+  101 FORMAT(1X,/1X,I6,A)
+C
+C-------FOR STRUCTURED GRID, CALCULATE NODE NUMBER AND PLACE IN LAYER LOCATION
+      IF(ITMP.GT.0.AND.IUNSTR.EQ.0)THEN
+        DO L=1,NPCB
+          IR=PCB(2,L)
+          IC=PCB(3,L)
+          IL=PCB(1,L)
+          N = IC + NCOL*(IR-1) + (IL-1)* NROW*NCOL
+          PCB(1,L) = N
+        ENDDO
+      ENDIF
+C
+C6------RETURN
+      RETURN
+      END
+      SUBROUTINE GWT2PCB1FM(ICOMP)
+C     ******************************************************************
+C     PRESCRIBE CONCENTRATIONS AT PCB CELLS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWTPCBMODULE, ONLY:NPCB,PCB,AMATDIAG,RHSKPT
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC
+      DOUBLE PRECISION BIG,Co
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF PCBs <= 0 THEN RETURN.
+      IF(NPCB.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH PCB IN THE LIST.
+      DO 100 L=1,NPCB
+      N=PCB(1,L)
+      IC=PCB(4,L)
+      Co=PCB(5,L)
+C
+C2A-----IF THE CELL IS INACTIVE OR WRONG COMPONENT SPECIES THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0.OR.IC.NE.ICOMP) GO TO 100
+C
+C2B-----IF THE CELL IS PRESCRIBED CONCENTRATION THEN PROCESS
+        AMATDIAG(L,ICOMP) = AMAT(IA(N))
+        RHSKPT(L,ICOMP) = RHS(N)
+        AMAT(IA(N)) = -1.0 * BIG
+        RHS(N) = -Co * BIG
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2PCB1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR PCB CELLS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWTPCBMODULE,ONLY:NPCB,IPCBCB,PCB,NPCBVL,PCBAUX,
+     *  AMATDIAG,RHSKPT
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,CDIFF
+      DATA TEXT /'PRESCRIBED CONCS'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IPCBCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IPCBCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+      IF(IBD.EQ.2) THEN
+         NAUX=NPCBVL-5
+         IF(IAUXSV.EQ.0) NAUX=0
+         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,PCBAUX,IPCBCB,NCOL,NROW,NLAY,
+     1          NPCB,IOUT,DELT,PERTIM,TOTIM,ICBUND)
+      END IF
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+      IPCBFLAG(N) = 0
+50    CONTINUE
+C
+C4------IF THERE ARE NO PCBs, DO NOT ACCUMULATE
+      IF(NPCB.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH PCB CALCULATING MASS FLUX
+      DO 100 L=1,NPCB
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING WELL.
+      N=PCB(1,L)
+      IC=PCB(4,L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS NOT PCB OR WRONG COMPONENT SPECIES, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IC.NE.ICOMP)GO TO 99
+      IPCBFLAG(N) = 1
+C
+C5C---BACK-CALCULATE MASS FLUX FOR PCB NODE.
+      QQ = -AMATDIAG(L,ICOMP) * CONC(N,ICOMP)
+      DO II = IA(N)+1,IA(N+1)-1
+        JJ = JA(II)
+        QQ = QQ - AMAT(II) * CONC(JJ,ICOMP)
+      ENDDO
+      QQ=QQ + RHSKPT(L,ICOMP)
+      Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+      IF(IBD.LT.0) THEN
+         IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61    FORMAT(1X,/1X,A,'   PERIOD ',I5,'   STEP ',I5)
+        IF(IUNSTR.EQ.0)THEN
+          IL = (N-1) / (NCOL*NROW) + 1
+          IJ = N - (IL-1)*NCOL*NROW
+          IR = (IJ-1)/NCOL + 1
+          IC = IJ - (IR-1)*NCOL
+           WRITE(IOUT,62) L,IL,IR,IC,Q
+   62    FORMAT(1X,'PCB  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',I5,
+     1       '   FLUX ',1PG15.6)
+        ELSE
+           WRITE(IOUT,63) L,N,Q
+   63    FORMAT(1X,'PCB  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+        ENDIF
+         IBDLBL=1
+      END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+      BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+      IF(QQ.GE.ZERO) THEN
+C
+C5G-----FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+        RATIN=RATIN+QQ
+      ELSE
+C
+C5H-----FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+        RATOUT=RATOUT-QQ
+      END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO WELL LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IPCBCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  PCB(1,L),NPCBVL,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IPCBCB,NODES,N,Q,
+C     1                  PCB(1,L),NPCBVL,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IPCBCB,BUFF(1),NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IPCBCB,BUFF(1),NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+      SUBROUTINE GWT2PCB1DA
+C  Deallocate PCB MEMORY
+      USE GWTPCBMODULE
+C
+        DEALLOCATE(NPCB)
+        DEALLOCATE(MXPCB)
+        DEALLOCATE(NPCBVL)
+        DEALLOCATE(IPCBCB)
+        DEALLOCATE(IPRPCB)
+        DEALLOCATE(NPPCB)
+        DEALLOCATE(IPCBPB)
+        DEALLOCATE(NNPPCB)
+        DEALLOCATE(PCBAUX)
+        DEALLOCATE(PCB)
+        DEALLOCATE(AMATDIAG)
+        DEALLOCATE(RHSKPT)
+C
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2PHB1FM
+C     ******************************************************************
+C     FORMULATE BOUNDARY CONDITION FOR TRANSPORT AT PRESCRIBED HEAD NODES
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT,NODES
+      USE GWTBCTMODULE, ONLY: ICBUND,CBCH
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+      BIG = 1.0E20
+C
+C2------PROCESS EACH NODE IN THE LIST.
+      DO 100 N=1,NODES
+C
+C2A-----IF THE CELL IS INACTIVE OR NOT PRESCRIBED HEAD NODE, BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0.OR.IBOUND(N).GE.0) GO TO 100
+        Q = CBCH(N)
+        Co= 0.0
+C
+C2B-----IF THE CELL IS OUTFLOW, PUT Q ON LHS DIAGONAL
+        IF(Q.LT.0.0)THEN
+          AMAT(IA(N)) = AMAT(IA(N)) + Q
+        ELSE
+C2C-------IF THE CELL IS INFLOW, PUT Q*Co ON RHS
+          RHS(N) = RHS(N) -Co * Q
+        ENDIF
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2PHB1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR TRANSPORT AT PRESCRIBED HEAD NODES
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWTBCTMODULE,ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,CBCH,IPCBFLAG
+      USE GWFBCFMODULE,ONLY:IBCFCB
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'CNST H MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IBCFCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IBCFCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C5------LOOP THROUGH EACH PCB CALCULATING MASS FLUX
+      DO 100 N=1,NODES
+C
+C5B-----IF THE CELL IS INACTIVE OR NOT PRESCRIBED HEAD NODE, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IBOUND(N).GE.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT RPESCRIBED HEAD BOUNDARY
+        QF = CBCH(N)
+        Co= 0.0
+C
+C2B-----IF THE CELL IS OUTFLOW, MASS IS Q * CONC
+        IF(QF.LT.0.0)THEN
+          QQ = QF * CONC(N,ICOMP)
+        ELSE
+C2C-------IF THE CELL IS INFLOW, MASS IS Q*Co
+          QQ = QF * Co
+        ENDIF
+        Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'PHB  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'PHB  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO CONSANT HEAD LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IBCFCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  CBCH,1,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IBCFCB,NODES,N,Q,
+C     1                  CBCH,1,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IBCFCB,BUFF,NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IBCFCB,BUFF,NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2WEL1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE WELL TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFWELMODULE, ONLY:NWELLS,WELL,NWELVL
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF WELLS <= 0 THEN RETURN.
+      IF(NWELLS.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH WELL IN THE LIST.
+      DO 100 L=1,NWELLS
+      N=WELL(1,L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = WELL(NWELVL,L)
+        Co=WELL(4+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, PUT Q ON LHS DIAGONAL
+        IF(Q.LT.0.0)THEN
+          AMAT(IA(N)) = AMAT(IA(N)) + Q
+        ELSE
+C2C-------IF THE CELL IS INFLOW, PUT Q*Co ON RHS
+          RHS(N) = RHS(N) -Co * Q
+        ENDIF
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2WEL1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR WELL TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFWELMODULE,ONLY:NWELLS,MXWELL,NWELVL,IWELCB,IPRWEL,NPWEL,
+     1                       IWELPB,NNPWEL,WELAUX,WELL
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'  WELL MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IWELCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IWELCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+      IF(IBD.EQ.2) THEN
+         NAUX=NWELVL-5
+         IF(IAUXSV.EQ.0) NAUX=0
+         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,WELAUX,IWELCB,NCOL,NROW,NLAY,
+     1          NWELLS,IOUT,DELT,PERTIM,TOTIM,ICBUND)
+      END IF
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO PCBs, DO NOT ACCUMULATE
+      IF(NWELLS.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH PCB CALCULATING MASS FLUX
+      DO 100 L=1,NWELLS
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING WELL.
+      N=WELL(1,L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT WELL BOUNDARY
+        QF = WELL(NWELVL,L)
+        Co=WELL(4+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, MASS IS Q * CONC
+        IF(QF.LT.0.0)THEN
+          QQ = QF * CONC(N,ICOMP)
+        ELSE
+C2C-------IF THE CELL IS INFLOW, MASS IS Q*Co
+          QQ = QF * Co
+        ENDIF
+        Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'WEL  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'WEL  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO WELL LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IWELCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  WELL(1,L),NWELVL,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IWELCB,NODES,N,Q,
+C     1                  WELL(1,L),NWELVL,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IWELCB,BUFF(1),NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IWELCB,BUFF(1),NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2GHB1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE GHB TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFGHBMODULE, ONLY:NBOUND,BNDS,NGHBVL
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF GHBS <= 0 THEN RETURN.
+      IF(NBOUND.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH GHB IN THE LIST.
+      DO 100 L=1,NBOUND
+      N=BNDS(1,L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = BNDS(NGHBVL,L)
+        Co= BNDS(5+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, PUT Q ON LHS DIAGONAL
+        IF(Q.LT.0.0)THEN
+          AMAT(IA(N)) = AMAT(IA(N)) + Q
+        ELSE
+C2C-------IF THE CELL IS INFLOW, PUT Q*Co ON RHS
+          RHS(N) = RHS(N) -Co * Q
+        ENDIF
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2GHB1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR GHB TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFGHBMODULE,ONLY:NBOUND,IGHBCB,BNDS,NGHBVL,GHBAUX
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'   GHB MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IGHBCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IGHBCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+      IF(IBD.EQ.2) THEN
+         NAUX=NGHBVL-5
+         IF(IAUXSV.EQ.0) NAUX=0
+         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,GHBAUX,IGHBCB,NCOL,NROW,NLAY,
+     1          NBOUND,IOUT,DELT,PERTIM,TOTIM,ICBUND)
+      END IF
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO GHBs, DO NOT ACCUMULATE
+      IF(NBOUND.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH GHB CALCULATING MASS FLUX
+      DO 100 L=1,NBOUND
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING GHB.
+      N=BNDS(1,L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT GHB BOUNDARY
+        QF = BNDS(NGHBVL,L)
+        Co = BNDS(5+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, MASS IS Q * CONC
+        IF(QF.LT.0.0)THEN
+          QQ = QF * CONC(N,ICOMP)
+        ELSE
+C2C-------IF THE CELL IS INFLOW, MASS IS Q*Co
+          QQ = QF * Co
+        ENDIF
+        Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'GHB  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'GHB  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO GHB LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IGHBCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  BNDS(1,L),NGHBVL,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IGHBCB,NODES,N,Q,
+C     1                  BNDS(1,L),NGHBVL,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IGHBCB,BUFF(1),NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IGHBCB,BUFF(1),NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2DRN1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE DRAIN TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFDRNMODULE, ONLY:NDRAIN,DRAI,NDRNVL
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF DRAINS <= 0 THEN RETURN.
+      IF(NDRAIN.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH DRAIN IN THE LIST.
+      DO 100 L=1,NDRAIN
+      N=DRAI(1,L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = DRAI(NDRNVL,L)
+C
+C2B-----IDRAIN IS ALWAYS OUTFLOW OUTFLOW, PUT Q ON LHS DIAGONAL
+        AMAT(IA(N)) = AMAT(IA(N)) + Q
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2DRN1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR DRAIN TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFDRNMODULE,ONLY:NDRAIN,IDRNCB,DRAI,NDRNVL,DRNAUX
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'   DRN MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IDRNCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IDRNCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+      IF(IBD.EQ.2) THEN
+         NAUX=NDRNVL-5
+         IF(IAUXSV.EQ.0) NAUX=0
+         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,DRNAUX,IDRNCB,NCOL,NROW,NLAY,
+     1          NDRAIN,IOUT,DELT,PERTIM,TOTIM,ICBUND)
+      END IF
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO DRNs, DO NOT ACCUMULATE
+      IF(NDRAIN.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH DRN CALCULATING MASS FLUX
+      DO 100 L=1,NDRAIN
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING DRN.
+      N=DRAI(1,L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT DRAIN BOUNDARY
+        QF = DRAI(NDRNVL,L)
+C
+C2B-----DRAIN IS ALWAYS OUTFLOW, MASS IS Q * CONC
+        QQ = QF * CONC(N,ICOMP)
+         Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'DRN  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'DRN  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO DRN LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IDRNCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  DRAI(1,L),NDRNVL,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IDRNCB,NODES,N,Q,
+C     1                  DRAI(1,L),NDRNVL,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IDRNCB,BUFF(1),NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IDRNCB,BUFF(1),NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2EVT1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE EVT TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFEVTMODULE, ONLY:EVTF,INIEVT,IEVT,IEVTCB,ETFACTOR
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF EVT CELLS <= 0 THEN RETURN.
+      IF(INIEVT.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH EVT NODE IN THE LIST.
+      DO 100 L=1,INIEVT
+      N=IEVT(L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = EVTF(L)
+C
+C2B-----EVT IS ALWAYS OUTFLOW OUTFLOW, PUT Q ON LHS DIAGONAL
+        AMAT(IA(N)) = AMAT(IA(N)) + Q * ETFACTOR(ICOMP)
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2EVT1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR EVT TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFEVTMODULE,ONLY:EVTF,INIEVT,IEVT,IEVTCB,ETFACTOR
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'   EVT MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IEVTCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IEVTCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO EVTs, DO NOT ACCUMULATE
+      IF(INIEVT.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH EVT CALCULATING MASS FLUX
+      DO 100 L=1,INIEVT
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING EVT.
+      N=IEVT(L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT EVT BOUNDARY
+        QF = EVTF(L)
+C
+C2B-----EVT IS ALWAYS OUTFLOW, MASS IS Q * CONC
+        QQ = QF * CONC(N,ICOMP) * ETFACTOR(ICOMP)
+         Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'EVT  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'EVT  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO EVT LIST.
+
+   99 CONTINUE
+C
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IEVTCB,BUFF,NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IEVTCB,BUFF,NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2RCH1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE RCH TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFRCHMODULE, ONLY:RCHF,INIRCH,IRCH,IRCHCB
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF RCH CELLS <= 0 THEN RETURN.
+      IF(INIRCH.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH RCH NODE IN THE LIST.
+      DO 100 L=1,INIRCH
+      N=IRCH(L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = RCHF(L)
+        Co= 0.0
+C
+C2B-----IF THE CELL IS OUTFLOW, PUT Q ON LHS DIAGONAL
+        IF(Q.LT.0.0)THEN
+          AMAT(IA(N)) = AMAT(IA(N)) + Q
+        ELSE
+C2C-------IF THE CELL IS INFLOW, PUT Q*Co ON RHS
+          RHS(N) = RHS(N) -Co * Q
+        ENDIF        
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2RCH1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR RCH TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFRCHMODULE,ONLY:RCHF,INIRCH,IRCH,IRCHCB
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'   RCH MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IRCHCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IRCHCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO EVTs, DO NOT ACCUMULATE
+      IF(INIRCH.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH RCH CALCULATING MASS FLUX
+      DO 100 L=1,INIRCH
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING EVT.
+      N=IRCH(L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT RCH BOUNDARY
+        QF = RCHF(L)
+        Co = 0.0
+C
+C2B-----IF THE CELL IS OUTFLOW, MASS IS Q * CONC
+        IF(QF.LT.0.0)THEN
+          QQ = QF * CONC(N,ICOMP)
+        ELSE
+C2C-------IF THE CELL IS INFLOW, MASS IS Q*Co
+          QQ = QF * Co
+        ENDIF
+        Q = QQ        
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'RCH  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'RCH  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO EVT LIST.
+
+   99 CONTINUE
+C
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IRCHCB,BUFF,NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IRCHCB,BUFF,NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END      
+C----------------------------------------------------------------------------
+      SUBROUTINE GWT2RIV1FM(ICOMP)
+C     ******************************************************************
+C     FORMULATE RIV TRANSPORT BOUNDARY CONDITION
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,       ONLY:IBOUND,RHS,IA,JA,AMAT
+      USE GWFRIVMODULE, ONLY:NRIVER,RIVR,NRIVVL
+      USE GWTBCTMODULE, ONLY: ICBUND
+      DOUBLE PRECISION Co,Q
+C     ------------------------------------------------------------------
+C
+C1------IF NUMBER OF RIV NODES <= 0 THEN RETURN.
+      IF(NRIVER.LE.0) RETURN
+      BIG = 1.0E20
+C
+C2------PROCESS EACH RIV NODE IN THE LIST.
+      DO 100 L=1,NRIVER
+      N=RIVR(1,L)
+C
+C2A-----IF THE CELL IS INACTIVE THEN BYPASS PROCESSING.
+      IF(ICBUND(N).EQ.0) GO TO 100
+        Q = RIVR(NRIVVL,L)
+        Co= RIVR(6+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, PUT Q ON LHS DIAGONAL
+        IF(Q.LT.0.0)THEN
+          AMAT(IA(N)) = AMAT(IA(N)) + Q
+        ELSE
+C2C-------IF THE CELL IS INFLOW, PUT Q*Co ON RHS
+          RHS(N) = RHS(N) -Co * Q
+        ENDIF
+C
+  100 CONTINUE
+C
+C3------RETURN
+      RETURN
+      END
+C-----------------------------------------------------------------------
+      SUBROUTINE GWT2RIV1BD(KSTP,KPER,ICOMP)
+C     ******************************************************************
+C     CALCULATE MASS BUDGET FOR RIV TRANSPORT BOUNDARY CONDITIONS
+C     ******************************************************************
+C
+C        SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,   ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,IUNSTR,
+     1              AMAT,IA,JA
+      USE GWFBASMODULE,ONLY:MSUM,ISPCFL,IAUXSV,DELT,PERTIM,TOTIM
+      USE GWFRIVMODULE,ONLY:NRIVER,IRIVCB,RIVR,NRIVVL,RIVAUX
+      USE GWTBCTMODULE, ONLY: ICBUND,CONC,MSUMT,VBVLT,VBNMT,IPCBFLAG
+C
+      CHARACTER*16 TEXT
+      DOUBLE PRECISION RATIN,RATOUT,QQ,BIG,CDIFF
+      DATA TEXT /'   RIV MASS FLUX'/
+C     ------------------------------------------------------------------
+C
+C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
+C1------BUDGET FLAG.
+      ZERO=0.
+      RATIN=ZERO
+      RATOUT=ZERO
+      IBD=0
+      IF(IRIVCB.LT.0 .AND. ISPCFL.NE.0) IBD=-1
+      IF(IRIVCB.GT.0) IBD=ISPCFL
+      IBDLBL=0
+C
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+      IF(IBD.EQ.2) THEN
+         NAUX=NRIVVL-5
+         IF(IAUXSV.EQ.0) NAUX=0
+         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,RIVAUX,IRIVCB,NCOL,NROW,NLAY,
+     1          NBOUND,IOUT,DELT,PERTIM,TOTIM,ICBUND)
+      END IF
+C
+C3------CLEAR THE BUFFER.
+      DO 50 N=1,NODES
+      BUFF(N)=ZERO
+50    CONTINUE
+C
+C4------IF THERE ARE NO RIVs, DO NOT ACCUMULATE
+      IF(NRIVER.EQ.0) GO TO 200
+C
+C5------LOOP THROUGH EACH RIV CALCULATING MASS FLUX
+      DO 100 L=1,NRIVER
+C
+C5A-----GET NODE NUMBER OF CELL CONTAINING RIV.
+      N=RIVR(1,L)
+      QQ=ZERO
+C
+C5B-----IF THE CELL IS INACTIVE OR PCB, IGNORE IT.
+      IF(ICBUND(N).EQ.0.OR.IPCBFLAG(N).EQ.1)GO TO 99
+C
+C5C-----COMPUTE MASS FLUX AT WELL BOUNDARY
+        QF = RIVR(NRIVVL,L)
+        Co = RIVR(6+ICOMP,L)
+C
+C2B-----IF THE CELL IS OUTFLOW, MASS IS Q * CONC
+        IF(QF.LT.0.0)THEN
+          QQ = QF * CONC(N,ICOMP)
+        ELSE
+C2C-------IF THE CELL IS INFLOW, MASS IS Q*Co
+          QQ = QF * Co
+        ENDIF
+        Q = QQ
+C
+C5D-----PRINT FLOW RATE IF REQUESTED.
+        IF(IBD.LT.0) THEN
+          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
+   61     FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+          IF(IUNSTR.EQ.0)THEN
+            IL = (N-1) / (NCOL*NROW) + 1
+            IJ = N - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            WRITE(IOUT,62) L,IL,IR,IC,Q
+   62       FORMAT(1X,'RIV  ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
+     1       I5, '   FLUX ',1PG15.6)
+          ELSE
+            WRITE(IOUT,63) L,N,Q
+   63       FORMAT(1X,'RIV  ',I6,'    NODE ',I8,'   FLUX ',1PG15.6)
+          ENDIF
+          IBDLBL=1
+        END IF
+C
+C5E-----ADD FLOW RATE TO BUFFER.
+        BUFF(N)=BUFF(N)+Q
+C
+C5F-----SEE IF FLUX IS POSITIVE OR NEGATIVE.
+        IF(QQ.GE.ZERO) THEN
+C
+C5G-------FLOW RATE IS POSITIVE (RECHARGE). ADD IT TO RATIN.
+          RATIN=RATIN+QQ
+        ELSE
+C
+C5H-------FLOW RATE IS NEGATIVE (DISCHARGE). ADD IT TO RATOUT.
+          RATOUT=RATOUT-QQ
+        END IF
+C
+C5I-----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.  ALSO
+C5I-----COPY FLOW TO WELL LIST.
+
+   99 CONTINUE
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.2) CALL UBDSVB(IRIVCB,NCOL,NROW,IC,IR,IL,Q,
+     1                  RIVR(1,L),NRIVVL,NAUX,6,ICBUND,NLAY)
+      ELSE
+C        IF(IBD.EQ.2) CALL UBDSVBU(IRIVCB,NODES,N,Q,
+C     1                  RIVR(1,L),NRIVVL,NAUX,6,ICBUND)
+      ENDIF
+100   CONTINUE
+C
+C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
+C6------CALL UBUDSV TO SAVE THEM.
+      IF(IUNSTR.EQ.0)THEN
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IRIVCB,BUFF(1),NCOL,NROW,
+     1                          NLAY,IOUT)
+      ELSE
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IRIVCB,BUFF(1),NODES,
+     1                          IOUT,PERTIM,TOTIM)
+      ENDIF
+C
+C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
+  200 RIN=RATIN
+      ROUT=RATOUT
+      VBVLT(3,MSUMT,ICOMP)=RIN
+      VBVLT(4,MSUMT,ICOMP)=ROUT
+      VBVLT(1,MSUMT,ICOMP)=VBVLT(1,MSUMT,ICOMP)+RATIN*DELT
+      VBVLT(2,MSUMT,ICOMP)=VBVLT(2,MSUMT,ICOMP)+RATOUT*DELT
+      VBNMT(MSUMT,ICOMP)=TEXT
+C
+C8------INCREMENT BUDGET TERM COUNTER(MSUM).
+      MSUMT=MSUMT+1
+C
+C9------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------------
+
