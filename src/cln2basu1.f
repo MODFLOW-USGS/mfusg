@@ -1499,12 +1499,13 @@ C     ------------------------------------------------------------------
 C
       CHARACTER*16 TEXT(1)
       DOUBLE PRECISION HD,CHIN,CHOUT,XX1,TMP,RATE,CHCH1,HDIFF,
-     *  X1,CIN,COUT
+     *  X1,CIN,COUT,ZERO
 C
       DATA TEXT(1) /'  CLN CONST HEAD'/
 C     ------------------------------------------------------------------
 C
 C1------CLN DOMAIN
+      ZERO = 0.0
       IBD=0
       IF(ICLNCB.LT.0 .AND. ICBCFL.NE.0) IBD=-1
       IF(ICLNCB.GT.0) IBD=ICBCFL
