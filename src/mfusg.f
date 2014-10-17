@@ -77,8 +77,9 @@ C6C-------AND FILL PGF ARRAY WITH CONSTANT TERMS FOR CLN DOMAIN
       IF(IUNIT(29).GT.0) CALL CLN2BAS1AR           
 C--------------------------------------------------------------      
 C-------TRANSPORT INPUT
-!      IF(IUNIT(15).GT.0) CALL GWT2BCT1AR(IUNIT(15))
-!      IF(IUNIT(14).GT.0) CALL GWT2PCB1AR(IUNIT(14))
+      IF(IUNIT(15).GT.0) CALL GWT2BCT1AR(IUNIT(15))
+      IF(IUNIT(14).GT.0) CALL GWT2PCB1AR(IUNIT(14))
+      IF(IUNIT(30).GT.0) CALL GWT2DPTU1AR(IUNIT(30))
 C--------------------------------------------------------------      
 C6E-------BOUNDARY CONDITIONS INPUT
       IF(IUNIT(2).GT.0) CALL GWF2WEL7U1AR(IUNIT(2))
@@ -166,7 +167,8 @@ CSP        IF(IUNIT(39).GT.0) CALL GWF2ETS7U1RP(IUNIT(39),IGRID)
 CSP        IF(IUNIT(40).GT.0) CALL GWF2DRT7U1RP(IUNIT(40),IGRID)
 CSP        IF(IUNIT(50).GT.0) CALL GWF2MNW7U1RP(IUNIT(50),IUNIT(1),
 CSP     1                            IUNIT(23),IUNIT(37),KKPER,IGRID)
-!      IF(IUNIT(14).GT.0) CALL GWT2PCB1RP(IUNIT(14))
+C---------TRANSPORT INPUT
+      IF(IUNIT(14).GT.0) CALL GWT2PCB1RP(IUNIT(14))
 C
 C7C-----SIMULATE EACH TIME STEP.
         DO 90 KSTP = 1, NSTP(KPER)
@@ -368,8 +370,11 @@ C
 C7C6B---JUMP TO END OF PROGRAM IF CONVERGENCE WAS NOT ACHIEVED.
           IF(ICNVG.EQ.0) GO TO 110
 222       CONTINUE
-!          IF(ITRNSP.EQ.1.OR.ITRNSP.EQ.2)
-!     *      CALL GWT2BCT1SOLVE(KITER,KSTP,KPER)
+C----------------------------------------------------------------------------------
+C-------------SOLVE TRANSPORT IF ACTIVE
+          IF(ITRNSP.EQ.1.OR.ITRNSP.EQ.2)
+     *      CALL GWT2BCT1SOLVE(KITER,KSTP,KPER)
+C----------------------------------------------------------------------------------
 C
 C-----END OF TIME STEP (KSTP) AND STRESS PERIOD (KPER) LOOPS
    90   CONTINUE
