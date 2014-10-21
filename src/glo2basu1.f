@@ -755,6 +755,7 @@ C     ------------------------------------------------------------------
      1                        CHEDFM,CDDNFM,IBDOPT,LBHDSV,LBDDSV,
      2                        IBOUUN,LBBOSV,CBOUFM,IAUXSV,IOFLG,
      3                        VBVL,VBNM,ISPCFM,ISPCUN,CSPCFM
+      USE CLN1MODULE, ONLY: ICLNHD, ICLNDD, ICLNIB
       CHARACTER*200 LINE
 C     ------------------------------------------------------------------
 C
@@ -868,6 +869,9 @@ C4A-----NUMERIC OUTPUT CONTROL.  DECODE THE INITIAL RECORD ACCORDINGLY.
 C4B-----ALPHABETIC OUTPUT CONTROL.  CALL MODULE TO READ INITIAL RECORDS.
          CALL SGWF2BAS7J(INOC,IOUT,LINE,LLOC,ISTART,ISTOP)
       END IF
+      IF(ICLNHD.LT.0) ICLNHD = IHEDUN
+      IF(ICLNDD.LT.0) ICLNDD = IDDNUN      
+      IF(ICLNIB.LT.0) ICLNIB = IBOUUN  
 C
 C5------RETURN.
  1000 RETURN
