@@ -3414,17 +3414,19 @@ C3------------COMPUTE WHEN VERTICAL DIRECTION IS FOUND
                 KK = K+1
 C
 C4--------------CALCULATE VERTICAL HYDRAULIC CONDUCTIVITY FOR CELL.
+                hyc1 = 0.0
                 IF(LAYVKA(K).EQ.0) THEN
                   HYC1=VKA(N)
                 ELSE
-                   HYC1=HK(N)/VKA(N)
+                    if(vka(n).gt.1.0e-20) HYC1=HK(N)/VKA(N)
                 END IF
                 IF(HYC1.GT.ZERO) THEN
 C5----------------CALCULATE VERTICAL HYDRAULIC CONDUCTIVITY FOR ADJACENT CELL.
+                  hyc2 = 0.0
                   IF(LAYVKA(KK).EQ.0) THEN
                     HYC2=VKA(JJ)
                   ELSE
-                    HYC2=(HK(JJ)/VKA(JJ))
+                    if(vka(jj).gt.1.0e-20) HYC2=(HK(JJ)/VKA(JJ))
                   END IF
                   IF(HYC2.GT.ZERO) THEN
 C
