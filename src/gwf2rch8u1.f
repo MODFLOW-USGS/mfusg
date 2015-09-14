@@ -3,9 +3,10 @@
         INTEGER,SAVE, POINTER ::NPRCH,IRCHPF,INIRCH,NIRCH
         REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::RECH
         INTEGER, SAVE,   DIMENSION(:),  ALLOCATABLE    ::IRCH
+        REAL,    SAVE,   DIMENSION(:),  ALLOCATABLE      ::RCHF
        END MODULE GWFRCHMODULE
 C
-      SUBROUTINE GWF2RCH8U1AR(IN)
+      SUBROUTINE GWF2RCH8U1AR(IN,INBCT)
 C     ******************************************************************
 C     ALLOCATE ARRAY STORAGE FOR RECHARGE
 C     ******************************************************************
@@ -14,7 +15,7 @@ C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,IFREFM,NODLAY,IUNSTR
       USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,NPRCH,IRCHPF,RECH,IRCH,
-     1  MXNDRCH,INIRCH,NIRCH
+     1  MXNDRCH,INIRCH,NIRCH,RCHF
 C
       CHARACTER*200 LINE
       CHARACTER*4 PTYP
@@ -74,6 +75,10 @@ C7------ALLOCATE SPACE FOR THE RECHARGE (RECH) AND INDICATOR (IRCH)
 C7------ARRAYS.
       ALLOCATE (RECH(MXNDRCH))
       ALLOCATE (IRCH(MXNDRCH))
+C8------IF TRANSPORT IS ACTIVE THEN ALLOCATE ARRAY TO STORE FLUXES
+      IF(INBCT.GT.0)THEN
+        ALLOCATE (RCHF(MXNDRCH))
+      ENDIF
 C
 C8------READ NAMED PARAMETERS
       WRITE(IOUT,5) NPRCH
@@ -329,7 +334,7 @@ C
 C------RETURN
       RETURN
       END
-      SUBROUTINE GWF2RCH8U1BD(KSTP,KPER)
+      SUBROUTINE GWF2RCH8U1BD(KSTP,KPER,INBCT)
 C     ******************************************************************
 C     CALCULATE VOLUMETRIC BUDGET FOR RECHARGE
 C     ******************************************************************
@@ -339,7 +344,7 @@ C     ------------------------------------------------------------------
       USE GLOBAL,  ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IA,JA,JAS,NODES,
      1             NODLAY,IUNSTR,IVC,hnew
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,PERTIM,TOTIM
-      USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,RECH,IRCH,NIRCH
+      USE GWFRCHMODULE,ONLY:NRCHOP,IRCHCB,RECH,IRCH,NIRCH,RCHF
 C
       DOUBLE PRECISION RATIN,RATOUT,QQ
       DOUBLE PRECISION RECHFLUX,acoef,eps,pe,hd,rch
@@ -358,6 +363,11 @@ C3------CLEAR THE BUFFER & SET FLAG FOR SAVING CELL-BY-CELL FLOW TERMS.
       DO 2 N=1,NODES
       BUFF(N)=ZERO
     2 CONTINUE
+      IF(INBCT.GT.0)THEN
+        DO N=1,NIRCH
+          RCHF(N) = ZERO
+        ENDDO
+      ENDIF
       IBD=0
       IF(IRCHCB.GT.0) IBD=ICBCFL
       ALLOCATE(IBUFF(NIRCH)) 
@@ -380,6 +390,7 @@ C5A-----IF CELL IS VARIABLE HEAD, THEN DO BUDGET FOR IT.
 C
 C5B-----ADD RECH TO BUFF.
           BUFF(N)=QQ
+          IF(INBCT.GT.0) RCHF(NN) = Q
 C
 C5C-----IF RECH POSITIVE ADD IT TO RATIN, ELSE ADD IT TO RATOUT.
           IF(Q.GE.ZERO) THEN
@@ -436,7 +447,7 @@ C13-----RETURN
       RETURN
       END
 C----------------------------------------------------------------
-      SUBROUTINE GWF2RCH8U1DA
+      SUBROUTINE GWF2RCH8U1DA(INBCT)
 C  Deallocate RCH DATA
       USE GWFRCHMODULE
 C
@@ -449,6 +460,9 @@ C
         DEALLOCATE(NIRCH)
         DEALLOCATE(RECH)
         DEALLOCATE(IRCH)
+        IF(INBCT.GT.0)THEN
+        DEALLOCATE(RCHF)
+        ENDIF
 C
       RETURN
       END
