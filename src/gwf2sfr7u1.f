@@ -209,8 +209,8 @@ Cdep  changed DSTROT to FXLKOT
       ALLOCATE (STRIN(nssar), STROUT(nssar), FXLKOT(nssar))
       STRIN = 0.0
       STROUT = 0.0
-      FXLKOT = 0.0
-      ALLOCATE (STRM(30,nstrmar), ISTRM(6,nstrmar))
+      FXLKOT = 0.0 
+      ALLOCATE (STRM(30,nstrmar), ISTRM(7,nstrmar))     !9/14/15 change 6 to 7 in ISTRM for storing layer number
       ALLOCATE (HSTRM(nstrmar,NUMTIM), HWDTH(nstrmar,NUMTIM))
       ALLOCATE (QSTRM(nstrmar,NUMTIM))
       ALLOCATE (HWTPRM(nstrmar,NUMTIM))
@@ -1677,45 +1677,48 @@ C
             il=ISTRM(1,L)
             ilay = il
             NCPT = NCP
-            IF(IVSD.EQ.-1)THEN
+            IF ( LAYCON(il).NE.4 ) THEN
+              IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STRUCTURED GRID
-              TOPCELL: DO WHILE ( ilay.LE.NLAY )
-                IF ( HNEW(NCP).LE.BOT(NCP) ) THEN
-                  ilay = ilay + 1
-                  NCPT = NCPT + NODLAY(1)
-                ELSE
-                  EXIT TOPCELL
-                END IF
-              END DO TOPCELL
-            ELSE
+                TOPCELL: DO WHILE ( ilay.LE.NLAY )
+                  IF ( HNEW(NCP).LE.BOT(NCP) ) THEN
+                    ilay = ilay + 1
+                    NCPT = NCPT + NODLAY(1)
+                  ELSE
+                    EXIT TOPCELL
+                  END IF
+                END DO TOPCELL
+              ELSE
 C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
-              DO K = IL,NLAY
-                I1 = IA(NCPT)+1
-                I2 = IA(NCPT+1)-1
-                DO II = I1,I2
-                  IIS = JAS(II)
-                  IF(IVC(IIS).EQ.1)THEN
-                    JJ = JA(II)
-                    IF(HNEW(JJ).LE.BOT(JJ))THEN
-                      ILAY = ILAY + 1
-                      NCPT = JJ
-                      GO TO 23
-                    ELSE
-                      GO TO 24
+                DO K = IL,NLAY
+                  I1 = IA(NCPT)+1
+                  I2 = IA(NCPT+1)-1
+                  DO II = I1,I2
+                    IIS = JAS(II)
+                    IF(IVC(IIS).EQ.1)THEN
+                      JJ = JA(II)
+                      IF(HNEW(JJ).LE.BOT(JJ))THEN
+                        ILAY = ILAY + 1
+                        NCPT = JJ
+                        GO TO 23
+                      ELSE
+                        GO TO 24
+                      ENDIF
                     ENDIF
-                  ENDIF
+                  ENDDO
+23                CONTINUE
                 ENDDO
-23              CONTINUE
-              ENDDO
-24            CONTINUE
+24              CONTINUE
+              END IF
+              IF ( ilay.LE.NLAY ) THEN
+                h = HNEW(NCPT)
+              ELSE
+                h = DBLE(BOT(NCPT))
+              END IF
+            END IF
 C
-            ENDIF
+          ISTRM(7,l) = NCPT     !RGN 9/14/15
           ENDIF
-          IF ( ilay.LE.NLAY ) THEN
-            h = HNEW(NCPT)
-          ELSE
-            h = DBLE(BOT(NCPT))
-          END IF
           IF ( IBOUND(NCPT).LE.0 ) THEN
             UZDPST(1, l) = 0.0D0
             UZFLST(1, l) = 0.0D0
@@ -2288,6 +2291,7 @@ C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
             ENDIF
           END IF
           IF ( ilay.LE.NLAY ) il = ilay
+          ISTRM(7,l) = NCPT     !RGN 9/14/15
 C30d----BEGIN LOOP FOR NEWTON SOLVER IF ACTIVE 
           DO ii = 1, idr
             SUMLEAK(l) = 0.0D0
@@ -3846,7 +3850,7 @@ C25-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH. Revised ERB
 C31B-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
           IF ( IBOUND(NCP).GT.0 ) THEN
 C
-            il=ISTRM(1,L)
+            il = 1
             ilay = il
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
@@ -3883,6 +3887,8 @@ C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
 
             ENDIF
           ENDIF
+          IF ( ilay.LE.NLAY ) il = ilay
+          ISTRM(7,l) = NCPT     !RGN 9/14/15
 C
 C26-----DETERMINE LEAKAGE THROUGH STREAMBED.
           hstr = HSTRM(l,irt)
