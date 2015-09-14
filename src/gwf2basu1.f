@@ -953,7 +953,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,NLAY,IXSEC,HNEW,STRT,NODLAY,
-     1                      IBOUND,IOUT,SN,iunsat
+     1                      IBOUND,IOUT,SN,DDREF,iunsat
       USE GWFBASMODULE,ONLY:PERTIM,TOTIM,IDDNFM,IDDNUN,LBDDSV,
      2                      CDDNFM,IOFLG
 C
@@ -980,7 +980,7 @@ C4------CALCULATE DRAWDOWN FOR THE LAYER.
       DO 58 J=1,NCOL
       N = (K-1)*NROW*NCOL + (I-1)*NCOL + J
       BUFF(J,I,K)=HNEW(N)
-      SSTRT=STRT(N)
+      SSTRT=DDREF(N)
       IF(IBOUND(N).NE.0) BUFF(J,I,K)=SSTRT-HNEW(N)
       IF(IUNSAT.EQ.1) BUFF(J,I,K) = SN(N)
    58 CONTINUE
