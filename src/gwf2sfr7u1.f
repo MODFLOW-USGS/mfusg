@@ -1070,7 +1070,6 @@ C     ******************************************************************
       USE PARAMMODULE,  ONLY: MXPAR, PARTYP, IACTIVE, IPLOC
       USE ICHKSTRBOT_MODULE
 !      USE GWFLPFMODULE, ONLY: LAYTYP
-      USE GWFBCFMODULE, ONLY: LAYCON
       IMPLICIT NONE
       type (check_bot) :: uzfrp_check
 C     ------------------------------------------------------------------
@@ -1672,53 +1671,49 @@ C
 C31-----SKIP IF CELL IS OUTSIDE ACTIVE BOUNDARY OR IS NOT WATER TABLE.
 Cdep
 C31B-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
-          IF ( IBOUND(NCP).GT.0 ) THEN
+!          IF ( IBOUND(NCP).GT.0 ) THEN
 C
             il=ISTRM(1,L)
             ilay = il
             NCPT = NCP
-            IF ( LAYCON(il).NE.4 ) THEN
-              IF(IVSD.EQ.-1)THEN
-C-------------FIND ACTIVE NODE FOR STRUCTURED GRID
-                TOPCELL: DO WHILE ( ilay.LE.NLAY )
-                  IF ( HNEW(NCP).LE.BOT(NCP) ) THEN
-                    ilay = ilay + 1
-                    NCPT = NCPT + NODLAY(1)
-                  ELSE
-                    EXIT TOPCELL
-                  END IF
-                END DO TOPCELL
-              ELSE
+          IF ( NLAY.GT.1 ) THEN
+            IF(IVSD.EQ.-1)THEN
+C-------------FIND ACTIVE NODE FOR STACKED GRID
+              TOPCELL: DO WHILE ( ilay.LT.NLAY )
+                IF ( IBOUND(NCP).EQ.0 ) THEN
+                  ilay = ilay + 1
+                  NCPT = NCPT + NODLAY(1)
+                ELSE
+                  EXIT TOPCELL
+                END IF
+              END DO TOPCELL
+            ELSE
 C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
-                DO K = IL,NLAY
-                  I1 = IA(NCPT)+1
-                  I2 = IA(NCPT+1)-1
-                  DO II = I1,I2
-                    IIS = JAS(II)
-                    IF(IVC(IIS).EQ.1)THEN
-                      JJ = JA(II)
-                      IF(HNEW(JJ).LE.BOT(JJ))THEN
-                        ILAY = ILAY + 1
-                        NCPT = JJ
-                        GO TO 23
-                      ELSE
-                        GO TO 24
-                      ENDIF
+              NCPT = NCP
+              DO K = IL,NLAY-1
+                I1 = IA(NCPT)+1
+                I2 = IA(NCPT+1)-1
+                DO II = I1,I2
+                  IIS = JAS(II)
+                  IF(IVC(IIS).EQ.1)THEN
+                    JJ = JA(II)
+                    IF(IBOUND(JJ).EQ.0)THEN
+                      ILAY = ILAY + 1
+                      NCPT = JJ
+                      GO TO 23
+                    ELSE
+                      GO TO 24
                     ENDIF
-                  ENDDO
-23                CONTINUE
+                  ENDIF
                 ENDDO
-24              CONTINUE
-              END IF
-              IF ( ilay.LE.NLAY ) THEN
-                h = HNEW(NCPT)
-              ELSE
-                h = DBLE(BOT(NCPT))
-              END IF
-            END IF
-C
+23              CONTINUE
+              ENDDO
+24            CONTINUE
+            ENDIF
+          END IF
+          IF ( ilay.LE.NLAY ) il = ilay
           ISTRM(7,l) = NCPT     !RGN 9/14/15
-          ENDIF
+!
           IF ( IBOUND(NCPT).LE.0 ) THEN
             UZDPST(1, l) = 0.0D0
             UZFLST(1, l) = 0.0D0
@@ -2080,10 +2075,6 @@ C3------DETERMINE LAYER, ROW, COLUMN OF EACH REACH.
           END IF
           lsub = l
           ll = l - 1
-          NCP = ISTRM(6, l)
-csp       IL = ISTRM(2,L)
-          il = 1
-          NCPT = NCP
 C
 C4------DETERMINE STREAM SEGMENT AND REACH NUMBER.
           istsg = ISTRM(4, l)
@@ -2251,9 +2242,13 @@ C22-----SET INFLOW EQUAL TO OUTFLOW FROM UPSTREAM REACH WHEN REACH
 C         IS GREATER THAN 1.
           ELSE IF ( nreach.GT.1 ) THEN
             flowin = STRM(9, ll)
-          END IF
+      END IF
 C
 C23-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
+          NCP = ISTRM(6, l)
+csp       IL = ISTRM(2,L)
+          il = 1
+          NCPT = NCP
           ilay = IL
           IF ( NLAY.GT.1 ) THEN
             IF(IVSD.EQ.-1)THEN
@@ -2269,7 +2264,7 @@ C-------------FIND ACTIVE NODE FOR STACKED GRID
             ELSE
 C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
               NCPT = NCP
-              DO K = IL,NLAY
+              DO K = IL,NLAY-1
                 I1 = IA(NCPT)+1
                 I2 = IA(NCPT+1)-1
                 DO II = I1,I2
@@ -3739,8 +3734,6 @@ C5b------DETERMINE LAYER, ROW, COLUMN OF EACH REACH.
           END IF
           lsub = l
           ll = l - 1
-          NCP = ISTRM(6, l)
-          NCPT = NCP
 C
 C6------DETERMINE STREAM SEGMENT AND REACH NUMBER.
           istsg = ISTRM(4, l)
@@ -3844,18 +3837,22 @@ C24-----SET INFLOW EQUAL TO OUTFLOW FROM UPSTREAM REACH, WHEN REACH
 C         GREATER THAN 1.
           ELSE IF ( nreach.GT.1 ) THEN
             flowin = STRM(9, ll)
-          END IF
+      END IF
 C
 C25-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH. Revised ERB
 C31B-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
-          IF ( IBOUND(NCP).GT.0 ) THEN
+!          IF ( IBOUND(NCP).GT.0 ) THEN    !RGN 9/15/15 made code below follow 1FM
 C
-            il = 1
-            ilay = il
+! RGN 9/15/15 changes start here
+          NCP = ISTRM(6, l)
+          NCPT = NCP
+          il = 1
+          ilay = IL
+          IF ( NLAY.GT.1 ) THEN
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
-              TOPCELL: DO WHILE ( ilay.LE.NLAY )
-                IF ( HNEW(NCP).LT.BOT(NCP) ) THEN
+              TOPCELL: DO WHILE ( ilay.LT.NLAY )
+                IF ( IBOUND(NCP).EQ.0 ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
                 ELSE
@@ -3865,14 +3862,14 @@ C-------------FIND ACTIVE NODE FOR STACKED GRID
             ELSE
 C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
               NCPT = NCP
-              DO K = IL,NLAY
+              DO K = IL,NLAY-1
                 I1 = IA(NCPT)+1
                 I2 = IA(NCPT+1)-1
                 DO II = I1,I2
                   IIS = JAS(II)
                   IF(IVC(IIS).EQ.1)THEN
                     JJ = JA(II)
-                    IF(HNEW(JJ).LE.BOT(JJ))THEN
+                    IF(IBOUND(JJ).EQ.0)THEN
                       ILAY = ILAY + 1
                       NCPT = JJ
                       GO TO 23
@@ -3884,11 +3881,10 @@ C-------------FIND ACTIVE NODE VIA IVC CONNECTIONS FOR UNSTRUCTURED GRID
 23              CONTINUE
               ENDDO
 24            CONTINUE
-
             ENDIF
-          ENDIF
+          END IF
           IF ( ilay.LE.NLAY ) il = ilay
-          ISTRM(7,l) = NCPT     !RGN 9/14/15
+          ISTRM(7,l) = NCPT     !RGN 9/14/15 changes end here.
 C
 C26-----DETERMINE LEAKAGE THROUGH STREAMBED.
           hstr = HSTRM(l,irt)
