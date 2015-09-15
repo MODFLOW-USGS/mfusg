@@ -2258,7 +2258,7 @@ C23-----SEARCH FOR UPPER MOST ACTIVE CELL IN STREAM REACH.
           IF ( NLAY.GT.1 ) THEN
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
-              TOPCELL: DO WHILE ( ilay.LE.NLAY )
+              TOPCELL: DO WHILE ( ilay.LT.NLAY )
                 IF ( IBOUND(NCP).EQ.0 ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
@@ -3855,7 +3855,7 @@ C
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
               TOPCELL: DO WHILE ( ilay.LE.NLAY )
-                IF ( HNEW(NCP).LE.BOT(NCP) ) THEN
+                IF ( HNEW(NCP).LT.BOT(NCP) ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
                 ELSE
