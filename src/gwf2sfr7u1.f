@@ -1680,7 +1680,7 @@ C
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
               TOPCELL: DO WHILE ( ilay.LT.NLAY )
-                IF ( IBOUND(NCP).EQ.0 ) THEN
+                IF ( IBOUND(NCPT).EQ.0 ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
                 ELSE
@@ -2254,7 +2254,7 @@ csp       IL = ISTRM(2,L)
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
               TOPCELL: DO WHILE ( ilay.LT.NLAY )
-                IF ( IBOUND(NCP).EQ.0 ) THEN
+                IF ( IBOUND(NCPT).EQ.0 ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
                 ELSE
@@ -3852,7 +3852,7 @@ C
             IF(IVSD.EQ.-1)THEN
 C-------------FIND ACTIVE NODE FOR STACKED GRID
               TOPCELL: DO WHILE ( ilay.LT.NLAY )
-                IF ( IBOUND(NCP).EQ.0 ) THEN
+                IF ( IBOUND(NCPT).EQ.0 ) THEN
                   ilay = ilay + 1
                   NCPT = NCPT + NODLAY(1)
                 ELSE
