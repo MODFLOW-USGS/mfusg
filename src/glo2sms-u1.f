@@ -540,14 +540,15 @@ C
 C2A---------CALL XMD SOLVER
           IF(ILUFLAG.EQ.0) GO TO 300 ! SKIP FACTORIZATION IF ONLY RHS IS UPDATED
 C2A1-------- ILU FACTORIZATION
-          IF(IDROPTOL.EQ.0)THEN
+          IF(IDROPTOL.EQ.0 .OR. ILUREUSE) THEN
 C2A2--------numerical factorization only for level based scheme
             call xmdnfctr(amat, rhs, ia, ja, nja, neqs, ierr)
           ELSE
 C2A3--------level/drop tolerance preconditioning
             call xmdprecd(amat, rhs, epsrn, ia, ja, nja, neqs, level,
      1            ierr)
-          ENDIF
+            ILUREUSE = .TRUE.
+          END IF
 300       CONTINUE
 C
 C2A4---------solve matrix
