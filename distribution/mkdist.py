@@ -65,11 +65,22 @@ for d in doclist:
 	shutil.copy(d, docpath)
 print '\n'
 
+# Copy release notes
+doclist = [os.path.join('..', 'doc', 'mfusg.txt'),
+		   os.path.join('..', 'doc', 'problems.txt'),
+		   os.path.join('..', 'doc', 'readme.txt'),
+		   os.path.join('..', 'doc', 'release.txt')]
+print 'Copying release notes'
+for d in doclist:
+	print '  {} ===> {}'.format(d, docpath)	
+	shutil.copy(d, dest)
+print '\n'
+
 
 # Copy the test folder to the distribution folder
 print('Copying test folder')
-shutil.copytree('../test', expath)
-print('  {} ===> {}'.format('../test', expath))
+shutil.copytree('../examples', expath)
+print('  {} ===> {}'.format('../examples', expath))
 print('\n')
 
 
