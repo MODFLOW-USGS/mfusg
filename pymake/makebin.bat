@@ -1,0 +1,2 @@
+python makebin.py
+pause
