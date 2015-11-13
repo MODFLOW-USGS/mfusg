@@ -90,6 +90,23 @@ shutil.copytree('../pymake', pymakepath)
 print('  {} ===> {}'.format('../pymake', pymakepath))
 print('\n')
 
+# Copy the source code
+print('Copying the source code')
+fnames = os.listdir('../src')
+for f in fnames:
+    shutil.copy(os.path.join('../src', f), os.path.join(sourcepath, f))
+    print('  {} ===> {}'.format(os.path.join('../src', f), os.path.join(sourcepath, f)))
+print('\n')
+
+# Copy Visual Studio files
+print('Copying the Visual Studio file')
+fnames = ['mfusg.vfproj']
+for f in fnames:
+    shutil.copy(os.path.join('../msvs', f), os.path.join(msvspath, f))
+    print('  {} ===> {}'.format(os.path.join('../msvs', f), os.path.join(msvspath, f)))
+print('\n')
+
+
 
 # Zip the distribution
 zipname = version + '.zip'
