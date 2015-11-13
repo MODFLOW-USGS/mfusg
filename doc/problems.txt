@@ -1,0 +1,50 @@
+May 3, 2013
+readme.txt
+
+This folder contains the three example problems described in the 
+MODFLOW-USG user manual.
+
+PROBLEM DESCRIPTIONS
+
+01A_nestedgrid_nognc -- example problem with a nested grid.
+
+01B_nestedgrid_gnc -- example problem with a nested grid demonstrating
+    the use of the ghost node correction package.
+
+02_quadtree -- example problem patterned after the Biscayne aquifer.  
+    This problem uses a quadtree grid.  The datasets for this problem 
+    are too large to include in this distribution, but a zip file of
+    the datasets can be obtained from: 
+    
+    http://water.usgs.gov/ogw/mfusg/02_quadtree.zip
+
+    ***If you have python installed on your computer, you may be able 
+    to run get_ex02.py to download and unzip this example problem.***
+
+03_conduit_confined -- example problem demonstrating use of the CLN 
+    Process with a structured MODFLOW grid.  The confined example is 
+    included here.
+
+03A_conduit_unconfined -- Similar to 03_conduit_confined, but 
+    unconfined and with two CLN Process nodes.
+
+03B_conduit_unconfined -- Similar to 03_conduit_confined, but 
+    unconfined and with one CLN Process node.
+
+03C_conduit_unconfined -- Similar to 03_conduit_confined, but 
+    unconfined and with two CLN Process nodes with the confined (fully 
+    saturated) flow option for the well.
+
+03D_conduit_unconfined -- Similar to 03_conduit_confined, but 
+    unconfined and with one CLN Process node and the "flow-to-dry-
+    cell" option.
+
+INSTRUCTIONS FOR RUNNING
+
+A batch file for running the test is located in in each folder.  Each
+folder also contains output, which can be compared with the
+simulation results to make sure that the program is giving
+the expected results.
+
+
+

@@ -1,0 +1,87 @@
+release.txt
+
+                           MODFLOW-USG Release Notes
+
+     This file describes changes introduced into MODFLOW-USG with each
+official release; these changes may substantially affect users. In this
+file, packages are referred to by their 3-or 4-character abbreviation. 
+For information and references related to these packages, see mfusg.txt
+("Summary of MODFLOW-USG").
+
+NOTE: Any use of trade, product or firm names is for descriptive purposes 
+      only and does not imply endorsement by the U.S. Government.
+
+o Version 1.2 03/21/2014
+    CLN2BASU1 -- Added transient IBOUND option so that CLN nodes can 
+       change between prescribed head, active, and inactive.  Added
+       capability to read CLN input in IA-JA format.  Corrected bug in
+       cell-by-cell flow output for CLN so that flows between CLN nodes
+       are written in the IA-JA format.  Description is provided in the 
+       description of model input and output.
+    DISU2GNCN1 -- Slight change to method for constructing system of 
+       equations.  Fixed bug for case when node used for interpolation
+       goes dry.
+    GLO2BASU1 -- Change in method for constructing system of equations.
+    GLO2SMS-U1 -- Changed method for using PCGU7U1AR routine.  Changed
+       method for deallocating linear solvers.
+    GMODULES -- Added items to CLN1MODULE.
+    GWF2BCF-LPF-U1 -- Corrected method for calculating nodal hydraulic
+       conductivity values when connection hydraulic conductivity values
+       are specified.
+    GWF2CHD7U1 -- Fixed bugs related to parameter values and case where
+       reusing CHDs from previous stress period.
+    GWF2DRN7U1 -- Fixed bug related to parameter values.
+    GWF2EVT8U1 -- Fixed bug that may affect structured models with
+       variable cell sizes.
+    GWF2GAG7U1 -- Small formatting change.
+    GWF2GHB7U1 -- Fixed bug related to parameter values.
+    GWF2RCH8U1 -- Fixed bug that may affect structured models with
+       variable cell sizes.
+    GWF2RIV7U1 -- Fixed bug related to parameter values.
+    MFUSG -- Added call to CLN1RP and changed allocation method for
+       linear solvers.
+    OPENSPEC -- Added comment about STREAM ACCESS.
+    PCGU7 -- Encapsulated all subroutines into the PCGUMODULE.
+    
+
+o Version 1.1 08/23/2013:
+    CLN2BASU1 -- Renamed some internal variables and changed how the CLN
+       constant-head budget terms are tabulated.
+    DISU2GNCB1 -- Minor source formatting changes.
+    DISU2GNCN1 -- Devised new approach for expanding the system of 
+       equations to include ghost-node connections.  New method should 
+       be substantially faster for problems with many ghost nodes. Fixed
+       case where ghost-node contributing cell starts or becomes inactive.
+    GLO2SMS-U1 -- Added support for PCGU bgcs option.
+    GMODULES -- Renamed TMPA variable to FLOWJA and fixed an 
+       initialization issue with this variable.
+    GWF2BCF-LPF-U1 -- Revised method for calculating constant-head flows.
+       Constant-head flows are now calculated from FLOWJA array instead
+       of being recalculated.  Constant-head flows are tabulated by cell
+       face instead of by cell to provide a more accurate budget.
+    GWF2GHB7U1 -- Fixed the NOPRINT option.
+    GWF2LAK7U1 -- Fixed several bugs related to lakes and their use with
+       unstructured grid models.
+    GWF2SFR7U1 -- Fixed several bugs related to streams and their use
+       with unstructured grid models.
+    GWF2STR7U1 -- Added support for auxiliary variables and for reading
+       free format input files.  The 'STREAM FLOW OUT' budget term is now
+       written in compact form when compact budgets are used.
+    GWF2WEL7U1 -- Removed inactivation of well package when there are no
+       active wells.
+    PCGU7 -- Added the bi-conjugate gradient stabilized acceleration 
+       method for the PCGU linear solver.  Changed default pcgu settings
+       for 'simple', 'moderate', and 'complex'. See input instructions for
+       additional details.
+    UTL7U1 -- Small formatting change.
+    XMD -- Added warning if reduced system (IREDSYS=1) is used.
+    MFUSG -- Small revisions and change in subroutine calls for tabulating
+       constant-head budget terms.
+    SPARSE -- Added new SPARSEMATRIX module to facilitate matrix expansion
+       for ghost nodes.
+
+
+o Version 1.0 05/03/2013:
+
+This version is the initial release.
+
