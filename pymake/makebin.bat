@@ -1,2 +1,2 @@
-python makebin.py
+python makebin.py -fc ifort -mc ../src mfusg
 pause
