@@ -98,6 +98,17 @@ for f in fnames:
     print('  {} ===> {}'.format(os.path.join('../src', f), os.path.join(sourcepath, f)))
 print('\n')
 
+# Copy the zonebudget source code
+print('Copying zonebudget source code')
+zbdsrc = os.path.join(sourcepath, 'zonebudusg')
+os.mkdir(zbdsrc)
+fnames = os.listdir('../zbudusg/src')
+for f in fnames:
+    shutil.copy(os.path.join('../zbudusg/src', f), os.path.join(zbdsrc, f))
+    print('  {} ===> {}'.format(os.path.join('../zbudusg/src', f), os.path.join(zbdsrc, f)))
+print('\n')
+    
+
 # Copy Visual Studio files
 print('Copying the Visual Studio file')
 fnames = ['mfusg.vfproj']

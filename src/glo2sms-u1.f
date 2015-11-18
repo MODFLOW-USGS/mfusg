@@ -42,6 +42,10 @@ C1------IDENTIFY PACKAGE AND INITIALIZE.
 C
       i = 1
       Numtrack = 0
+      THETA = 1.0
+      Akappa = 0.0
+      Gamma = 0.0
+      Amomentum = 0.0
       Btol = 0
       Breduc = 0.
       RES_LIM = 0.
