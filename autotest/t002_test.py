@@ -19,6 +19,10 @@ def get_namefiles(pth):
 
 
 def run_mfusg(namefile):
+    """
+    Run the simulation.
+
+    """
 
     # Set root as the directory name where namefile is located
     testname = os.path.dirname(namefile).split(os.sep)[-1]
@@ -44,16 +48,9 @@ def run_mfusg(namefile):
 
 
 def test_mfusg():
-
     namefiles = get_namefiles(config.testpaths[0])
     for namefile in namefiles:
         yield run_mfusg, namefile
-
-    # clean up
-    print('Removing folder ' + mfpth)
-    shutil.rmtree(mfpth)
-    print('Removing ' + target)
-    os.remove(target)
     return
 
 

@@ -7,7 +7,7 @@ import config
 
 def test_compile_dev():
     """
-    Compile the program from source
+    Compile development version of the program from source.
 
     """
 
@@ -25,8 +25,7 @@ def test_compile_dev():
 
 def test_compile_ref():
     """
-    Remove the distribution folder if it exists, download the distribution,
-    and compile the program.
+    Compile reference version of the program from the source.
 
     """
     # Remove the existing distribution directory if it exists
