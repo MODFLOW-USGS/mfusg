@@ -32,7 +32,8 @@ def run_mfusg(namefile):
 
     # run test models
     print('running model...{}'.format(testname))
-    success, buff = pymake.run_model(config.target, nam, model_ws=testpth,
+    exe_name = os.path.abspath(config.target)
+    success, buff = pymake.run_model(exe_name, nam, model_ws=testpth,
                                      silent=True)
 
     if success:
@@ -44,7 +45,7 @@ def run_mfusg(namefile):
 
 def test_mfusg():
 
-    namefiles = get_namefiles(expth)
+    namefiles = get_namefiles(config.testpaths[0])
     for namefile in namefiles:
         yield run_mfusg, namefile
 
