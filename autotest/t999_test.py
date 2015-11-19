@@ -4,9 +4,6 @@ import shutil
 import config
 
 def test_teardown():
-    """
-    Clean things up.
-    """
 
     if os.path.isdir(config.dir_release):
         print('Removing folder ' + config.dir_release)
@@ -15,6 +12,11 @@ def test_teardown():
     if os.path.isfile(config.target):
         print('Removing ' + config.target)
         os.remove(config.target)
+
+    if os.path.isfile(config.target_release):
+        print('Removing ' + config.target_release)
+        os.remove(config.target_release)
+
     return
 
 if __name__ == '__main__':
