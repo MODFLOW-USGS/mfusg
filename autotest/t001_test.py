@@ -48,7 +48,7 @@ def test_compile_ref():
                 expedite=False, dryrun=False, double=False, debug=False,
                 include_subdirs=False)
 
-    assert os.path.isfile(target) is True
+    assert os.path.isfile(target), 'Target {} does not exist.'.format(target)
 
     return
 

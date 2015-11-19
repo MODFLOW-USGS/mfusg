@@ -2,6 +2,7 @@ import os
 
 # Autotest information
 testdir = 'temp'
+retain = False
 
 # Development version information
 testpaths = [os.path.join('..', 'examples')]

@@ -2,23 +2,23 @@ from __future__ import print_function
 import os
 import shutil
 import pymake
+from pymake.autotest import get_namefiles, compare_budget
 import config
 
 
-def get_namefiles(pth):
+def compare(namefile1, namefile2):
     """
-    Search through the path for all .nam files.  Return
-    them all in a list.  Namefiles will have paths.
-
+    Compare the results from two simulations
     """
-    namefiles = []
-    for root, dirs, files in os.walk(pth):
-        namefiles += [os.path.join(root, file)
-                      for file in files if file.endswith('.nam')]
-    return namefiles
+
+    # Compare budgets from the list files in namefile1 and namefile2
+    outfile = os.path.join(os.path.split(namefile1)[0], 'bud.cmp')
+    success = compare_budget(namefile1, namefile2, max_cumpd=0.01, max_incpd=0.01,
+                   outfile=outfile)
+    return success
 
 
-def run_mfusg(namefile):
+def run_mfusg(namefile, regression=True):
     """
     Run the simulation.
 
@@ -40,10 +40,27 @@ def run_mfusg(namefile):
     success, buff = pymake.run_model(exe_name, nam, model_ws=testpth,
                                      silent=True)
 
-    if success:
-        pymake.teardown(testpth)
+    # If it is a regression run, then setup and run the model with the
+    # release target
+    success_reg = True
+    if regression:
+        testname_reg = os.path.basename(config.target_release)
+        testpth_reg = os.path.join(testpth, testname_reg)
+        pymake.setup(namefile, testpth_reg)
+        print('running regression model...{}'.format(testname_reg))
+        exe_name = os.path.abspath(config.target_release)
+        success, buff = pymake.run_model(exe_name, nam, model_ws=testpth_reg,
+                                         silent=True)
 
-    assert success is True
+        # Make comparison
+        success_reg = compare(os.path.join(testpth, nam),
+                              os.path.join(testpth_reg, nam))
+
+    # Clean things up
+    if success and not config.retain:
+        pymake.teardown(testpth)
+    assert success and success_reg
+
     return
 
 
