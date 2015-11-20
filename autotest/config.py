@@ -2,10 +2,11 @@ import os
 
 # Autotest information
 testdir = 'temp'
-retain = False
+retain = True
 
 # Development version information
-testpaths = [os.path.join('..', 'examples')]
+testpaths = [os.path.join('..', 'examples'),
+             os.path.join('..', 'test-reg')]
 srcdir = os.path.join('..', 'src')
 program = 'mfusg'
 version = '1.3.00'

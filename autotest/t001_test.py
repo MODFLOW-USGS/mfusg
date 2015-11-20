@@ -1,6 +1,5 @@
 from __future__ import print_function
 import os
-import shutil
 import flopy
 import pymake
 from pymake.autotest import get_namefiles, compare_budget
@@ -10,6 +9,7 @@ import config
 def compare(namefile1, namefile2):
     """
     Compare the results from two simulations
+
     """
 
     # Compare budgets from the list files in namefile1 and namefile2
@@ -39,7 +39,12 @@ def run_mfusg(namefile, regression=True):
     print('running model...{}'.format(testname))
     exe_name = os.path.abspath(config.target)
     success, buff = flopy.run_model(exe_name, nam, model_ws=testpth,
-                                     silent=True)
+                                    silent=True, report=True)
+    f = open(os.path.join(testpth, 'output.dat'), 'w')
+    for line in buff:
+        f.write(line + '\n')
+    f.close()
+    assert success, 'model did not run successfully: {}'.format(testname)
 
     # If it is a regression run, then setup and run the model with the
     # release target
@@ -51,11 +56,18 @@ def run_mfusg(namefile, regression=True):
         print('running regression model...{}'.format(testname_reg))
         exe_name = os.path.abspath(config.target_release)
         success, buff = flopy.run_model(exe_name, nam, model_ws=testpth_reg,
-                                         silent=True)
+                                         silent=True, report=True)
+        f = open(os.path.join(testpth_reg, 'output.dat'), 'w')
+        for line in buff:
+            f.write(line + '\n')
+        f.close()
+        assert success, 'model did not run successfully: {}'.format(testname_reg)
 
         # Make comparison
-        success_reg = compare(os.path.join(testpth, nam),
-                              os.path.join(testpth_reg, nam))
+        success = compare(os.path.join(testpth, nam),
+                          os.path.join(testpth_reg, nam))
+        assert success, 'Models do not compare: {} and {}'.format(testname,
+                                                                  testname_reg)
 
     # Clean things up
     if success and not config.retain:
@@ -66,13 +78,13 @@ def run_mfusg(namefile, regression=True):
 
 
 def test_mfusg():
-    namefiles = get_namefiles(config.testpaths[0])
+    namefiles = get_namefiles(config.testpaths[1], exclude='.cmp')
     for namefile in namefiles:
         yield run_mfusg, namefile
     return
 
 
 if __name__ == '__main__':
-    namefiles = get_namefiles(config.testpaths[0])
+    namefiles = get_namefiles(config.testpaths[1], exclude='.cmp')
     for namefile in namefiles:
         run_mfusg(namefile)
