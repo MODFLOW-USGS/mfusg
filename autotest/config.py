@@ -6,7 +6,7 @@ retain = True
 
 # Development version information
 testpaths = [os.path.join('..', 'examples'),
-             os.path.join('..', 'test-reg')]
+             os.path.join('..', 'test-dev')]
 srcdir = os.path.join('..', 'src')
 program = 'mfusg'
 version = '1.3.00'

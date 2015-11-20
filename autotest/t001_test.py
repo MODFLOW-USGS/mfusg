@@ -56,7 +56,7 @@ def run_mfusg(namefile, regression=True):
         print('running regression model...{}'.format(testname_reg))
         exe_name = os.path.abspath(config.target_release)
         success, buff = flopy.run_model(exe_name, nam, model_ws=testpth_reg,
-                                         silent=True, report=True)
+                                        silent=True, report=True)
         f = open(os.path.join(testpth_reg, 'output.dat'), 'w')
         for line in buff:
             f.write(line + '\n')

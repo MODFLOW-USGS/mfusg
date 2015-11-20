@@ -1,0 +1,10 @@
+# Name file for mfusg
+LIST   2 toth.list
+DISU  11 toth.disu 
+BAS6  12 toth.bas
+LPF   13 toth.lpf
+SMS   14 toth.sms
+OC    15 toth.oc
+DATA(BINARY) 30 toth.hds
+DATA(BINARY) 50 toth.cbb
+

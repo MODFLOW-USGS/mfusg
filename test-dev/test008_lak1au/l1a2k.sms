@@ -1,0 +1,4 @@
+1.0E-4  1.0E-5   100    600  1 02 001               hclose, hiclose,mxiter,iter1,iprsms,nonmeth,linmeth
+1.0        0.0   0.1    0.0  0  100.0   0.1       delta-bar-delta weight reduction factor, d-b-d weight increase increment, d-b-d gamma, momentum, numtrack, btol, breduc
+1       0     5     7       0     0.0      1      1.0E-3
+IACL NORDER LEVEL NORTH  IREDSYS RRCTOL IDROPTOL  EPSRN

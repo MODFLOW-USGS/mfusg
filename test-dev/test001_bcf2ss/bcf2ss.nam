@@ -1,0 +1,12 @@
+LIST  7 bcf2ss.lst
+BAS6  8 bcf2ss.ba6
+BCF6 11 bcf2ss.bc6
+WEL  12 bcf2ss.wel
+RIV  14 bcf2ss.riv
+RCH  18 bcf2ss.rch
+SMS 19  bcf2ss.sms
+OC   20 bcf2ss.oc
+DIS  10 bcf2ss.dis
+data(binary) 50 bcf2ss.hds
+data(binary) 51 bcf2ss.ddn
+data(binary) 30 bcf2ss.cbc

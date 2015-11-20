@@ -1,0 +1,22 @@
+#sms xmd
+#hclose, hiclose,mxiter,iter1,iprsms,nonmeth,linmeth
+ 1.0E-1   1.0E-5    220   1600      2      02     001               
+#THETA AKAPPA GAMMA AMOMENTUM NUMTRACK BTOL BREDUC RESLIM
+   0.7    0.1  0.01     0.01       20  1.1   0.2  1.0
+#iacl(0: cg, 1:orthomin, 2:bicgstab), norder, level, north, iredsys, rrctol, idroptol, epsrn
+                                  2        0      6      7        0     0.0         0     1.0E-3 
+
+#sms pcgu
+1.0E-1  1.0E-5   220    600  1 02 002               hclose, hiclose,mxiter,iter1,iprsms,nonmeth,linmeth
+0.7 0.1  0.2    0.001  20  10000  0.2 100.0      delta-bar-delta weight reduction factor, d-b-d weight increase increment, d-b-d gamma, momentum, numtrack, btol, breduc, RES_LIM
+bcgs 2 0 0 10.
+
+
+
+#best xmd simulation mass balance = 0.01 percent error
+#sms xmd
+#hclose, hiclose,mxiter,iter1,iprsms,nonmeth,linmeth
+ 1.0E-1   1.0E-5    220   600      2      02     001               
+#THETA AKAPPA GAMMA AMOMENTUM NUMTRACK BTOL BREDUC RESLIM
+   0.7    0.1  0.01     0.01       20  10000   0.2  100.0
+#iacl(0: cg, 1:orthomin, 2:bicgstab), norder, level, north, iredsys, rrctol, idroptol, epsrn

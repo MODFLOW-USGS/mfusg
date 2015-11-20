@@ -1,0 +1,12 @@
+#sms
+     1e-07     1e-07       100       100         3         0         2
+#PCGU [option: "bcgs", "cg"] ipc iscl iord rclosepcgu relax
+                      bcgs     3    0    0      0.01   1.00
+
+#copy these lines and replace all lines above to use xmd
+#xmd
+     1e-07     1e-07       100       100         1         0         1
+         2         0         0         7         0         0         0         0         0  0.001000         7
+
+
+
