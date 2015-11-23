@@ -3,7 +3,7 @@ import os
 import shutil
 import flopy
 import pymake
-from pymake.autotest import get_namefiles, compare_budget
+from pymake.autotest import compare_budget, compare_heads
 import config
 
 
