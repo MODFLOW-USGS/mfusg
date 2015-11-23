@@ -1,0 +1,5 @@
+# MODFLOW2000 Well Package
+PARAMETER  0  0
+         1        54
+         1         0               Stress Period 1
+         1        25        25-100000.000         0

@@ -1,0 +1,6 @@
+        30    777.77         1  1.00E+00         1         0               IBCFCB,HDRY,IWDFLG,WETFCT,IWETIT,IHDWET
+ 4 4
+CONSTANT   1.000000E+00  TRPY
+CONSTANT   1.000000E+01  HY layer   1
+CONSTANT   1.000000E-00  VCONT layer   1
+CONSTANT   1.000000E+01  hy layer   2

@@ -1,0 +1,12 @@
+LIST 2 mf2k.lst
+BAS6 1 mf2k.bas
+LPF 11 mf2k.lpf
+DIS 29 mf2k.dis
+ZONE 40 mf2k.zone
+WEL 12 mf2k.wel
+OC 22 mf2k.oc
+SMS 19 mf2k.sms
+DATA(BINARY) 50 mf2k.cbb replace
+DATA(BINARY) 54 mf2k.cbw replace
+DATA(BINARY) 30 mf2k.hds replace
+DATA(BINARY) 31 mf2k.ddn replace
