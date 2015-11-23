@@ -15,7 +15,7 @@ GHB                  17 test1ss.ghb
 EVT                  18 test1ss.evt
 RCH                  19 test1ss.rch
 GAGE                 32 test1ss.gag
-DATA                 58 test1ss.hds
+DATA(binary)         58 test1ss.hds
 DATA(binary)         59 test1ss.et
 DATA                 81 test1ss.flw
 DATA                 83 test1ss.sg1

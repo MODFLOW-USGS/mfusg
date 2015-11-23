@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import flopy
 import pymake
-from pymake.autotest import get_namefiles, compare_budget
+from pymake.autotest import get_namefiles, compare_budget, compare_heads
 import config
 
 
@@ -14,10 +14,18 @@ def compare(namefile1, namefile2):
 
     # Compare budgets from the list files in namefile1 and namefile2
     outfile = os.path.join(os.path.split(namefile1)[0], 'bud.cmp')
-    success = compare_budget(namefile1, namefile2, max_cumpd=0.01, max_incpd=0.01,
+    success1 = compare_budget(namefile1, namefile2, max_cumpd=0.01, max_incpd=0.01,
                    outfile=outfile)
-    return success
 
+    outfile = os.path.join(os.path.split(namefile1)[0], 'hds.cmp')
+    success2 = compare_heads(namefile1, namefile2, htol=0.001,
+                             outfile=outfile)
+
+    success = False
+    if success1 and success2:
+        success = True
+
+    return success
 
 def run_mfusg(namefile, regression=True):
     """
@@ -78,13 +86,17 @@ def run_mfusg(namefile, regression=True):
 
 
 def test_mfusg():
-    namefiles = get_namefiles(config.testpaths[1], exclude='.cmp')
+    namefiles = []
+    for pth in config.testpaths:
+        namefiles += get_namefiles(pth, exclude='.cmp')
     for namefile in namefiles:
         yield run_mfusg, namefile
     return
 
 
 if __name__ == '__main__':
-    namefiles = get_namefiles(config.testpaths[1], exclude='.cmp')
+    namefiles = []
+    for pth in config.testpaths:
+        namefiles += get_namefiles(pth, exclude='.cmp')
     for namefile in namefiles:
         run_mfusg(namefile)
