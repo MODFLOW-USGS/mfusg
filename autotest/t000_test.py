@@ -12,7 +12,7 @@ def test_compile_dev():
     target = config.target
     pymake.main(config.srcdir, target, config.fc, 'gcc', makeclean=False,
                 expedite=False, dryrun=False, double=False, debug=False,
-                include_subdirs=False)
+                include_subdirs=False, arch=config.target_arch)
 
     # Ensure target has been built
     assert os.path.isfile(target) is True, 'Target {} does not exist.'.format(target)
@@ -40,7 +40,7 @@ def test_compile_ref():
     # compile
     pymake.main(srcdir, target, config.fc, 'gcc', makeclean=False,
                 expedite=False, dryrun=False, double=False, debug=False,
-                include_subdirs=False)
+                include_subdirs=False, arch=config.target_arch)
 
     assert os.path.isfile(target), 'Target {} does not exist.'.format(target)
 

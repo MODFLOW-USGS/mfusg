@@ -14,8 +14,16 @@ def compare(namefile1, namefile2):
 
     # Compare budgets from the list files in namefile1 and namefile2
     outfile = os.path.join(os.path.split(namefile1)[0], 'bud.cmp')
-    success = compare_budget(namefile1, namefile2, max_cumpd=0.01,
+    success1 = compare_budget(namefile1, namefile2, max_cumpd=0.01,
                              max_incpd=0.01, outfile=outfile)
+
+    outfile = os.path.join(os.path.split(namefile1)[0], 'hds.cmp')
+    success2 = compare_heads(namefile1, namefile2, htol=0.001,
+                             outfile=outfile)
+
+    success = False
+    if success1 and success2:
+        success = True
 
     return success
 

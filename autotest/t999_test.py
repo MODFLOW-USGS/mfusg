@@ -5,6 +5,9 @@ import config
 
 def test_teardown():
 
+    if config.retain:
+        return
+
     if os.path.isdir(config.dir_release):
         print('Removing folder ' + config.dir_release)
         shutil.rmtree(config.dir_release)
