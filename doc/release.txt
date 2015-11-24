@@ -11,7 +11,7 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
-o Version 1.3 11/20/2015
+o Version 1.3 11/25/2015
     GLO2BASU1 -- Added DDREFERENCE option so that the reference head
        used to calculate drawdown can change during the simulation.
     GWF2BASU1 -- Removed calls to u1drel8 and replaced with calls to
@@ -19,16 +19,30 @@ o Version 1.3 11/20/2015
        written to the listing file more frequently than necessary
        for an unstructured simulation.  This was corrected to be
        consistent with MODFLOW-2005.
+    GWF2BCF-LPF-U1 -- Fixed a problem with BCF input that occured 
+       when LAYCON was assigned a value of 2.
+    GWF2WELU1 -- Fixed issue for case where wells were assigned to
+       CLN nodes and structured GWF nodes.
     GWF2GHB7U1 -- Changed call to ULSTRDU so that CLN nodes can be
        specified.
     GWF2RIV7U1 -- Changed call to ULSTRDU so that CLN nodes can be
        specified.
     GWF2DRN7U1 -- Changed call to ULSTRDU so that CLN nodes can be
-       specified.
+       specified.  Fixed bug related parameters.
     GWF2CHD7U1 -- Changed call to ULSTRDU so that CLN nodes can be
        specified.
+    GWF2EVT8U1 -- For unstructured grids, the node number written
+       to the binary budget file may have been incorrect in some
+       cases.
+    GWF2RCH8U1 -- For unstructured grids, the node number written
+       to the binary budget file may have been incorrect in some
+       cases.
     GWF2FHB7U1 -- Fixed a bug in the writing of FHB flows to the
        binary budget file.
+    GWF2SFR7U1 -- Fixed several issues related to streams in dry
+       cells and streams in models with only a single layer.
+    CLN2BASU1 -- Minor changes to unit number handling and filling
+       of arrays. 
     UTL7U1 -- Removed u1drel8.  Generalized u1drel so that it can
        read binary files in the same manner as u2drel.
     Example problems -- Made a few minor changes to several of the 

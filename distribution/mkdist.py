@@ -8,7 +8,7 @@ import shutil
 import zipfile
 
 def zipdir(dirname, zipname):
-    zipf = zipfile.ZipFile(zipname, 'w')
+    zipf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(dirname):
         for file in files:
             zipf.write(os.path.join(root, file))

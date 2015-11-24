@@ -241,11 +241,7 @@ C5-----Allocate space for nonlinear arrays and initialize
       ALLOCATE(HTEMP(NEQS))
       ALLOCATE (Hncg(MXITER),Lrch(3,MXITER))
       ALLOCATE (HncgL(MXITER),LrchL(MXITER))
-      IF(NONMETH.GT.0)THEN
-        ALLOCATE (AMATFL(NJA))
-      ELSE
-        AMATFL => AMAT
-      ENDIF
+      ALLOCATE (AMATFL(NJA))
       IF(IABS(NONMETH).EQ.1)THEN
         ALLOCATE (Wsave(NEQS),hchold(NEQS),DEold(NEQS))
         WSAVE = 0.
@@ -351,6 +347,11 @@ C2G-------DEALLOCATE ARRAYS
         DEALLOCATE(HWADI, DWADI)
         IF(NOVFC.NE.1) DEALLOCATE (DWADIGW)
         IF(IWADICLN.NE.0) DEALLOCATE (DWADICC, DWADICG)
+      ELSE
+C2H-------SAVE AMAT FOR USE IN MASS BALANCE CALCULATION
+        DO J=1,NJA
+          AMATFL(J) = AMAT(J)
+        ENDDO
       ENDIF
 C
       IF(ILAYCON4.EQ.1.OR.INCLN.GT.0)THEN
@@ -366,13 +367,17 @@ C3a-------STORE HNEW IN TEMPORARY LOCATION
         HTEMP(N) = HNEW(N)
 C3b-------SET DIRICHLET BOUNDARY AND NO-FLOW CONDITION
         IF(IBOUND(N).LE.0)THEN
-          AMAT(IA(N)) = 1.0*BIG
-          RHS(N) = HNEW(N)*BIG
-CCB          AMAT(IA(N)) = 1.0
-CCB          RHS(N) = HNEW(N)
-CCB          DO JJ = IA(N)+1,IA(N+1)-1
-CCB            AMAT(JJ) = AMAT(JJ) / BIG
-CCB          ENDDO
+          AMAT(IA(N)) = 1.0
+          RHS(N) = HNEW(N)
+          DO JJ = IA(N)+1,IA(N+1)-1
+            AMAT(JJ) = 0.
+          ENDDO
+clang -- Replaced ibound<=0 approach in v 1.3.00
+ccb          AMAT(IA(N)) = 1.0*BIG
+ccb          RHS(N) = HNEW(N)*BIG
+ccb          DO JJ = IA(N)+1,IA(N+1)-1
+ccb            AMAT(JJ) = AMAT(JJ) / BIG
+ccb          ENDDO
         ELSE
 C3c---------TAKE CARE OF ZERO ROW DIAGONAL
           ADIAG = ABS(AMAT(IA(N)))
@@ -1569,6 +1574,7 @@ C-----------------------------------------------------------------------
 C
       DEALLOCATE(HTEMP)
       DEALLOCATE (Hncg,Lrch)
+      DEALLOCATE(AMATFL)
       DEALLOCATE (Akappa,Gamma,Amomentum,Breduc,Btol,Numtrack,THETA)
       DEALLOCATE (HncgL,LrchL)
       IF(IABS(NONMETH).EQ.1)THEN
