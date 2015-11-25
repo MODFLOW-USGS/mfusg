@@ -1155,7 +1155,7 @@ C------------loop over all connections of node NC1
 C2D---------FIND UPSTREAM NODE AND HIGHER BOT NODE
             IUPS = ND1
             IF(HNEW(ND2).GT.HNEW(ND1)) IUPS = ND2
-            IHBOT = NC1
+            IHBOT = ND1
             BC1 = ACLNNDS(NC1,5)
             BC2 = ACLNNDS(NC2,5)
             IF(BC2.GT.BC1) IHBOT = ND2
@@ -1748,7 +1748,7 @@ C4B----------loop over all connections of node NC1
             END IF
             IIS = JAS(II)
             FLOWCLNCLN(II_CLN)= -FLOWJA(II)
-            IF(ITRNSP.GT.0) CBCF(IIS) = FLOWJA(II)
+            IF(ITRNSP.GT.0) CBCF(IIS) = -FLOWJA(II)
         ENDDO
       ENDDO
 C4D------RECORD CLN-CLN FLOW

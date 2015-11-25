@@ -152,7 +152,7 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY:NCOL,NROW,HNEW,TOP,BOT,IBOUND,
+      USE GLOBAL,      ONLY:NCOL,NROW,HNEW,TOP,BOT,IBOUND,IVC,
      1                      AMAT,PGF,FAHL,IA,JA,JAS,ISYM
       USE GWFBCFMODULE, ONLY: LAYCON
       USE GWFHFBMODULE,ONLY:NHFB,HFB
@@ -182,9 +182,16 @@ C8------CALCULATE AVERAGE SATURATED THICKNESS BETWEEN CELLS N1 AND N2.
           HD2 = HNEW(N2)
           IF (HD1.GT.TOP(N1)) HD1 = TOP(N1)
           IF (HD2.GT.TOP(N2)) HD2 = TOP(N2)
-          IF (HD1.LT.BOT(N1))HD1 = BOT(N1)
-          IF (HD2.LT.BOT(N2))HD2 = BOT(N2)
-          THKAVG = ((HD1-BOT(N1)) + (HD2-BOT(N2)))/2.
+          IF(IVC(IIS).EQ.2)THEN
+            BMAX = MAX( BOT(N1),BOT(N2))
+            IF (HD1.LT.BMAX)HD1 = BMAX
+            IF (HD2.LT.BMAX)HD2 = BMAX
+            THKAVG = 0.5*(TH1+TH2)
+          ELSE
+            IF (HD1.LT.BOT(N1))HD1 = BOT(N1)
+            IF (HD2.LT.BOT(N2))HD2 = BOT(N2)
+            THKAVG = ((HD1-BOT(N1)) + (HD2-BOT(N2)))/2.
+          ENDIF  
 C-------------FIND BARRIER LOCATION AND ADJUST AMAT
           DO IAJ = IA(N1)+1,IA(N1+1)-1
             JJ = JA(IAJ)
@@ -221,7 +228,7 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY:IOUT,TOP,BOT,PGF,FAHL,IA,JA,JAS,ISYM
+      USE GLOBAL,      ONLY:IOUT,TOP,BOT,PGF,FAHL,IA,JA,JAS,ISYM,IVC
       USE GWFBCFMODULE, ONLY: LAYCON
       USE GWFHFBMODULE,ONLY:NHFB,HFB
 C     ------------------------------------------------------------------
@@ -240,7 +247,11 @@ C3------OF THE BARRIER.
         IF (LAYCON(K).EQ.3.OR.LAYCON(K).EQ.1) CYCLE
         TH0 = TOP(N1) - BOT(N1)
         TH1 = TOP(N2) - BOT(N2)
-        THKAVG = (TH0+TH1)/2.0
+        IF(IVC(IIS).EQ.2)THEN
+          THKAVG = MIN(TH0,TH1)
+        ELSE 
+          THKAVG = (TH0+TH1)/2.0
+        ENDIF  
         TDW = THKAVG*HFB(6,II)
 C ------FIND BARRIER LOCATION AND ADJUST PGF
         DO IAJ = IA(N1)+1,IA(N1+1)-1

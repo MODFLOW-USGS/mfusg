@@ -202,9 +202,6 @@ C---------INDICATE IN PRINTOUT THAT SOLUTION IS FOR HEADS
 C
 C7C2----ITERATIVELY FORMULATE AND SOLVE THE FLOW EQUATIONS.
           DO 30 KITER = 1, MXITER
-            if(kstp.eq.1.AND.KITER.EQ.41)then
-              yo=1
-            endif
             KKITER = KITER
 31          CONTINUE
 C

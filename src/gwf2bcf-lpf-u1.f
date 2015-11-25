@@ -150,11 +150,7 @@ C4------READ LAYCON & PRINT TITLE FOR LAYCON TABLE.
       ELSE
         READ(IN,*) (LAYCON(I),I=1,NLAY)
       ENDIF
-c---------hardwire to convert Surfact input to MF2K5_USGs input
-      do i=1,nlay
-        if(laycon(i).eq.43) laycon(i) = 04
-      enddo
-c------------end hardwire -------------------------------------
+C
    51 FORMAT(40I2)
       WRITE(IOUT,52)
    52 FORMAT(1X,5X,'LAYER  LAYER-TYPE CODE     INTERBLOCK T',
