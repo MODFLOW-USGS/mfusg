@@ -176,27 +176,27 @@ C4------CONDUCTANCES ARE TO BE MODIFIED.
           IF(IBOUND(N1).EQ.0.OR.IBOUND(N2).EQ.0) CYCLE
 C
           HCDW = HFB(6,II)
-C
-C8------CALCULATE AVERAGE SATURATED THICKNESS BETWEEN CELLS N1 AND N2.
-          HD1 = HNEW(N1)
-          HD2 = HNEW(N2)
-          IF (HD1.GT.TOP(N1)) HD1 = TOP(N1)
-          IF (HD2.GT.TOP(N2)) HD2 = TOP(N2)
-          IF(IVC(IIS).EQ.2)THEN
-            BMAX = MAX( BOT(N1),BOT(N2))
-            IF (HD1.LT.BMAX)HD1 = BMAX
-            IF (HD2.LT.BMAX)HD2 = BMAX
-            THKAVG = 0.5*(TH1+TH2)
-          ELSE
-            IF (HD1.LT.BOT(N1))HD1 = BOT(N1)
-            IF (HD2.LT.BOT(N2))HD2 = BOT(N2)
-            THKAVG = ((HD1-BOT(N1)) + (HD2-BOT(N2)))/2.
-          ENDIF  
 C-------------FIND BARRIER LOCATION AND ADJUST AMAT
           DO IAJ = IA(N1)+1,IA(N1+1)-1
             JJ = JA(IAJ)
             IAJS = JAS(IAJ)
             IF(JJ.EQ.N2)THEN
+C
+C8----------CALCULATE AVERAGE SATURATED THICKNESS BETWEEN CELLS N1 AND N2.
+              HD1 = HNEW(N1)
+              HD2 = HNEW(N2)
+              IF (HD1.GT.TOP(N1)) HD1 = TOP(N1)
+              IF (HD2.GT.TOP(N2)) HD2 = TOP(N2)          
+              IF(IVC(IAJS).EQ.2)THEN
+                BMAX = MAX( BOT(N1),BOT(N2))
+                IF (HD1.LT.BMAX)HD1 = BMAX
+                IF (HD2.LT.BMAX)HD2 = BMAX
+                THKAVG = 0.5*(TH1+TH2)
+              ELSE
+                IF (HD1.LT.BOT(N1))HD1 = BOT(N1)
+                IF (HD2.LT.BOT(N2))HD2 = BOT(N2)
+                THKAVG = ((HD1-BOT(N1)) + (HD2-BOT(N2)))/2.              
+              ENDIF    
               HFB(7,II) = PGF(IAJS)
               TDW = THKAVG*HCDW
 C-------------FILL TERM AND DIAGONAL
@@ -245,19 +245,20 @@ C3------OF THE BARRIER.
         N2 = HFB(2,II)
         K = HFB(3,II)
         IF (LAYCON(K).EQ.3.OR.LAYCON(K).EQ.1) CYCLE
-        TH0 = TOP(N1) - BOT(N1)
-        TH1 = TOP(N2) - BOT(N2)
-        IF(IVC(IIS).EQ.2)THEN
-          THKAVG = MIN(TH0,TH1)
-        ELSE 
-          THKAVG = (TH0+TH1)/2.0
-        ENDIF  
-        TDW = THKAVG*HFB(6,II)
+C
 C ------FIND BARRIER LOCATION AND ADJUST PGF
         DO IAJ = IA(N1)+1,IA(N1+1)-1
           JJ = JA(IAJ)
           IAJS = JAS(IAJ)
           IF(JJ.EQ.N2)THEN
+            TH0 = TOP(N1) - BOT(N1)
+            TH1 = TOP(N2) - BOT(N2)
+            IF(IVC(IAJS).EQ.2)THEN
+              THKAVG = MIN(TH0,TH1)
+            ELSE  
+              THKAVG = (TH0+TH1)/2.0
+            ENDIF  
+            TDW = THKAVG*HFB(6,II)              
             HFB(7,II) = PGF(IAJS)
             PGF(IAJS) = TDW*PGF(IAJS)*FAHL(IAJS)/    
      *       (TDW*FAHL(IAJS) + PGF(IAJS))
