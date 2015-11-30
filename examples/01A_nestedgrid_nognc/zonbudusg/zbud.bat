@@ -1,2 +1,2 @@
-..\..\..\bin\ZonBudUSG.exe < zbud.rsp
+..\..\..\bin\zonbudusg.exe < zbud.rsp
 pause

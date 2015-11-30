@@ -183,7 +183,7 @@ the run.bat file contained in the folder.
 E. COMPILING
 
 The executable files provided in mfusg.1_3\bin were created using the Intel
-Visual Fortran 13.1 compiler.  Although executable versions of the program 
+Visual Fortran compiler.  Although executable versions of the program 
 are provided, the source code is provided in the mfusg.1_3\src directory so 
 that MODFLOW-USG can be recompiled if necessary.  However, the USGS cannot 
 provide assistance to those compiling MODFLOW-USG. In general, the 
