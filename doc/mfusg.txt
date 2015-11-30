@@ -5,8 +5,8 @@ NOTE: Any use of trade, product or firm names is for descriptive
       Government.
 
 NAME
-     modflow-usg - Modular unstructured three-dimensional finite-
-               difference ground-water model
+     MODFLOW-USG - Modular unstructured three-dimensional finite-
+                   difference groundwater model
 
 ABSTRACT
      A new version of MODFLOW, called MODFLOW–USG (for UnStructured 
@@ -44,7 +44,7 @@ ABSTRACT
 
 
 METHOD
-     The ground-water flow equation is solved using the finite-difference
+     The groundwater flow equation is solved using the finite-difference
      approximation.  The flow region is subdivided into blocks in which
      the medium properties are assumed to be uniform.  In plan view the
      blocks are made from a grid of mutually perpendicular lines that may
@@ -182,8 +182,3 @@ CONTACTS
     (703) 648-5001
     ogw_webmaster@usgs.gov
 
-    See
-
-      http://water.usgs.gov/software/ordering_documentation.html
-
-    for information on ordering printed copies of USGS publications.
