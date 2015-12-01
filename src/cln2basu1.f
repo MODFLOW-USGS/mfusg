@@ -1954,7 +1954,7 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY: IBOUND,IOUT
+      USE GLOBAL,      ONLY: IBOUND,IOUT,NODES
       USE CLN1MODULE, ONLY:  NCLNNDS,ICLNIB
       USE GWFBASMODULE,ONLY:PERTIM,TOTIM,IBOUUN,LBBOSV,CBOUFM,IOFLG
 C

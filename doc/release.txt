@@ -45,7 +45,8 @@ o Version 1.3 12/01/2015
        cells and streams in models with only a single layer.
     CLN2BASU1 -- Minor changes to unit number handling and filling
        of arrays. Fixed bug in assigning conduit node number.  Fixed
-       bug in calculation of conduit height.
+       bug in calculation of conduit height. Fixed bug in saving
+       of CLN IBOUND to binary file.
     PCGU7 -- Added several variable initialization statements.
     XMDLIB_2 -- Added some additional write statements for MUTPCG=0.
     UTL7U1 -- Removed u1drel8.  Generalized u1drel so that it can
