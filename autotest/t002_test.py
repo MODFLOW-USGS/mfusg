@@ -52,11 +52,12 @@ def run_mfusg(regression=True):
     for i, line in enumerate(fold):
         line = line.replace('\\', '/')
         line = line.replace('biscayne.disu', 'biscayne.disu.new')
+        line = line.replace('biscayne.oc', 'biscayne.oc.new')
         fnew.write(line)
     fold.close()
     fnew.close()
 
-    # Change the number of stress periods from 1 to 10
+    # Change the number of stress periods from 1000 to 10
     olddis = os.path.join(testpth, 'input', 'biscayne.disu')
     newdis = os.path.join(testpth, 'input', 'biscayne.disu.new')
     fold = open(olddis, 'r')
@@ -66,6 +67,18 @@ def run_mfusg(regression=True):
             line = line.replace('1000', '10')
         fnew.write(line)
     fold.close()
+    fnew.close()
+
+    # Write oc so that head and budget are always saved.
+    newoc = os.path.join(testpth, 'input', 'biscayne.oc.new')
+    fnew = open(newoc, 'w')
+    fnew.write('HEAD SAVE UNIT 51'+ '\n')
+    fnew.write('COMPACT BUDGET'+ '\n')
+    for kper in range(10):
+        fnew.write('PERIOD {} STEP 1'.format(kper + 1) + '\n')
+        fnew.write('  PRINT BUDGET'+ '\n')
+        fnew.write('  SAVE BUDGET'+ '\n')
+        fnew.write('  SAVE HEAD'+ '\n')
     fnew.close()
 
     # run test models
