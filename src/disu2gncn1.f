@@ -925,7 +925,8 @@ C     ******************************************************************
 C     ADJUST CBC FLUX FOR GHOST NODE TERMS
 C     ******************************************************************
       USE GLOBAL, ONLY:JA,IA,NODES,NEQS,IVC,JAS,ISYM,IBOUND,ICONCV,IOUT,
-     1                 HNEW,AMAT,FLOWJA
+     1                 HNEW,FLOWJA
+      USE SMSMODULE, ONLY: AMATFL
       USE GNCnMODULE,ONLY:NGNCn,GNCn,I2Kn,ISYMGNCn,MXADJn
       USE GWFBCFMODULE, ONLY: LAYCON
       DOUBLE PRECISION QNJ1,QMJ1,QNJ2,QMJ2,Cnm,ATERM,ALPHA,CORRECTnm,
@@ -958,7 +959,7 @@ C4---------FIND LOCATION OF N2 IN ROW N1
           IF(JJ.EQ.N2)THEN
 C
 C6-----------ADJUST FLUXES FROM RHS
-            Cnm = AMAT(II)
+            Cnm = AMATFL(II)
             CORRECTnm = ATERM * Cnm
             FLOWJA(II) = FLOWJA(II) - CORRECTnm
             FLOWJA(ISYM(II)) = FLOWJA(ISYM(II)) + CORRECTnm
@@ -978,8 +979,9 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,HNEW,TOP,BOT,IBOUND,IOUT,
-     1                      AMAT,PGF,FAHL,IA,JA,JAS,ISYM,RHS,HNEW
+     1                      PGF,FAHL,IA,JA,JAS,ISYM,RHS,HNEW
       USE GNCnMODULE,ONLY:NGNCn,GNCn,IRGNCn,ISYMGNCn,MXADJn
+      USE SMSMODULE, ONLY: AMATFL
       DOUBLE PRECISION ALPHA,BETA,Cnm,ATERM,ATERM1,ATERM2,RTERM
 C     ------------------------------------------------------------------
 C---------------------------------------------------------------------------
@@ -1000,7 +1002,7 @@ C3------GET CELL LOCATIONS AND PROPERTIES.
           LOC_JN = IRGNCn(1,IADJn,IG)
           LOC_JM = IRGNCn(2,IADJn,IG)
 C
-C4-----------FIND LOCATION OF N2 IN ROW N1 AND ADJUST AMAT FOR ROWS N1 AND N2
+C4-----------FIND LOCATION OF N2 IN ROW N1 AND ADJUST AMATFL FOR ROWS N1 AND N2
           DO II = IA(N1)+1,IA(N1+1)-1
             JJ = JA(II)
             IIS = JAS(II)
@@ -1009,14 +1011,14 @@ C4-----------FIND LOCATION OF N2 IN ROW N1 AND ADJUST AMAT FOR ROWS N1 AND N2
               ATERM =  ALPHA * Cnm
 C4A1------------FOR ROW N1
 C4A1-----------LESSEN N1 LOCATION BY (ALPHA-1)*Cnm IN DIAGONAL OF ROW N1
-              AMAT(IA(N1)) = AMAT(IA(N1)) - ATERM
+              AMATFL(IA(N1)) = AMATFL(IA(N1)) - ATERM
 C4A2-----------PUT -ATERM IN LOCATION J OF ROW N
-              AMAT(LOC_JN) = AMAT(LOC_JN) + ATERM
+              AMATFL(LOC_JN) = AMATFL(LOC_JN) + ATERM
 C4B1------------FOR ROW N2
 C4B1-----------LESSEN N1 LOCATION BY (ALPHA-1)*Cnm IN OFF-DIAGONAL OF ROW N2
-              AMAT(ISYM(II)) = AMAT(ISYM(II)) + ATERM
+              AMATFL(ISYM(II)) = AMATFL(ISYM(II)) + ATERM
 C4B2-----------PUT ATERM IN LOCATION J OF ROW M
-              AMAT(LOC_JM) = AMAT(LOC_JM) - ATERM
+              AMATFL(LOC_JM) = AMATFL(LOC_JM) - ATERM
               GO TO 200
             ENDIF
           ENDDO

@@ -3,6 +3,9 @@ import platform
 
 # Autotest information
 testdir = 'temp'
+if not os.path.isdir(testdir):
+    os.mkdir(testdir)
+
 retain = True
 
 # Compiling information
