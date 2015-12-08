@@ -3,7 +3,7 @@ import os
 import shutil
 import flopy
 import pymake
-from pymake.autotest import compare_budget, compare_heads
+from pymake.autotest import get_namefiles, compare_budget
 import config
 
 
@@ -14,114 +14,90 @@ def compare(namefile1, namefile2):
 
     # Compare budgets from the list files in namefile1 and namefile2
     outfile = os.path.join(os.path.split(namefile1)[0], 'bud.cmp')
-    success1 = compare_budget(namefile1, namefile2, max_cumpd=0.01,
-                             max_incpd=0.01, outfile=outfile)
-
-    outfile = os.path.join(os.path.split(namefile1)[0], 'hds.cmp')
-    success2 = compare_heads(namefile1, namefile2, htol=0.001,
+    success = compare_budget(namefile1, namefile2, max_cumpd=0.01, max_incpd=0.1,
                              outfile=outfile)
-
-    success = False
-    if success1 and success2:
-        success = True
-
     return success
 
 
-def run_mfusg(regression=True):
+def run_mfusg(namefile, comparison=True):
     """
-    Download run and compare biscayne quadtree problem
+    Run the simulation.
 
     """
 
-    # Set the testname
-    testname = '02_quadtree'
+    # Set root as the directory name where namefile is located
+    testname = pymake.get_sim_name(namefile, rootpth=config.testpaths[2])[0]
+
+    # Set nam as namefile name without path
+    nam = os.path.basename(namefile)
+
+    # Setup
     testpth = os.path.join(config.testdir, testname)
-
-    # Delete folder if exists, then download the MODFLOW-USG distribution
-    if os.path.isdir(testpth):
-        shutil.rmtree(testpth)
-    url = "http://water.usgs.gov/ogw/mfusg/02_quadtree.zip"
-    pymake.download_and_unzip(url, pth=config.testdir)
-
-    # Go through name file and replace \ with /
-    oldnam = os.path.join(testpth, 'biscayne.nam')
-    newnam = os.path.join(testpth, 'biscayne.nam.new')
-    fold = open(oldnam, 'r')
-    fnew = open(newnam, 'w')
-    for i, line in enumerate(fold):
-        line = line.replace('\\', '/')
-        line = line.replace('biscayne.disu', 'biscayne.disu.new')
-        line = line.replace('biscayne.oc', 'biscayne.oc.new')
-        fnew.write(line)
-    fold.close()
-    fnew.close()
-
-    # Change the number of stress periods from 1000 to 10
-    olddis = os.path.join(testpth, 'input', 'biscayne.disu')
-    newdis = os.path.join(testpth, 'input', 'biscayne.disu.new')
-    fold = open(olddis, 'r')
-    fnew = open(newdis, 'w')
-    for i, line in enumerate(fold):
-        if i == 1:
-            line = line.replace('1000', '10')
-        fnew.write(line)
-    fold.close()
-    fnew.close()
-
-    # Write oc so that head and budget are always saved.
-    newoc = os.path.join(testpth, 'input', 'biscayne.oc.new')
-    fnew = open(newoc, 'w')
-    fnew.write('HEAD SAVE UNIT 51'+ '\n')
-    fnew.write('COMPACT BUDGET'+ '\n')
-    for kper in range(10):
-        fnew.write('PERIOD {} STEP 1'.format(kper + 1) + '\n')
-        fnew.write('  PRINT BUDGET'+ '\n')
-        fnew.write('  SAVE BUDGET'+ '\n')
-        fnew.write('  SAVE HEAD'+ '\n')
-    fnew.close()
+    pymake.setup(namefile, testpth)
 
     # run test models
     print('running model...{}'.format(testname))
-    nam = 'biscayne.nam.new'
     exe_name = os.path.abspath(config.target)
     success, buff = flopy.run_model(exe_name, nam, model_ws=testpth,
                                     silent=True)
-    assert success, 'biscayne model did not run successfully.'
-
-
-    # If it is a regression run, then setup and run the model with the
-    # release target
-    if regression:
-        testname_reg = testname + '_reg'
-        testpth_reg = os.path.join(config.testdir, testname_reg)
-        pymake.setup(os.path.join(testpth, nam), testpth_reg)
-        outdir = os.path.join(testpth_reg, 'output')
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
-        print('running regression model...{}'.format(testname_reg))
-        exe_name = os.path.abspath(config.target_release)
-        success, buff = flopy.run_model(exe_name, nam, model_ws=testpth_reg,
-                                         silent=True)
-
-        # Make comparison
-        success = compare(os.path.join(testpth, nam),
-                          os.path.join(testpth_reg, nam))
-        assert success, 'Biscayne regression test did not pass'
+    success_cmp = True
+    if comparison:
+        action = pymake.setup_comparison(namefile, testpth)
+        testpth_cmp = os.path.join(testpth, action)
+        if action is not None:
+            files_cmp = None
+            if action.lower() == '.cmp':
+                files_cmp = []
+                files = os.listdir(testpth_cmp)
+                for file in files:
+                    files_cmp.append(os.path.abspath(os.path.join(testpth_cmp, file)))
+                success_cmp = True
+                print(files_cmp)
+            else:
+                print('running comparison model...{}'.format(testpth_cmp))
+                key = action.lower().replace('.cmp', '')
+                # exe_name = os.path.abspath(config.target_dict[key])
+                exe_name = config.target_dict[key]
+                success_cmp, buff = flopy.run_model(exe_name, nam,
+                                                    model_ws=testpth_cmp,
+                                                    silent=True)
+            if success_cmp:
+                outfile1 = os.path.join(os.path.split(os.path.join(testpth, nam))[0], 'bud.cmp')
+                outfile2 = os.path.join(os.path.split(os.path.join(testpth, nam))[0], 'hds.cmp')
+                success_cmp = pymake.compare(os.path.join(testpth, nam),
+                                             os.path.join(testpth_cmp, nam),
+                                             precision='single',
+                                             max_cumpd=0.01, max_incpd=0.01, htol=0.001,
+                                             outfile1=outfile1, outfile2=outfile2,
+                                             files2=files_cmp)
 
     # Clean things up
-    if success and not config.retain:
+    if success and success_cmp and not config.retain:
         pymake.teardown(testpth)
-        if regression:
-            pymake.teardown(testpth_reg)
+    assert success, 'model did not run'
+    assert success_cmp, 'comparison model did not meet comparison criteria'
 
     return
 
 
 def test_mfusg():
-    run_mfusg()
+    if config.exclude is None:
+        exclude = []
+    else:
+        exclude = list(config.exclude)
+    exclude.append('.cmp')
+    namefiles = get_namefiles(config.testpaths[2], exclude=exclude)
+    for namefile in namefiles:
+        yield run_mfusg, namefile
     return
 
 
 if __name__ == '__main__':
-    run_mfusg()
+    if config.exclude is None:
+        exclude = []
+    else:
+        exclude = list(config.exclude)
+    exclude.append('.cmp')
+    namefiles = get_namefiles(config.testpaths[2], exclude=exclude)
+    for namefile in namefiles:
+        run_mfusg(namefile)
