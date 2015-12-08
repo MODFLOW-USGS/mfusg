@@ -21,6 +21,10 @@ o Version 1.3 12/01/2015
        consistent with MODFLOW-2005.
     GWF2BCF-LPF-U1 -- Fixed a problem with BCF input that occured 
        when LAYCON was assigned a value of 2.
+    GLO2SMSU1 -- Modifed approach for handling matrix terms for
+       rows with IBOUND <= 0.
+    DISU2GNCN1 -- In BD routines changed AMAT to AMATFL to allow 
+       for new approach for handling IBOUND <= 0.  
     GWF2HFBU1 -- Implemented IVC=1 for vertically staggered staggered 
        grids.
     GWF2WELU1 -- Fixed issue for case where wells were assigned to
