@@ -1535,7 +1535,7 @@ C     ------------------------------------------------------------------
 C     ------------------------------------------------------------------
       IF(IUNSAT.EQ.0)THEN
         EKR = SW
-        IF(EKR.LT.1.0E-7) EKR = 1.0E-7
+        ! IF(EKR.LT.1.0E-7) EKR = 1.0E-7
       ELSEIF(IUNSAT.EQ.1)THEN
 C---------BROOKS COREY FUNCTION
         SEFF = (SW - Sr(N))/(1.0 - Sr(N))

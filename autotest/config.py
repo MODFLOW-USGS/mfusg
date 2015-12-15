@@ -8,7 +8,7 @@ if not os.path.isdir(testdir):
 target_dict = {}
 
 exclude = None #('MNW2-Fig28',) #, 'swi2ex4sww') #None
-retain = True
+retain = False
 
 # Compiling information
 fc = 'gfortran'

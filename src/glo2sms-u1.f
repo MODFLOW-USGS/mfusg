@@ -271,7 +271,7 @@ C******************************************************************
       USE GWFBCFMODULE, ONLY: HWADIGW,DWADIGW
       USE GWFBASMODULE, ONLY: HNOFLO,IFRCNVG
       save itp
-      double precision abigch,hdif,ahdif,ADIAG,big
+      double precision abigch,hdif,ahdif,ADIAG,big,ANUMBER
 C---------------------------------------------------------------------
 C
 C1------ADJUST MATRIX FOR GHOST NODE CONTRIBUTION IF GNC MODULE IS ON
@@ -381,9 +381,10 @@ ccb          ENDDO
         ELSE
 C3c---------TAKE CARE OF ZERO ROW DIAGONAL
           ADIAG = ABS(AMAT(IA(N)))
-          IF(ADIAG.LT.1.0E-15)THEN
-            AMAT(IA(N)) = 1.0E06
-            RHS(N) = RHS(N) + HNEW(N)*1.0E06
+          IF(ADIAG.LT.1.0D-15)THEN
+            ANUMBER = 1.D0
+            AMAT(IA(N)) = ANUMBER
+            RHS(N) = RHS(N) + HNEW(N) * ANUMBER
           ENDIF
         ENDIF
       ENDDO
