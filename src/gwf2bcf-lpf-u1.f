@@ -2894,7 +2894,8 @@ C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,NLAY,ITRSS,LAYHDT,LAYHDS,LAYCBD,
      1                 NCNFBD,IBOUND,BUFF,NBOTM,DELR,DELC,IOUT,ARAD,
      2                 NODES,IFREFM,IUNSTR,PGF,NJA,NJAS,NJAG,CL1,
-     3                 NODLAY,IA,JA,IDSYMRD,IATMP,NJATMP,TOP,BOT,JAS
+     3                 NODLAY,IA,JA,IDSYMRD,IATMP,NJATMP,TOP,BOT,JAS,
+     4                 IVC
       USE GWFBCFMODULE,ONLY:IBCFCB,IWDFLG,IWETIT,IHDWET,WETFCT,HDRY,CV,
      1                      LAYCON,LAYAVG,SC1,SC2,WETDRY,
      2                      IKCFLAG,laywet,ISFAC,ITHFLG,
@@ -3063,7 +3064,7 @@ C-----------GO OVER CONNECTIONS OF NODE N AND FILL FOR UPPER SYMMETRIC PART
                 THICK2 = TOP(JJ) - BOT(JJ)
                 THICK = 0.5 * (THICK1 + THICK2)
                 IIS = JAS(II)
-                PGF(IIS) = PGF(IIS) * THICK
+                IF(IVC(IIS).NE.1) PGF(IIS) = PGF(IIS) * THICK
               ENDIF
             ENDDO
           ENDDO
