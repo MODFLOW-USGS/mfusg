@@ -1103,13 +1103,27 @@ C1A1----READ INITIAL CONDITIONS FOR ALL LAKES (ONLY READ ONCE)
          IF(ISS.EQ.0) WRITE (IOUT,820)
          IF (IUNITGWT.EQ.0) THEN
             DO 30 LM=1,NLAKES
+! RGN 5/31/2016 added reading of bathymetry table unit numbers.
                IF (IFREFM.EQ.0) THEN
-                  IF(ISS.NE.0) READ (IN,'(3F10.4)') STAGES(LM),SSMN(LM),
-     1              SSMX(LM)
-                  IF(ISS.EQ.0) READ (IN,'(3F10.4)') STAGES(LM)
+                 IF ( IRDTAB.GT.0 ) THEN
+                   IF(ISS.NE.0) READ (IN,'(3F10.4,I5)') STAGES(LM),
+     1                                SSMN(LM),SSMX(LM),LAKTAB(LM)
+                   IF(ISS.EQ.0) READ (IN,'(F10.4,I5)') STAGES(LM),
+     2                                               LAKTAB(LM)
+                 ELSE
+                   IF(ISS.NE.0) READ (IN,'(3F10.4)') STAGES(LM),
+     1              SSMN(LM),SSMX(LM)
+                   IF(ISS.EQ.0) READ (IN,'(F10.4)') STAGES(LM)
+                 END IF
                ELSE
-                  IF(ISS.NE.0) READ (IN,*) STAGES(LM),SSMN(LM),SSMX(LM)
-                  IF(ISS.EQ.0) READ (IN,*) STAGES(LM)
+                 IF ( IRDTAB.GT.0 ) THEN
+                   IF(ISS.NE.0) READ (IN,*)STAGES(LM),SSMN(LM),SSMX(LM),
+     1                                     LAKTAB(LM)
+                   IF(ISS.EQ.0) READ (IN,*) STAGES(LM),LAKTAB(LM)
+                 ELSE
+                   IF(ISS.NE.0) READ (IN,*) STAGES(LM),SSMN(LM),SSMX(LM)
+                   IF(ISS.EQ.0) READ (IN,*) STAGES(LM)
+                 END IF
                END IF
             IF(ISS.NE.0) WRITE (IOUT,22) LM,STAGES(LM),SSMN(LM),SSMX(LM)
             IF(ISS.EQ.0) WRITE (IOUT,22) LM,STAGES(LM)
@@ -1140,6 +1154,22 @@ C 35           WRITE (IOUTS,LFRMAT) LM,(CLAKE(LM,ISOL),ISOL=1,NSOL)
 cgage
 C            CLAKINIT=CLAKE
          END IF
+      END IF
+C
+! RGN 5/31/2016 reading tables was missed for unstructured. Added here.
+      IF ( KKPER==1 .AND. IRDTAB.GT.0 ) THEN
+        DO L1=1,NLAKES
+          WRITE(IOUT,1399) L1
+          iunit = LAKTAB(L1)
+ 1399 FORMAT(//1X,'STAGE/VOLUME RELATION FOR LAKE',I3//6X,'STAGE',
+     1        8X,'VOLUME',8X,'AREA'/)
+          DO  INC=1,151
+          READ(iunit,*) DEPTHTABLE(INC,L1), VOLUMETABLE(INC,L1),
+     +                    AREATABLE(INC,L1)
+          WRITE(IOUT,1315) DEPTHTABLE(INC,L1), VOLUMETABLE(INC,L1),
+     +                    AREATABLE(INC,L1)
+          END DO
+        END DO
       END IF
 C
       WRITE (IOUT,'(/)')
