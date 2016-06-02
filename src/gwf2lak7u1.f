@@ -78,7 +78,7 @@ Cdep  initialize number of iterations and closure criteria to zero.
       IF(LINE(ISTART:ISTOP).EQ.'TABLEINPUT') THEN
          IRDTAB = 1
          WRITE(IOUT,32)
-   32  FORMAT(1X,I10,' Stage, volume and area relationship specified ',
+   32  FORMAT(1X,' Stage, volume and area relationship specified ',
      +                'based on an external tabular input file')
       ELSE
         BACKSPACE IN
