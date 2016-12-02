@@ -3681,9 +3681,17 @@ Cdep    revised to allow for compact and non compact budgets
       ibstlb = 0
 C
 C2------WRITE HEADER WHEN CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST.
-      IF ( ibd.EQ.2 ) CALL UBDSV2(Kkstp, Kkper, text, iout1, NCOL, NROW,
+      IF(IBD.EQ.2) THEN
+         IF(IUNSTR.EQ.0) THEN
+           CALL UBDSV2(Kkstp, Kkper, text, iout1, NCOL, NROW,
      +                            NLAY, NSTRM, IOUT, DELT, PERTIM, 
      +                            TOTIM, IBOUND)
+         ELSE
+           CALL UBDSV2U(Kkstp, Kkper, text, iout1, NODES,
+     +                            NSTRM, IOUT, DELT, PERTIM, 
+     +                            TOTIM, IBOUND)
+         ENDIF
+      END IF
       IF ( ibdst.EQ.2 ) CALL UBDSV2 (Kkstp, Kkper, strtxt, iout2, NCOL, 
      +                               NROW, NLAY, NSTRM, IOUT, DELT, 
      +                               PERTIM, TOTIM, IBOUND)
