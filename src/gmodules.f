@@ -75,6 +75,7 @@ C  this file to use the IMPLICIT NONE statement.
 C
 C -----------------------------------------------------------------------
       MODULE GWFBASMODULE
+        INTEGER :: IATS=0
         INTEGER, SAVE, POINTER  ::MSUM
         INTEGER, SAVE, POINTER  ::IHEDFM,IHEDUN,IDDNFM,IDDNUN,IBOUUN,
      *    ISPCFM,ISPCUN

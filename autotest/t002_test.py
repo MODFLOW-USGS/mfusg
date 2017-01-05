@@ -10,6 +10,7 @@ import config
 def compare(namefile1, namefile2):
     """
     Compare the results from two simulations
+
     """
 
     # Compare budgets from the list files in namefile1 and namefile2
