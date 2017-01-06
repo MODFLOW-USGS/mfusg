@@ -118,7 +118,7 @@ def run_mfusg(regression=True):
     return
 
 
-def test_mfusg():
+def test_mfusg_bisqtg():
     run_mfusg()
     return
 

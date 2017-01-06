@@ -24,11 +24,11 @@ testpaths = [os.path.join('..', 'examples'),
              os.path.join('..', 'test-cmp')]
 srcdir = os.path.join('..', 'src')
 program = 'mfusg'
-version = '1.3.01'
+version = '1.4.00'
 target = os.path.join('temp', program + '_' + version + target_extension)
 target_dict[os.path.basename(target)] = target
 
-# Release version information
+# Released version information
 url_release = 'http://water.usgs.gov/ogw/mfusg/mfusg.1_3.zip'
 dir_release = os.path.join(testdir, 'mfusg.1_3')
 srcdir_release = os.path.join(dir_release, 'src')
