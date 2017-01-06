@@ -651,7 +651,7 @@ C     ******************************************************************
 !     -----------------------------------------------------------------
       USE GLOBAL, ONLY:Ibound, Hnew, bot, Iout, Nodes,ICONCV,
      1  NLAY,NODLAY,NEQS,INCLN,iunsat
-      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS
+      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,iflincln
       USE GWFBCFMODULE, ONLY: LAYCON
       USE SMSMODULE
       IMPLICIT NONE
@@ -665,7 +665,7 @@ C     ******************************************************************
       DOUBLE PRECISION  ww, hsave,DELH,RELAX,RELAXOLD,ES,
      *  AES,amom,closebot,FELEV
       SAVE RELAXOLD
-      INTEGER K,N,NNDLAY,NSTRT,I,kk
+      INTEGER K,N,NNDLAY,NSTRT,I,kk,iflin,nc
 !     -----------------------------------------------------------------
       closebot = 0.9
       IF(ABS(NONMETH).EQ.1) THEN
@@ -709,18 +709,18 @@ C6----------COMPUTE ACCEPTED STEP-SIZE AND NEW HEAD
           if(kiter.gt.4) amom = amomentum
           DELH = DELH * ww + amom * Hchold(N)
           Hnew(N) = HTEMP(N) + DELH
+          IF(N.LE.NODES)THEN  !-------FOR POROUS MEDIUM NODES
 C7----------ACCOUNT FOR ICONCV=0 CONDITION FOR LAYCON=4 CASE
-          IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
-            IF(N.LE.NODES)THEN  !-------FOR POROUS MEDIUM NODES
-            DO K=1,NLAY
-              NNDLAY = NODLAY(K)
-              NSTRT = NODLAY(K-1)+1
-              IF(N.GE.NSTRT.AND.N.LE.NNDLAY)THEN
-               KK = K
-               GO TO 11
-              ENDIF
-            ENDDO
-11          CONTINUE
+            IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
+              DO K=1,NLAY
+                NNDLAY = NODLAY(K)
+                NSTRT = NODLAY(K-1)+1
+                IF(N.GE.NSTRT.AND.N.LE.NNDLAY)THEN
+                 KK = K
+                 GO TO 11
+                ENDIF
+              ENDDO
+11            CONTINUE
               IF ( LAYCON(KK).EQ.4 ) THEN
                 IF ( Hnew(N).LT.Bot(N) ) THEN
                   hsave = Hnew(N)
@@ -728,16 +728,19 @@ C7----------ACCOUNT FOR ICONCV=0 CONDITION FOR LAYCON=4 CASE
                   DELH = Hnew(N) - hsave
                 END IF
               ENDIF
-cc---need below to be outside of the ICONCV if-check (or not at all).
-cc            ELSE !-----------------------FOR CLN CELLS
-cc              FELEV = ACLNNDS(I,7)
-cc              IF ( Hnew(N).LT.FELEV ) THEN
-cc                hsave = Hnew(N)
-cc                Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
-cc                DELH = Hnew(N) - hsave
-CC              END IF
             ENDIF
-          ENDIF
+cc---need below to be outside of the ICONCV if-check (or not at all).
+          ELSE !-----------------------FOR CLN CELLS
+              NC = N - NODES
+              iflin = iflincln(nc)
+              if(iflin.gt.0)cycle ! head cannot go below if iflin.le.0
+              FELEV = ACLNNDS(nc,5)
+              IF ( Hnew(N).LT.FELEV ) THEN
+                hsave = Hnew(N)
+                Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
+                DELH = Hnew(N) - hsave
+              END IF
+            ENDIF
 C---------COMPUTE EXPONTENTIAL AVERAGE OF PAST CHANGES IN Hchold after correction for ICONCV=0
 C          If(kiter.eq.1)then
 C            Hchold(N) = DELH
@@ -775,7 +778,7 @@ C11---------COMPUTE NEW HEAD AFTER UNDER-RELAXATION
           ENDDO
         ENDIF
 C12-------ACCOUNT FOR ICONCV=0 CONDITION APPROPRIATELY
-         IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
+        IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
           DO K=1,NLAY
             NNDLAY = NODLAY(K)
             NSTRT = NODLAY(K-1)+1
@@ -787,18 +790,21 @@ C12-------ACCOUNT FOR ICONCV=0 CONDITION APPROPRIATELY
               ENDDO
             ENDIF
           ENDDO
-cc---need below to be outside of the ICONCV if-check (or not at all).
-ccC---------FOR CLN CELLS
-cc          IF(INCLN.EQ.0) GO TO 101
-cc          DO N=1,NCLNNDS
-cc              FELEV = ACLNNDS(I,7)
-cc              IF ( Hnew(N).LT.FELEV ) THEN
-cc                Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
-cc              END IF
-cc          ENDDO
-101       CONTINUE
-C
         ENDIF
+cc---need below to be outside of the ICONCV if-check (or not at all).
+C---------FOR CLN CELLS
+      IF(INCLN.EQ.0) GO TO 201
+        DO N=1,NCLNNDS
+          FELEV = ACLNNDS(n,5)
+          iflin = iflincln(n)
+          if(iflin.gt.0)cycle ! head cannot go below if iflin.le.0
+          IF ( Hnew(N+nodes).LT.FELEV ) THEN
+            Hnew(N+nodes) = HTEMP(N+nodes)*(1.0-closebot) +
+     1        FELEV*closebot
+          END IF
+        ENDDO
+201     CONTINUE
+C
 C---------------------------------------------------------------------------
       ENDIF
 C13-----RETURN
