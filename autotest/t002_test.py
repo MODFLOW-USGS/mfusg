@@ -57,7 +57,6 @@ def run_mfusg(namefile, comparison=True):
             else:
                 print('running comparison model...{}'.format(testpth_cmp))
                 key = action.lower().replace('.cmp', '')
-                # exe_name = os.path.abspath(config.target_dict[key])
                 exe_name = config.target_dict[key]
                 success_cmp, buff = flopy.run_model(exe_name, nam,
                                                     model_ws=testpth_cmp,
@@ -100,5 +99,6 @@ if __name__ == '__main__':
         exclude = list(config.exclude)
     exclude.append('.cmp')
     namefiles = get_namefiles(config.testpaths[2], exclude=exclude)
-    for namefile in namefiles:
+    #for namefile in namefiles:
+    for namefile in ['../test-cmp/test049_ets/test1tr_ets.nam']:
         run_mfusg(namefile)
