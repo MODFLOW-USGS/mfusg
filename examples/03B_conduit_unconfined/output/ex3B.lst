@@ -1,6 +1,6 @@
                                   MODFLOW-USG      
       U.S. GEOLOGICAL SURVEY MODULAR FINITE-DIFFERENCE GROUNDWATER FLOW MODEL
-                            VERSION 1.3.00 12/01/2015
+                            VERSION 1.4.00 01/13/2016
 
  LIST FILE: ex3B.lst
                          UNIT    7
@@ -57,7 +57,7 @@
  FILE TYPE:DATA   UNIT   55   STATUS:UNKNOWN
  FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
 
- BAS -- BASIC PACKAGE-USG      1.3.00 12/01/2015                        INPUT READ FROM UNIT    1
+ BAS -- BASIC PACKAGE-USG      1.4.00 01/13/2016                        INPUT READ FROM UNIT    1
  
  # MODFLOW2005 Basic Package                                                     
  #                                                                               
@@ -460,7 +460,7 @@ FROM THE SOLVER INPUT FILE.
         1                             0             0           633709.          633709.    
         1               12                                                                       -0.276435               2    41    41  lay row col
         1               12                                                                       -0.239970                     1           CLN-node number
-        2                             0             0           5428.60          5428.60    
+        2                             0             0           5428.59          5428.59    
         2                4                                                                        0.263996E-02           1   100   100  lay row col
         2                4                                                                       -0.429445E-03                 1           CLN-node number
         3                             0             0           54.2526          54.2526    
@@ -2039,7 +2039,7 @@ FROM THE SOLVER INPUT FILE.
         1               12                                                                       -0.248742               2   100   100  lay row col
         1               12                                                                       -0.236732                     1           CLN-node number
         2                             0             0           1.69427          1.69427    
-        2                3                                                                       -0.105967E-03           2    50    50  lay row col
+        2                3                                                                       -0.105968E-03           2    50    50  lay row col
         2                3                                                                       -0.239049E-03                 1           CLN-node number
      2 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP  71 STRESS PERIOD   1
 
@@ -2888,7 +2888,7 @@ FROM THE SOLVER INPUT FILE.
         1                             0             0           391251.          391251.    
         1               10                                                                       -0.245787               2   100   100  lay row col
         1               10                                                                       -0.241526                     1           CLN-node number
-        2                             0             0          0.968972         0.968972    
+        2                             0             0          0.968971         0.968971    
         2                3                                                                        0.815175E-04           1    50    50  lay row col
         2                3                                                                       -0.160617E-03                 1           CLN-node number
      2 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP 105 STRESS PERIOD   1
@@ -8449,6 +8449,6 @@ FROM THE SOLVER INPUT FILE.
          TOTAL TIME 1.38240E+07 2.30400E+05  3840.0      160.00     0.43806    
 1
 
- Run end date and time (yyyy/mm/dd hh:mm:ss): 2015/12/02 11:13:14
- Elapsed run time: 17.160 Seconds
+ Run end date and time (yyyy/mm/dd hh:mm:ss): 2017/01/10 14:20:00
+ Elapsed run time: 17.391 Seconds
 

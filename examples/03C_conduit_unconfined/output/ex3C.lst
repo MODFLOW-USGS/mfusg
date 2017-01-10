@@ -1,6 +1,6 @@
                                   MODFLOW-USG      
       U.S. GEOLOGICAL SURVEY MODULAR FINITE-DIFFERENCE GROUNDWATER FLOW MODEL
-                            VERSION 1.3.00 12/01/2015
+                            VERSION 1.4.00 01/13/2016
 
  LIST FILE: ex3C.lst
                          UNIT    7
@@ -61,7 +61,7 @@
  FILE TYPE:DATA   UNIT   55   STATUS:UNKNOWN
  FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
 
- BAS -- BASIC PACKAGE-USG      1.3.00 12/01/2015                        INPUT READ FROM UNIT    1
+ BAS -- BASIC PACKAGE-USG      1.4.00 01/13/2016                        INPUT READ FROM UNIT    1
  
  # MODFLOW2005 Basic Package                                                     
  #                                                                               
@@ -8458,6 +8458,6 @@ FROM THE SOLVER INPUT FILE.
          TOTAL TIME 1.38240E+07 2.30400E+05  3840.0      160.00     0.43806    
 1
 
- Run end date and time (yyyy/mm/dd hh:mm:ss): 2015/12/02 11:13:31
- Elapsed run time: 17.491 Seconds
+ Run end date and time (yyyy/mm/dd hh:mm:ss): 2017/01/10 14:20:19
+ Elapsed run time: 18.716 Seconds
 
