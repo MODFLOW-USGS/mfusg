@@ -10,6 +10,10 @@ C     ******************************************************************
 C     Program to compute and print volumetric budgets over subregions
 C     of a flow system that is being simulated using the USGS
 C     unstructured Grid Model (USG).
+C
+C     Jan., 2017 -- Updated to terminate if the number of entries in
+C       the budget file have changed from one step to the next.
+C
 C     ******************************************************************
 C        SPECIFICATIONS:
       USE ZONBUDMODULE
@@ -43,7 +47,7 @@ C-----          used.
       DIMENSION VAL(20)
       INCLUDE 'openspec.inc'
 C     ------------------------------------------------------------------
-      VERSON='ZONEBUDGET USG version 1.00'
+      VERSON='ZONEBUDGET USG version 1.01'
 C
 C-----DEFINE INPUT AND OUTPUT UNITS AND INITIALIZE OTHER VARIABLES
       INZN1=10
@@ -281,7 +285,7 @@ C-----FROM A TO B EXCEPT THAT INS AND OUTS ARE REVERSED
             IF(IUCSV.GT.0) CALL CSVSUBPR(K1,K2,VBNM,VBVL,VBZNFL,MSUM,
      1            IUCSV,NTRDIM,NZDIM,TITLE,TOTIMDOLD,LSTZON)
             IF(IUCSV2.GT.0) CALL CSVSUBPR2(K1,K2,VBNM,VBVL,VBZNFL,MSUM,
-     2            IUCSV2,NTRDIM,NZDIM,TITLE,TOTIMDOLD,LSTZON)
+     2            IUCSV2,NTRDIM,NZDIM,TITLE,TOTIMDOLD,LSTZON,IOUT)
          END IF
 C
 C-----SET TIME CHANGE INDICATORS
@@ -421,7 +425,7 @@ C-----FROM A TO B EXCEPT THAT INS AND OUTS ARE REVERSED
         IF(IUCSV.GT.0) CALL CSVSUBPR(K1,K2,VBNM,VBVL,
      1     VBZNFL,MSUM,IUCSV,NTRDIM,NZDIM,TITLE,TOTIMD,LSTZON)
         IF(IUCSV2.GT.0) CALL CSVSUBPR2(K1,K2,VBNM,VBVL,
-     1     VBZNFL,MSUM,IUCSV2,NTRDIM,NZDIM,TITLE,TOTIMD,LSTZON)
+     1     VBZNFL,MSUM,IUCSV2,NTRDIM,NZDIM,TITLE,TOTIMD,LSTZON,IOUT)
       END IF
       STOP
 C
@@ -1212,7 +1216,7 @@ C
       RETURN
       END
       SUBROUTINE CSVSUBPR2(KSTP,KPER,VBNM,VBVL,VBZNFL,MSUM,IUCSV,
-     1               NTRDIM,NZDIM,TITLE,TOTIMD,LSTZON)
+     1               NTRDIM,NZDIM,TITLE,TOTIMD,LSTZON,IOUT)
 C     ******************************************************************
 C     COMPUTE TOTALS AND DIFFERENCES FOR ZONES AND WRITE CSV FILE
 C     ******************************************************************
@@ -1235,6 +1239,9 @@ C-----THE NUMBER OF FLOW TERMS OTHER THAN FLOW BETWEEN ZONES IS MSUM-1
       MTOT=MSUM-1
       DHUN=100.
       DTWO=2.
+C
+C ----VERIFY THAT THE BUDGET ENTRIES HAVE NOT CHANGED
+      CALL VBNMCHK(IFIRST,IOUT,IUCSV,MTOT,NTRDIM,VBNM)
 C
 C-----Create Zone labels
       DO 2 I=0,NZDIM
@@ -1501,5 +1508,82 @@ C  Read 2nd header and check for valid type.
       END IF
 C
 100   REWIND(IU)
+      RETURN
+      END
+      SUBROUTINE VBNMCHK(IFIRST,IOUT,IUCSV,MTOT,NTRDIM,VBNM)
+C     ******************************************************************
+C     CHECK TO SEE IF THE NUMBER OR TYPE OF ENTRIES IN THE BUDGET FILE 
+C     HAS CHANGED.  FOR THE FIRST CALL, STORE NON-STORAGE ENTRIES IN
+C     VBNM0.  TERMINATE WITH AN ERROR IF VBNM DIFFERS FROM VBNM0 IN 
+C     SUBSEQUENT CALLS.
+C     ******************************************************************
+C       SPECIFICATIONS:
+      CHARACTER*16 VBNM(NTRDIM)
+      CHARACTER*16,ALLOCATABLE,SAVE :: VBNM0(:)
+      INTEGER,SAVE    ::MTOT0       
+C     ------------------------------------------------------------------
+C
+C-----SET MSTART VALUE FOR WHERE TO START COMPARING IN VBNM.  SET MLEN
+C-----EQUAL TO NUMBER OF ENTRIES NOT EQUAL TO 'STORAGE'.
+      MSTART=1
+      IF(VBNM(1).EQ.'         STORAGE') MSTART=2
+      MLEN=MTOT-MSTART+1
+C
+C-----IF THIS IS FIRST TIME, THEN SAVE VBNM ENTRIES INTO VBNM0.
+C-----EXCLUDE 'STORAGE' AS IT IS ALWAYS ACCOUNTED FOR IN ZONEBUDGET.
+      IF(IFIRST.EQ.1) THEN
+        MTOT0=MTOT-MSTART+1
+        ALLOCATE(VBNM0(MTOT0))
+        VBNM0(:)=VBNM(MSTART:MTOT)
+      ENDIF
+C
+C-----IF IT IS NOT THE FIRST TIME, THEN COMPARE VBNM0 WITH VBNM. SET
+C-----IERR=1 IF ENTRIES HAVE CHANGED.
+      IERR=0
+      IF(IFIRST.EQ.0) THEN
+C
+C-------VERIFY THAT NUMBER OF ENTRIES ARE THE SAME
+        IF(MLEN.NE.MTOT0) THEN
+          IERR=1
+        ELSE
+C
+C---------VERIFY THAT EACH ENTRY IS THE SAME
+          M=MSTART
+          DO M0=1,MTOT0
+            IF(VBNM(M).NE.VBNM0(M0)) THEN
+              IERR=1
+              EXIT
+            ENDIF
+            M=M+1
+          ENDDO
+        ENDIF
+      ENDIF
+C
+C-----IF ENTRIES DO NOT COMPARE, THEN TERMINATE WITH AN ERROR
+      IF(IERR.GT.0) THEN
+         WRITE(*,5)
+         WRITE(*,*) 'Entries first detected in budget file: ', VBNM0(:)
+         WRITE(*,*) 'Entries currently detected in budget file: ', 
+     1               VBNM(MSTART:MTOT)
+C
+         WRITE(IUCSV,5)
+         WRITE(IUCSV,*) 'Entries first detected in budget file: ', 
+     1                   VBNM0(:)
+         WRITE(IUCSV,*) 'Entries currently detected in budget file: ', 
+     1                   VBNM(MSTART:MTOT)
+C
+         WRITE(IOUT,5)
+         WRITE(IOUT,*) 'Entries first detected in budget file: ', 
+     1                  VBNM0(:)
+         WRITE(IOUT,*) 'Entries currently detected in budget file: ', 
+     1                  VBNM(MSTART:MTOT)
+C
+    5    FORMAT(' Stopping -- the entries in the budget file have ',
+     1          'changed.  Use of the COMPACT BUDGET option in ',
+     2          'the Output Control File of MODFLOW will often fix ',
+     3          'this problem.')
+         STOP
+      ENDIF
+C
       RETURN
       END
