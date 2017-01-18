@@ -11,6 +11,39 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
+o Version 1.4 01/13/2017
+    MFUSG -- Updated program version and date.  Added calls for the
+       ETS Package.
+    GLO2BASU1 -- Added JA symmetry check.  Program now terminates
+       with an error if the user-provided JA is not symmetric.
+    GWF2BCF-LPF-U1 -- Removed the minimum saturation value.  Difficult
+       problems behave better by allowing them and handling those
+       problems in the solver.
+    GWF2ETS8U1 -- This is the Segmented Evapotranspiration Package
+       added in this release.
+    GWF2LAK7U1 -- Added ability to read bathymetry and stage/volume
+       tables.
+    GWF2SFR7U1 -- Corrected an error in saving stream flows to
+       a compact budget file.
+    GWF2SUB7U1 -- Corrected errors in the unstructured subsidence
+       formulation and output.
+    CLN2BASU1 -- Removed the minimum saturation value.
+    GLO2SMS-U1 -- Modified the way constant head and inactive cells
+       are handled at the matrix level.  In the present version,
+       these cells are handled by inserting a 1.0 on the diagonal,
+       zeroing out the off-diagonal terms, and putting the head
+       value on the right-hand side.
+    PARUTL7 -- Corrected an error that caused list-based parameter
+       to work incorrectly for structured grids.
+    GMODULES -- Added a placedholder variable (IATS) that is not
+       used by the program.
+    ZONBUDUSG -- Updated to version 1.01.  A bug could be
+       encountered with non-compact budget files, output in the
+       CSV format, and a changing number of budget types in the
+       budget file.  The program now terminates with an error
+       if this condition is encountered and recommends use of the
+       COMPACT BUDGET format.
+
 o Version 1.3 12/01/2015
     GLO2BASU1 -- Added DDREFERENCE option so that the reference head
        used to calculate drawdown can change during the simulation.

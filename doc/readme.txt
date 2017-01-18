@@ -1,7 +1,7 @@
 README.TXT
 
 
-                  MODFLOW-USG - Version: 1.3.00
+                  MODFLOW-USG - Version: 1.4.00
  Three-dimensional, unstructured, finite-difference groundwater flow model
 
 
@@ -37,7 +37,7 @@ A. DISTRIBUTION FILE
 
 The following distribution file is for use on personal computers:
 
-         mfusg_v1_3.zip
+         mfusg_v1_4.zip
 
 The distribution file contains:
 
@@ -51,7 +51,7 @@ will be created when the distribution file is unzipped:
 
 
  |
- |--mfusg.1_3
+ |--mfusg.1_4
     |--bin            ; MODFLOW-USG executables for personal computers
     |--doc            ; Documentation files
     |--msvs           ; Microsoft Visual Studio Project files
@@ -85,11 +85,11 @@ will be created when the distribution file is unzipped:
           |--output   ; Results
 
 
-It is recommended that no user files are kept in the mfusg.1_3 directory
-structure.  If you do plan to put your own files in the mfusg.1_3
+It is recommended that no user files are kept in the mfusg.1_4 directory
+structure.  If you do plan to put your own files in the mfusg.1_4
 directory structure, do so only by creating additional subdirectories.
 
-Included in directory mfusg.1_3\doc are various documentation files.  Some
+Included in directory mfusg.1_4\doc are various documentation files.  Some
 of them are Portable Document Format (PDF) files. The PDF files are readable
 and printable on various computer platforms using Acrobat Reader from Adobe.
 The Acrobat Reader is freely available from the following World Wide Web
@@ -100,14 +100,14 @@ site:
 B. INSTALLING
 
 To make the executable versions of MODFLOW-USG accessible from any
-directory, the directory containing the executables (mfusg.1_3\bin)
+directory, the directory containing the executables (mfusg.1_4\bin)
 should be included in the PATH environment variable.  Also, if a
 prior release of MODFLOW-USG is installed on your system, the
 directory containing the executables for the prior release should
 be removed from the PATH environment variable.
 
 As an alternative, the executable files, mfusg.exe and zonbudusg.exe,
-in the mfusg.1_3\bin directory can be copied into a directory already
+in the mfusg.1_4\bin directory can be copied into a directory already
 included in the PATH environment variable.
 
 
@@ -120,7 +120,7 @@ mixed single and double precision for computations and internal data
 storage, which was determined to be useful for a wide range of 
 simulations.  
 
-After the executable files in the mfusg.1_3\bin directory are installed
+After the executable files in the mfusg.1_4\bin directory are installed
 in a directory that is included in your PATH, MODFLOW-USG is initiated in
 a Windows Command-Prompt window using one of the following commands:
 
@@ -169,12 +169,12 @@ D. TESTING
 Test data sets are provided to verify that MODFLOW-USG is correctly
 installed and running on the system.  The tests may also be looked
 at as examples of how to use the program.  The directory
-mfusg.1_3\test contains the input data for running each test and the
+mfusg.1_4\test contains the input data for running each test and the
 output data, for comparison. The tests are described in the file 
 problems.txt.
 
-The directory mfusg.1_3\test can be used to conveniently run the
-tests without destroying the original results in the MFusg.1_3\test-out
+The directory mfusg.1_4\test can be used to conveniently run the
+tests without destroying the original results in the MFusg.1_4\test-out
 directory.  The test directory contains MODFLOW name files, which end
 with ".nam", for running the tests.  Each test can be run by executing
 the run.bat file contained in the folder.
@@ -182,9 +182,9 @@ the run.bat file contained in the folder.
 
 E. COMPILING
 
-The executable files provided in mfusg.1_3\bin were created using the Intel
+The executable files provided in mfusg.1_4\bin were created using the Intel
 Visual Fortran compiler.  Although executable versions of the program 
-are provided, the source code is provided in the mfusg.1_3\src directory so 
+are provided, the source code is provided in the mfusg.1_4\src directory so 
 that MODFLOW-USG can be recompiled if necessary.  However, the USGS cannot 
 provide assistance to those compiling MODFLOW-USG. In general, the 
 requirements are a Fortran compiler and the knowledge of using the compilers.

@@ -13,7 +13,11 @@ def zipdir(dirname, zipname):
     zipf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(dirname):
         for file in files:
-            zipf.write(os.path.join(root, file))
+            if '.DS_Store' not in file:
+                fname = os.path.join(root, file)
+                arcname = fname.split(dirname, 1)[1]
+                print('adding to zip: ==> ', arcname)
+                zipf.write(fname, arcname=arcname)
     zipf.close()
     return
 
@@ -52,13 +56,13 @@ print('Copying mfusg executables')
 bins = ['mfusg.exe', 'mfusg_x64.exe', 'zonbudusg.exe']
 for b in bins:
     fname = os.path.join('..', 'bin', b)
+    print('  {} ===> {}'.format(fname, os.path.join(binpath, b)))
     shutil.copy(fname, os.path.join(binpath, b))
-print('  {} ===> {}'.format(fname, os.path.join(binpath, b)))
 print('\n')
 
 
 # Copy the documentation
-doclist = [os.path.join('..', 'doc', 'mfusgio', 'mfusg_io_v_1_3.pdf'),
+doclist = [os.path.join('..', 'doc', 'mfusgio', 'mfusg_io_v_1_4.pdf'),
            os.path.join('..', 'doc', 'tm6-A45.pdf'),
            os.path.join('..', 'doc', 'zonbudusg.pdf')]
 print('Copying documentation')
@@ -69,9 +73,9 @@ print('\n')
 
 # Copy release notes
 doclist = [os.path.join('..', 'doc', 'mfusg.txt'),
-		   os.path.join('..', 'doc', 'problems.txt'),
-		   os.path.join('..', 'doc', 'readme.txt'),
-		   os.path.join('..', 'doc', 'release.txt')]
+           os.path.join('..', 'doc', 'problems.txt'),
+           os.path.join('..', 'doc', 'readme.txt'),
+           os.path.join('..', 'doc', 'release.txt')]
 print('Copying release notes')
 for d in doclist:
     print('  {} ===> {}'.format(d, docpath))
@@ -81,14 +85,14 @@ print('\n')
 
 # Copy the test folder to the distribution folder
 print('Copying test folder')
-shutil.copytree('../examples', expath)
+shutil.copytree('../examples', expath, ignore=shutil.ignore_patterns('.DS_Store', 'tmp*', 'update_output*'))
 print('  {} ===> {}'.format('../examples', expath))
 print('\n')
 
 
 # Copy the pymake folder to the distribution folder
 print('Copying pymake folder')
-shutil.copytree('../pymake', pymakepath)
+shutil.copytree('../pymake', pymakepath, ignore=shutil.ignore_patterns('.DS_Store', 'tmp*'))
 print('  {} ===> {}'.format('../pymake', pymakepath))
 print('\n')
 
