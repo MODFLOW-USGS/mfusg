@@ -122,7 +122,9 @@ C
 C -------------------------------------------------------------------------------------
       MODULE CLN1MODULE
         INTEGER, SAVE,POINTER :: NCLN,ICLNCB,ICLNHD,ICLNDD,ICLNIB,
-     1           NJA_CLN, NCLNNDS,NCLNGWC,NCONDUITYP,ICLNTIB
+C    1           NJA_CLN, NCLNNDS,NCLNGWC,NCONDUITYP,ICLNTIB            !aq CLN CCF
+     1           NJA_CLN, NCLNNDS,NCLNGWC,NCONDUITYP,ICLNTIB,           !aq CLN CCF
+     2           ICLNPCB,ICLNGWCB                                       !aq CLN CCF
         INTEGER, SAVE,    DIMENSION(:),ALLOCATABLE  ::NNDCLN
         INTEGER, SAVE,    DIMENSION(:),ALLOCATABLE  ::IFLINCLN
         INTEGER, SAVE,    DIMENSION(:),ALLOCATABLE  ::ICCWADICLN
