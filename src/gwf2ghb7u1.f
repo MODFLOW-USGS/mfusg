@@ -241,6 +241,7 @@ C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,       ONLY:IBOUND,RHS,AMAT,IA
       USE GWFGHBMODULE, ONLY:NBOUND,BNDS
+      DOUBLE PRECISION HB,C
 C     ------------------------------------------------------------------
 C
 C1------IF NBOUND<=0 THEN THERE ARE NO GENERAL HEAD BOUNDS. RETURN.
@@ -274,12 +275,13 @@ C     ******************************************************************
 C
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL, ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,NODES,IUNSTR
+      USE GLOBAL,ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,NODES,IUNSTR,
+     1  NEQS
       USE GWFBASMODULE,ONLY:MSUM,ICBCFL,IAUXSV,DELT,PERTIM,TOTIM,
      1                      VBVL,VBNM
       USE GWFGHBMODULE,ONLY:NBOUND,IGHBCB,BNDS,NGHBVL,GHBAUX
 C
-      DOUBLE PRECISION CCGHB,CHB,RATIN,RATOUT,RRATE
+      DOUBLE PRECISION CCGHB,CHB,RATIN,RATOUT,RRATE,HB,C
       CHARACTER*16 TEXT
       DATA TEXT /' HEAD DEP BOUNDS'/
 C     ------------------------------------------------------------------
@@ -302,13 +304,13 @@ C2------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
            CALL UBDSV4(KSTP,KPER,TEXT,NAUX,GHBAUX,IGHBCB,NCOL,NROW,NLAY,
      1          NBOUND,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ELSE
-           CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,GHBAUX,IGHBCB,NODES,
+           CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,GHBAUX,IGHBCB,NEQS,
      1          NBOUND,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ENDIF
       END IF
 C
 C3------CLEAR THE BUFFER.
-      DO 50 N=1,NODES
+      DO 50 N=1,NEQS
       BUFF(N)=ZERO
 50    CONTINUE
 C
@@ -339,11 +341,11 @@ C5E-----PRINT THE INDIVIDUAL RATES IF REQUESTED(IGHBCB<0).
       IF(IBD.LT.0) THEN
          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
    61    FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
+        IF(IUNSTR.EQ.0)THEN         
         IL = (N-1) / (NCOL*NROW) + 1
         IJ = N - (IL-1)*NCOL*NROW
         IR = (IJ-1)/NCOL + 1
         IC = IJ - (IR-1)*NCOL
-        IF(IUNSTR.EQ.0)THEN
          WRITE(IOUT,62) L,IL,IR,IC,RATE
    62    FORMAT(1X,'BOUNDARY ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',
      1       I5,'   RATE ',1PG15.6)
@@ -380,7 +382,7 @@ C5J-----FLOW TO BNDS.
           CALL UBDSVB(IGHBCB,NCOL,NROW,IC,IR,IL,RATE,
      1                  BNDS(1,L),NGHBVL,NAUX,6,IBOUND,NLAY)
         ELSE
-          CALL UBDSVBU(IGHBCB,NODES,N,RATE,
+          CALL UBDSVBU(IGHBCB,NEQS,N,RATE,
      1                  BNDS(1,L),NGHBVL,NAUX,6,IBOUND)
         ENDIF 
       ENDIF
@@ -393,7 +395,7 @@ C6------UTILITY MODULE UBUDSV TO SAVE THEM.
         IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,IGHBCB,BUFF,NCOL,NROW,
      1                          NLAY,IOUT)
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IGHBCB,BUFF,NODES,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IGHBCB,BUFF,NEQS,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C

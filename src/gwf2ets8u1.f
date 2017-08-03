@@ -373,6 +373,24 @@ C7B------IF INIETS=>0 THEN READ INDICATOR ARRAY.
           ELSE ! FOR UNSTRUCTURED GRID
 C11------IF INIETS=>0 THEN CALL MODULE U2DINT TO READ INDICATOR ARRAY.
             CALL U2DINT(IETS,ANAME(1),1,NIETS,0,IN,IOUT)
+C----------------------------------------------------            
+C ----------CHECK FOR IETS BEING LARGER THAN NODES
+            IFLAG = 0
+            DO I=1,NIETS
+              IF(IETS(I).GT.NODES)THEN
+                IFLAG = IETS(I)
+                GO TO 112
+              ENDIF
+            ENDDO
+112         CONTINUE 
+C ----------WRITE MESSAGE AND STOP IF IEVT IS LARGER THAN NODES
+            IF(IFLAG.GT.0)THEN
+              WRITE(IOUT,75)IFLAG,NODES 
+75            FORMAT('INDEX NODE NO.',I10,
+     1        ', LARGER THAN TOTAL GWF NODES (',I10,'), STOPPING')
+              STOP
+            ENDIF
+C----------------------------------------------------             
           ENDIF
         ENDIF
       ELSE !NETSOP IS NOT 2 SO SET TOP LAYER OF NODES IN IETS

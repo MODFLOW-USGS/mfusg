@@ -47,7 +47,7 @@ C     ------------------------------------------------------------------
 C
       DIMENSION IFL(13)
       CHARACTER*24 ANAME(10)
-      CHARACTER*200 LINE
+      CHARACTER*5000 LINE
       DATA ANAME(1) /'   PRECONSOLIDATION HEAD'/
       DATA ANAME(2) /'ELASTIC INTERBED STORAGE'/
       DATA ANAME(3) /' VIRGIN INTERBED STORAGE'/

@@ -1076,7 +1076,7 @@ C     ------------------------------------------------------------------
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GWFLAKMODULE
-      USE GLOBAL,       ONLY: IOUT,NODES,IFREFM,IBOUND,IVC,NODLAY,
+      USE GLOBAL,       ONLY: IOUT,NODES,IFREFM,IBOUND,IVC,NODLAY,IVSD,
      +                        BOT,TOP,AREA,ISSFLG,IA,JA,JAS,NLAY,ISYM
 C     USE GWFSFRMODULE, ONLY: NSS
       CHARACTER*24 ANAME(2)
@@ -1094,6 +1094,13 @@ C     ------------------------------------------------------------------
 C
 C1A-----IF MXLKND IS LESS THAN 1, THEN LAKE IS INACTIVE. RETURN.
       IF(MXLKND.LT.1) RETURN
+      IF(IVSD.NE.-1) THEN
+        WRITE(IOUT,11)
+        STOP
+      ENDIF  
+11    FORMAT(10X,'*** THE LAKE PACKAGE REQUIRES THAT ALL LAYERS HAVE',
+     1  1X,'THE SAME DISCRETIZATION (FLAG IVSD = -1). ***',
+     1  /10X,'*** STOPPING ***.')      
 C
 C1A1----READ INITIAL CONDITIONS FOR ALL LAKES (ONLY READ ONCE)
       ISS = ISSFLG(KKPER)

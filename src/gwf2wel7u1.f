@@ -354,7 +354,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,
-     1                  IUNSTR,TOP,BOT,HNEW,NEQS,INCLN
+     1                  IUNSTR,TOP,BOT,HNEW,NEQS,INCLN,NEQS
       USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,ICLNCB 
       USE GWFBASMODULE,ONLY:MSUM,ICBCFL,IAUXSV,DELT,PERTIM,TOTIM,
      1                      VBVL,VBNM
@@ -396,7 +396,7 @@ C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
 C    1          NLAY,NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)              !aq CLN CCF
      1          NLAY,NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)            !aq CLN CCF
          ELSE 
-           CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NODES,
+           CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NEQS,
 C    1          NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)                   !aq CLN CCF
      1          NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)                 !aq CLN CCF
          ENDIF
@@ -426,8 +426,8 @@ C5B-----IF THE CELL IS NO-FLOW OR CONSTANT_HEAD, IGNORE IT.
       IF(IBOUND(N).LE.0)GO TO 99
 C
 C5C-----GET FLOW RATE FROM WELL LIST.
-      Q=WELL(4,L)
-      IF(IWELQV.EQ.1.AND.Q.LT.0)THEN
+      QQ=WELL(4,L)
+      IF(IWELQV.EQ.1.AND.QQ.LT.0)THEN
 C-------HONOR SUPPLY/DEMAND CONDITIONS FOR EXTRACTION WELLS
         HD = HNEW(N)
         IF(N.GT.NODES)THEN
@@ -441,9 +441,9 @@ C-------HONOR SUPPLY/DEMAND CONDITIONS FOR EXTRACTION WELLS
         ENDIF
         X = (HD - BOTT) /QTHIK
         CALL SMOOTH(X,Y)
-        Q = Q * Y
+        QQ = QQ * Y
       ENDIF
-      QQ=Q
+      Q=QQ
 C
 C5D-----PRINT FLOW RATE IF REQUESTED.
       IF(IBD.LT.0) THEN
@@ -470,7 +470,7 @@ C5D-----PRINT FLOW RATE IF REQUESTED.
       END IF
 C
 C5E-----ADD FLOW RATE TO BUFFER.
-      BUFF(N)=BUFF(N)+Q
+      BUFF(N)=BUFF(N)+QQ
 C
 C5F-----SEE IF FLOW IS POSITIVE OR NEGATIVE.
       IF(Q.GE.ZERO) THEN
@@ -505,7 +505,7 @@ C5I-----COPY FLOW TO WELL LIST.
         ENDIF
         ENDIF                                                           !aq CLN CCF
       ENDIF
-      WELL(NWELVL,L)=Q
+      WELL(NWELVL,L)=QQ
 C
 C5J-----WRITE FLOW REDUCTION INFO IF REQUESTED
       IF (IWELQV.GT.0. .AND. IAFR.GT.0) THEN
@@ -515,14 +515,22 @@ C5J-----WRITE FLOW REDUCTION INFO IF REQUESTED
               WRITE(IAFR,300) KPER,KSTP
             END IF
             IF(IUNSTR.EQ.0) THEN
-              IL = (N-1) / (NCOL*NROW) + 1
-              IJ = N - (IL-1)*NCOL*NROW
-              IR = (IJ-1)/NCOL + 1
-              IC = IJ - (IR-1)*NCOL
-              IF(NWELLAFR.EQ.0) WRITE(IAFR,400)
-              WRITE(IAFR,500) L,IL,IR,IC,WELL(4,L),Q,HD,BOTT
+              IF(N.LE.NODES) THEN
+                IL = (N-1) / (NCOL*NROW) + 1
+                IJ = N - (IL-1)*NCOL*NROW
+                IR = (IJ-1)/NCOL + 1
+                IC = IJ - (IR-1)*NCOL
+                IF(NWELLAFR.EQ.0) WRITE(IAFR,400)
+                WRITE(IAFR,500) L,IL,IR,IC,WELL(4,L),Q,HD,BOTT
+              ELSE
+                IL = N-NODES
+                IR = 0
+                IC = 0
+                IF(NWELLAFR.EQ.0) WRITE(IAFR,401)
+                WRITE(IAFR,501) L,IL,WELL(4,L),Q,HD,BOTT
+              ENDIF  
             ELSE
-              IF(NWELLAFR.EQ.0) WRITE(IAFR,401)
+              IF(NWELLAFR.EQ.0) WRITE(IAFR,402)
               WRITE(IAFR,501) L,N,WELL(4,L),Q,HD,BOTT
             ENDIF
             NWELLAFR = NWELLAFR + 1
@@ -532,10 +540,12 @@ C5J-----WRITE FLOW REDUCTION INFO IF REQUESTED
      1      ' TIME STEP ',I5)
   400 FORMAT('WELL.NO   LAY   ROW   COL         APPL.Q          ACT.Q',
      1       '        GW_HEAD       CELL_BOT')
-  401 FORMAT('WELL.NO    NODE         APPL.Q          ACT.Q',
+  401 FORMAT('WELL.NO  CLN NODE     APPL.Q          ACT.Q',
      1       '        GW_HEAD       CELL_BOT')
+  402 FORMAT('WELL.NO  NODE         APPL.Q          ACT.Q',
+     1       '        GW_HEAD       CELL_BOT')      
   500 FORMAT(I7,3I6,4(1PG15.6))
-  501 FORMAT(I7,1X,I9,4(1PG15.6))
+  501 FORMAT(I7,1X,I9,4(1PG15.6))      
 C
 C-----END OF WELL LOOP
   100 CONTINUE
@@ -550,7 +560,7 @@ C6------CALL UBUDSV TO SAVE THEM.
      1         BUFF(NODES+1),NCLNNDS,IOUT,PERTIM,TOTIM)
         ENDIF
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT(1),IWELCB,BUFF,NODES,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT(1),IWELCB,BUFF,NEQS,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C
@@ -559,8 +569,8 @@ C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
       ROUT=RATOUT
       VBVL(3,MSUM)=RIN
       VBVL(4,MSUM)=ROUT
-      VBVL(1,MSUM)=VBVL(1,MSUM)+RIN*DELT
-      VBVL(2,MSUM)=VBVL(2,MSUM)+ROUT*DELT
+      VBVL(1,MSUM)=VBVL(1,MSUM)+RATIN*DELT
+      VBVL(2,MSUM)=VBVL(2,MSUM)+RATOUT*DELT
       VBNM(MSUM)=TEXT(1)
 C
 C8------INCREMENT BUDGET TERM COUNTER(MSUM).

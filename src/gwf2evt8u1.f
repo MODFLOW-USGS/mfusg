@@ -173,10 +173,8 @@ C2------READ FLAGS SHOWING WHETHER DATA IS TO BE REUSED.
       CALL URDCOM(In, Iout, line)
       IF(IFREFM.EQ.0)THEN
         IF(NEVTOP.EQ.2) THEN
-C          READ(LINE,'(5I10)') INSURF,INEVTR,INEXDP,INIEVT,INIZNEVT
           READ(LINE,'(4I10)') INSURF,INEVTR,INEXDP,INIEVT
         ELSE
-C          READ(LINE,'(4I10)') INSURF,INEVTR,INEXDP,INIZNEVT
           READ(LINE,'(3I10)') INSURF,INEVTR,INEXDP
           INIEVT = NODLAY(1)
         ENDIF
@@ -186,22 +184,10 @@ C          READ(LINE,'(4I10)') INSURF,INEVTR,INEXDP,INIZNEVT
           CALL URWORD(line, lloc, istart, istop, 2, INEVTR, r, Iout, In)
           CALL URWORD(line, lloc, istart, istop, 2, INEXDP, r, Iout, In)
           CALL URWORD(line, lloc, istart, istop, 2, INIEVT, r, Iout, In)
-C          CALL URWORD(line,lloc,istart, istop, 2, INIZNEVT, r, Iout, In)
-C         IF(IFREFM.EQ.0) THEN
-C            READ(IN,'(4I10)') INSURF,INEVTR,INEXDP,INIEVT
-C         ELSE
-C            READ(IN,*) INSURF,INEVTR,INEXDP,INIEVT
-C         END IF
         ELSE
           CALL URWORD(line, lloc, istart, istop, 2, INSURF, r, Iout, In)
           CALL URWORD(line, lloc, istart, istop, 2, INEVTR, r, Iout, In)
           CALL URWORD(line, lloc, istart, istop, 2, INEXDP, r, Iout, In)
-C          CALL URWORD(line, lloc,istart,istop, 2, INIZNEVT, r, Iout, In)
-C         IF(IFREFM.EQ.0) THEN
-C            READ(IN,'(3I10)') INSURF,INEVTR,INEXDP
-C         ELSE
-C            READ(IN,*) INSURF,INEVTR,INEXDP
-C         END IF
           INIEVT = NODLAY(1)
         END IF
       ENDIF
@@ -348,6 +334,24 @@ C7B------IF INIEVT=>0 THEN READ INDICATOR ARRAY.
             NIEVT = NROW*NCOL
           ELSE ! FOR UNSTRUCTURED GRID
             CALL U2DINT(IEVT,ANAME(1),1,NIEVT,0,IN,IOUT)
+C----------------------------------------------------            
+C ----------CHECK FOR IEVT BEING LARGER THAN NODES
+            IFLAG = 0
+            DO I=1,NIEVT
+              IF(IEVT(I).GT.NODES)THEN
+                IFLAG = IEVT(I)
+                GO TO 112
+              ENDIF
+            ENDDO
+112         CONTINUE 
+C ----------WRITE MESSAGE AND STOP IF IEVT IS LARGER THAN NODES
+            IF(IFLAG.GT.0)THEN
+              WRITE(IOUT,75)IFLAG,NODES 
+75            FORMAT('INDEX NODE NO.',I10,
+     1        ', LARGER THAN TOTAL GWF NODES (',I10,'), STOPPING')
+              STOP
+            ENDIF
+C----------------------------------------------------            
           ENDIF
         END IF
       ELSE !NEVTOP IS NOT 2 SO SET TOP LAYER OF NODES IN IEVT
@@ -365,21 +369,6 @@ C5------MULTIPLY MAX ET RATE BY CELL AREA TO GET VOLUMETRIC RATE
           EVTR(NN)=EVTR(NN)*AREA(N)
    40   CONTINUE
       ENDIF
-C----------------------------------------------------------------
-C----------EVT ZONES
-!      IF(INiznevt.LT.0) THEN
-!C
-!C3A-----INiznevt<0, SO REUSE iznevt ARRAY FROM LAST STRESS PERIOD.
-!        WRITE(IOUT,6)
-!    6   FORMAT(1X,/1X,'REUSING iznevt FROM LAST STRESS PERIOD')
-!      ELSEif(INiznevt.gt.0)then
-!        mxznevt = iniznevt
-!        IF(IUNSTR.EQ.0)THEN
-!          CALL U2DINT(iznevt,ANAME(5),NROW,NCOL,0,IN,IOUT)
-!        ELSE
-!          CALL U2DINT(iznevt,ANAME(5),1,NIEVT,0,IN,IOUT)  
-!        ENDIF
-!      ENDIF
 C----------------------------------------------------------------
 C
       DEALLOCATE(TEMP)

@@ -153,12 +153,12 @@ C--------COMPUTE WETTED X-SECTIONAL FLOW AREA FOR NODE
 C--------------------------------------------------------------------------------------
       N = ACLNNDS(ICLN,1)
       IC = ACLNNDS(ICLN,2)
+      BBOT = ACLNNDS(ICLN,5)
+      DEPTH = HD - BBOT      
       IF(IC.LE.NCONDUITYP)THEN
 C1-------CLN NODE IS A CONDUIT
         PI = 3.1415926
         FRAD = ACLNCOND(IC,2)
-        BBOT = ACLNNDS(ICLN,5)
-        DEPTH = HD - BBOT
         IF(DEPTH.LE.0)THEN
           AREAW = 0.0
         ELSEIF(DEPTH.LE.FRAD)THEN

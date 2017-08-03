@@ -278,7 +278,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,IUNSTR,
-     *                 NODES
+     *                 NODES,NEQS
       USE GWFBASMODULE,ONLY:MSUM,ICBCFL,IAUXSV,DELT,PERTIM,TOTIM,
      1                      VBVL,VBNM
       USE GWFDRNMODULE,ONLY:NDRAIN,IDRNCB,DRAI,NDRNVL,DRNAUX
@@ -306,13 +306,13 @@ C2------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
          CALL UBDSV4(KSTP,KPER,TEXT,NAUX,DRNAUX,IDRNCB,NCOL,NROW,NLAY,
      1          NDRAIN,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ELSE
-           CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,DRNAUX,IDRNCB,NODES,
+           CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,DRNAUX,IDRNCB,NEQS,
      1          NDRAIN,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ENDIF
       END IF
 C
 C3------CLEAR THE BUFFER.
-      DO 50 N=1,NODES
+      DO 50 N=1,NEQS
       BUFF(N)=ZERO
 50    CONTINUE
 C
@@ -350,11 +350,11 @@ C5E-----PRINT THE INDIVIDUAL RATES IF REQUESTED(IDRNCB<0).
       IF(IBD.LT.0) THEN
          IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
    61    FORMAT(1X,/1X,A,'   PERIOD ',I8,'   STEP ',I8)
-        IL = (N-1) / (NCOL*NROW) + 1
-        IJ = N - (IL-1)*NCOL*NROW
-        IR = (IJ-1)/NCOL + 1
-        IC = IJ - (IR-1)*NCOL
-        IF(IUNSTR.EQ.0)THEN
+        IF(IUNSTR.EQ.0)THEN         
+          IL = (N-1) / (NCOL*NROW) + 1
+          IJ = N - (IL-1)*NCOL*NROW
+          IR = (IJ-1)/NCOL + 1
+          IC = IJ - (IR-1)*NCOL
          WRITE(IOUT,62) L,IL,IR,IC,Q
    62    FORMAT(1X,'DRAIN ',I6,'   LAYER ',I3,'   ROW ',I5,'   COL ',I5,
      1       '   RATE ',1PG15.6)
@@ -380,7 +380,7 @@ C5G-----COPY FLOW TO DRAI.
           CALL UBDSVB(IDRNCB,NCOL,NROW,IC,IR,IL,Q,
      1                  DRAI(1,L),NDRNVL,NAUX,6,IBOUND,NLAY)
         ELSE
-          CALL UBDSVBU(IDRNCB,NODES,N,Q,
+          CALL UBDSVBU(IDRNCB,NEQS,N,Q,
      1                  DRAI(1,L),NDRNVL,NAUX,6,IBOUND)
         ENDIF
       ENDIF
@@ -393,7 +393,7 @@ C6------CALL UBUDSV TO SAVE THEM.
         IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IDRNCB,BUFF(1),NCOL,NROW,
      1                          NLAY,IOUT)
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IDRNCB,BUFF(1),NODES,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IDRNCB,BUFF(1),NEQS,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C
