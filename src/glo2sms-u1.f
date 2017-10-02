@@ -1,7 +1,8 @@
       SUBROUTINE SMS7U1AR(IN)
 
       USE GLOBAL, ONLY: NODES,IOUT,STRT,IBOUND,AMAT,RHS,HNEW,NJA,NEQS,
-     1            NLAY,ILAYCON4,ISYMFLG,INCLN,INGNC,INGNC2,INGNCn
+     1            NLAY,ILAYCON4,ISYMFLG,INCLN,INGNC,INGNC2,INGNCn,
+     2            NODLAY, BOT, IA, JA, JAS, IVC 
       USE GWFBCFMODULE, ONLY: LAYCON
       USE SMSMODULE
 csp      USE GNCMODULE, ONLY:ISYMGNC
@@ -24,9 +25,14 @@ csp      USE GNC2MODULE, ONLY:ISYMGNC2
 !     ------------------------------------------------------------------
       INTEGER lloc, istart, istop, i, n, K, IFDPARAM, MXVL, NPP
       INTEGER IPCGUM
+      INTEGER :: NSTRT, NNDLAY
       CHARACTER(LEN=200) line
       REAL r, HCLOSEdum, HICLOSEdum,  thetadum, amomentdum,yo
       REAL akappadum, gammadum, BREDUCDUM,BTOLDUM,RESLIMDUM
+      
+      INTEGER :: J, JCOL, JCOLS
+      INTEGER :: I0, I1
+      DOUBLE PRECISION :: BBOT
 !     LOCAL VARIABLES FOR GCG SOLVER
 
 !     ------------------------------------------------------------------
@@ -37,10 +43,13 @@ C1------IDENTIFY PACKAGE AND INITIALIZE.
      1', 5/2/2005',/,9X,'INPUT READ FROM UNIT',I3)
       ALLOCATE (HCLOSE, HICLOSE,BIGCHOLD,BIGCH)
       ALLOCATE (ITER1,THETA,MXITER,LINMETH,NONMETH,IPRSMS)
+      ALLOCATE (INWTDMP)
+      ALLOCATE (BOTMIN)
       ALLOCATE (Akappa,Gamma,Amomentum,Breduc,Btol,RES_LIM,
      *  Numtrack,IBFLAG)
 C
       i = 1
+      INWTDMP = 0
       Numtrack = 0
       THETA = 1.0
       Akappa = 0.0
@@ -89,6 +98,7 @@ C2------Read nonlinear iteration parameters and linear solver selection index
       CALL URWORD(line, lloc, istart, istop, 2, IPRSMS, r, Iout, In)
       CALL URWORD(line, lloc, istart, istop, 2, Nonmeth, r, Iout, In)
       CALL URWORD(line, lloc, istart, istop, 2, Linmeth, r, Iout, In)
+      CALL URWORD(line, lloc, istart, istop, 2, INWTDMP, r, -Iout, In)
       IF(NONMETH.NE.0)THEN
         IF ( IFDPARAM.EQ.0 ) THEN
         lloc = 1
@@ -120,18 +130,27 @@ C
       IF ( Theta.LT.CLOSEZERO ) Theta = 1.0e-3
 C
       ILAYCON4=0
-      DO K=1,NLAY
-        IF(LAYCON(K).EQ.4)THEN
-          ILAYCON4=1
-        ENDIF
-      ENDDO
+      DO K = 1, NLAY
+        IF (LAYCON(K).EQ.4) THEN
+          ILAYCON4 = 1
+        END IF
+      END DO
+C
+C-------RESET INWTDMP TO 0 IF NO LAYER IS USING NEWTON-RAPHSON
+      IF (INWTDMP > 0) THEN
+        I = 0
+        DO K = 1, NLAY
+          IF (LAYCON(K).EQ.4) I = 1
+        END DO
+        IF (I.EQ.0) INWTDMP = 0
+      END IF
 c
 c      IF(ILAYCON4.NE.1.AND.INCLN.EQ.0)THEN
 c        IF(NONMETH.GT.0)NONMETH = -NONMETH
 c      ENDIF
 C3------Echo input of nonlinear iteratin parameters and linear solver index
       WRITE(IOUT,9002) HCLOSE,HICLOSE,MXITER,ITER1,iprsms,
-     * NONMETH,LINMETH
+     * NONMETH,LINMETH, INWTDMP>0
 C
  9002 FORMAT(1X,'OUTER ITERATION CONVERGENCE CRITERION (HCLOSE) = ',
      &  E15.6,
@@ -141,7 +160,8 @@ C
      &      /1X,'MAXIMUM NUMBER OF INNER ITERATIONS (ITER1)      = ',I9,
      &      /1X,'SOLVER PRINTOUT INDEX             (IPRSMS)      = ',I9,
      &      /1X,'NONLINEAR ITERATION METHOD    (NONLINMETH)      = ',I9,
-     &      /1X,'LINEAR SOLUTION METHOD           (LINMETH)      = ',I9)
+     &      /1X,'LINEAR SOLUTION METHOD           (LINMETH)      = ',I9,
+     &      /1X,'NEWTON DAMPENING                 (INWTDMP)      = ',L9)
 C
       IF(NONMETH.NE.0)THEN
         WRITE(IOUT,9003)THETA,AKAPPA,GAMMA,AMOMENTUM,NUMTRACK
@@ -252,6 +272,66 @@ C5-----Allocate space for nonlinear arrays and initialize
       LRCH = 0
       HncgL = 0.0D0
       LRCHL = 0
+C
+C-------SET BOTMIN FOR NEWTON DAMPENING
+      IF (INWTDMP.LT.2) THEN
+        ALLOCATE(CELLBOTMIN(1))
+      ELSE
+        ALLOCATE(CELLBOTMIN(NODES))
+        DO N = 1, NODES
+          CELLBOTMIN(N) = 1.D20
+        END DO
+      END IF
+      IF (INWTDMP.EQ.1) THEN
+        BOTMIN = 1.D20
+        DO K = 1, NLAY
+          IF(LAYCON(K).EQ.4) THEN
+            NNDLAY = NODLAY(K)
+            NSTRT = NODLAY(K-1)+1
+            DO N = NSTRT, NNDLAY
+              IF(IBOUND(N).GT.0) THEN  
+                IF (BOT(N).LT.BOTMIN) THEN
+                  BOTMIN = BOT(N)
+                END IF
+              END IF
+            END DO
+          END IF
+        END DO
+      ELSE IF (INWTDMP.GT.1) THEN
+        BOTMIN = 1.D20
+        DO N = NODES, 1, -1
+        END DO
+        DO K = NLAY, 1, -1
+          NNDLAY = NODLAY(K)
+          NSTRT = NODLAY(K-1)+1
+          DO N = NNDLAY, NSTRT, -1
+            BBOT = BOT(N)
+            IF (CELLBOTMIN(N) < BBOT) THEN
+              BBOT = CELLBOTMIN(N)
+            END IF
+            IF (BBOT < CELLBOTMIN(N)) THEN
+              CELLBOTMIN(N) = BBOT
+            END IF
+            IF(IBOUND(N).GT.0 .AND. LAYCON(K).EQ.4) THEN  
+              IF (BBOT.LT.BOTMIN) THEN
+                BOTMIN = BBOT
+              END IF
+            END IF
+            I0 = IA(N) + 1 
+            I1 = IA(N+1) - 1
+            DO J = I0, I1
+              JCOL = JA(J)
+              JCOLS = JAS(J)
+              IF (JCOL < N .AND. IVC(JCOLS).EQ.1) THEN
+                IF (BBOT < CELLBOTMIN(J)) THEN
+                  CELLBOTMIN(J) = BBOT
+                END IF
+              END IF
+            END DO
+          END DO
+        END DO
+        
+      END IF
 C6------Return
       RETURN
       END
@@ -492,6 +572,9 @@ C
 C-----------------------------------------------------------
 C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA
       IF(NONMETH.NE.0.AND.ICNVG.EQ.0) CALL GLO2SMS1UR(kiter)
+C
+C-------APPLY NEWTON DAMPENING
+      IF (INWTDMP.NE.0 .AND. ICNVG.EQ.0) CALL GLO2SMS1ND()
 C
 C9------WRITE ITERATION SUMMARY FOR CONVERGED SOLUTION
       IF(ICNVG.EQ.0 .AND. KITER.NE.MXITER) GOTO 600
@@ -810,6 +893,59 @@ C---------------------------------------------------------------------------
 C13-----RETURN
       RETURN
       END SUBROUTINE GLO2SMS1UR
+C
+C
+      SUBROUTINE GLO2SMS1ND()
+C     ******************************************************************
+C     UNDERRELAX NEWTON SOLUTION USING BOTTOM OF MODEL
+C     ******************************************************************
+!     ------------------------------------------------------------------
+!     SPECIFICATIONS:
+!     -----------------------------------------------------------------
+      USE GLOBAL, ONLY: IBOUND, HNEW, BOT, IOUT, NODES, ICONCV,
+     2                  NLAY, NODLAY
+      USE GWFBCFMODULE, ONLY: LAYCON
+      USE SMSMODULE
+      IMPLICIT NONE
+!     -----------------------------------------------------------------
+!     ARGUMENTS
+!     -----------------------------------------------------------------
+
+!     -----------------------------------------------------------------
+!     LOCAL VARIABLES
+!     -----------------------------------------------------------------
+      INTEGER :: K
+      INTEGER :: N
+      INTEGER :: NSTRT
+      INTEGER :: NNDLAY
+      DOUBLE PRECISION :: BBOT
+      DOUBLE PRECISION, PARAMETER :: DONE = 1.0D0
+      DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
+      DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
+C
+C
+      DO K = 1, NLAY
+        IF (LAYCON(K).EQ.4) THEN
+          NNDLAY = NODLAY(K)
+          NSTRT = NODLAY(K-1)+1
+          DO N = NSTRT, NNDLAY
+            IF(IBOUND(N).GT.0) THEN  
+              IF (INWTDMP.EQ.1) THEN
+                BBOT = BOTMIN
+              ELSE
+              END IF
+              IF (HNEW(N) < BBOT) THEN
+                HNEW(n) = HTEMP(n)*DP1 + BBOT*DP9
+              END IF
+            END IF
+          END DO
+        END IF
+      END DO
+C
+C---------RETURN
+        RETURN
+      END SUBROUTINE GLO2SMS1ND
+      
 C
 C-----------------------------------------------------------------------
       SUBROUTINE SSMS2BCFU1DK
@@ -1595,6 +1731,9 @@ C
         CALL PCGU7U1DA
       ENDIF
       DEALLOCATE (ITER1,MXITER,LINMETH,NONMETH,IPRSMS)
+      DEALLOCATE (INWTDMP)
+      DEALLOCATE (BOTMIN)
+      DEALLOCATE (CELLBOTMIN)
       DEALLOCATE(RES_LIM)
       DEALLOCATE(IBFLAG)
 C
