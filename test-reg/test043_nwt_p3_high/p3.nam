@@ -6,3 +6,4 @@ LPF  11 p3.lpf
 RCH  18 p3.rch
 SMS  13 p3.sms
 OC   22 p3.oc
+DATA(BINARY) 30 p3.hds

@@ -58,9 +58,10 @@ METHOD
 
 HISTORY
 
-      MODFLOW-USG Version 1.4.00 01/14/2017 -- Added the Segmented
-         Evapotranspiration Package.  This change, bug fixes, and other
-         minor changes are described in release.txt.
+      MODFLOW-USG Version 1.4.00 10/06/2017 -- Added the Segmented
+         Evapotranspiration and Drain with Return Flow Packages.  
+         This change, bug fixes, and other minor changes are described 
+         in release.txt.
 
          
       MODFLOW-USG Version 1.3.00 12/01/2015 -- Added DDREFERENCE

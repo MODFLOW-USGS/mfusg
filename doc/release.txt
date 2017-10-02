@@ -11,7 +11,7 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
-o Version 1.4 01/13/2017
+o Version 1.4 10/06/2017
     MFUSG -- Updated program version and date.  Added calls for the
        ETS Package.
     GLO2BASU1 -- Added JA symmetry check.  Program now terminates
@@ -21,6 +21,8 @@ o Version 1.4 01/13/2017
        problems in the solver.
     GWF2ETS8U1 -- This is the Segmented Evapotranspiration Package
        added in this release.
+    GWF2DRT8U1 -- This is the Drain with Return Flow Package added
+       in this release.
     GWF2LAK7U1 -- Added ability to read bathymetry and stage/volume
        tables.
     GWF2SFR7U1 -- Corrected an error in saving stream flows to

@@ -10,3 +10,4 @@ DIS  14 l1a2k.dis
 FHB  21 l1a2k.fhb
 GAGE 33 l1a2k.gag
 DATA 37 l1a2k.got
+DATA(BINARY) 18 l1a2k.hds

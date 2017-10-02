@@ -46,20 +46,20 @@ def run_mfusg(regression=True):
 
     # Go through name file and replace \ with /
     oldnam = os.path.join(testpth, 'biscayne.nam')
-    newnam = os.path.join(testpth, 'biscayne.nam.new')
+    newnam = os.path.join(testpth, 'biscayne.new.nam')
     fold = open(oldnam, 'r')
     fnew = open(newnam, 'w')
     for i, line in enumerate(fold):
         line = line.replace('\\', '/')
-        line = line.replace('biscayne.disu', 'biscayne.disu.new')
-        line = line.replace('biscayne.oc', 'biscayne.oc.new')
+        line = line.replace('biscayne.disu', 'biscayne.new.disu')
+        line = line.replace('biscayne.oc', 'biscayne.new.oc')
         fnew.write(line)
     fold.close()
     fnew.close()
 
     # Change the number of stress periods from 1000 to 10
     olddis = os.path.join(testpth, 'input', 'biscayne.disu')
-    newdis = os.path.join(testpth, 'input', 'biscayne.disu.new')
+    newdis = os.path.join(testpth, 'input', 'biscayne.new.disu')
     fold = open(olddis, 'r')
     fnew = open(newdis, 'w')
     for i, line in enumerate(fold):
@@ -70,7 +70,7 @@ def run_mfusg(regression=True):
     fnew.close()
 
     # Write oc so that head and budget are always saved.
-    newoc = os.path.join(testpth, 'input', 'biscayne.oc.new')
+    newoc = os.path.join(testpth, 'input', 'biscayne.new.oc')
     fnew = open(newoc, 'w')
     fnew.write('HEAD SAVE UNIT 51'+ '\n')
     fnew.write('COMPACT BUDGET'+ '\n')
@@ -83,7 +83,7 @@ def run_mfusg(regression=True):
 
     # run test models
     print('running model...{}'.format(testname))
-    nam = 'biscayne.nam.new'
+    nam = 'biscayne.new.nam'
     exe_name = os.path.abspath(config.target)
     success, buff = flopy.run_model(exe_name, nam, model_ws=testpth,
                                     silent=True)
