@@ -591,7 +591,8 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IUNSTR,NODES
+      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IUNSTR,
+     1                      NODES,NEQS
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,PERTIM,TOTIM
       USE GWFFHBMODULE,ONLY:NBDTIM,NFLW,NHED,IFHBCB,NFHBX1,NFHBX2,
      1                      IFHBSS,IFLLOC,IHDLOC,BDTIM,FLWRAT,SBHED,
