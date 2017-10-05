@@ -43,13 +43,10 @@ C1------IDENTIFY PACKAGE AND INITIALIZE.
      1', 5/2/2005',/,9X,'INPUT READ FROM UNIT',I3)
       ALLOCATE (HCLOSE, HICLOSE,BIGCHOLD,BIGCH)
       ALLOCATE (ITER1,THETA,MXITER,LINMETH,NONMETH,IPRSMS)
-      ALLOCATE (INWTDMP)
-      ALLOCATE (BOTMIN)
       ALLOCATE (Akappa,Gamma,Amomentum,Breduc,Btol,RES_LIM,
      *  Numtrack,IBFLAG)
 C
       i = 1
-      INWTDMP = 0
       Numtrack = 0
       THETA = 1.0
       Akappa = 0.0
@@ -98,7 +95,6 @@ C2------Read nonlinear iteration parameters and linear solver selection index
       CALL URWORD(line, lloc, istart, istop, 2, IPRSMS, r, Iout, In)
       CALL URWORD(line, lloc, istart, istop, 2, Nonmeth, r, Iout, In)
       CALL URWORD(line, lloc, istart, istop, 2, Linmeth, r, Iout, In)
-      CALL URWORD(line, lloc, istart, istop, 2, INWTDMP, r, -Iout, In)
       IF(NONMETH.NE.0)THEN
         IF ( IFDPARAM.EQ.0 ) THEN
         lloc = 1
@@ -135,22 +131,13 @@ C
           ILAYCON4 = 1
         END IF
       END DO
-C
-C-------RESET INWTDMP TO 0 IF NO LAYER IS USING NEWTON-RAPHSON
-      IF (INWTDMP > 0) THEN
-        I = 0
-        DO K = 1, NLAY
-          IF (LAYCON(K).EQ.4) I = 1
-        END DO
-        IF (I.EQ.0) INWTDMP = 0
-      END IF
 c
 c      IF(ILAYCON4.NE.1.AND.INCLN.EQ.0)THEN
 c        IF(NONMETH.GT.0)NONMETH = -NONMETH
 c      ENDIF
 C3------Echo input of nonlinear iteratin parameters and linear solver index
       WRITE(IOUT,9002) HCLOSE,HICLOSE,MXITER,ITER1,iprsms,
-     * NONMETH,LINMETH, INWTDMP>0
+     * NONMETH,LINMETH
 C
  9002 FORMAT(1X,'OUTER ITERATION CONVERGENCE CRITERION (HCLOSE) = ',
      &  E15.6,
@@ -160,8 +147,7 @@ C
      &      /1X,'MAXIMUM NUMBER OF INNER ITERATIONS (ITER1)      = ',I9,
      &      /1X,'SOLVER PRINTOUT INDEX             (IPRSMS)      = ',I9,
      &      /1X,'NONLINEAR ITERATION METHOD    (NONLINMETH)      = ',I9,
-     &      /1X,'LINEAR SOLUTION METHOD           (LINMETH)      = ',I9,
-     &      /1X,'NEWTON DAMPENING                 (INWTDMP)      = ',L9)
+     &      /1X,'LINEAR SOLUTION METHOD           (LINMETH)      = ',I9)
 C
       IF(NONMETH.NE.0)THEN
         WRITE(IOUT,9003)THETA,AKAPPA,GAMMA,AMOMENTUM,NUMTRACK
@@ -180,7 +166,7 @@ C
      &  E15.6,
      &      /1X,'BACKTRACKING REDUCTION FACTOR     (BREDUC)      = ',
      &  E15.6,
-     &      /1X,'BACKTRACKING REIDUAL LIMIT       (RES_LIM)      = ',
+     &      /1X,'BACKTRACKING RESIDUAL LIMIT      (RES_LIM)      = ',
      &  E15.6)
       IF(MXITER.LE.0) THEN
         WRITE(*,5)
@@ -274,32 +260,12 @@ C5-----Allocate space for nonlinear arrays and initialize
       LRCHL = 0
 C
 C-------SET BOTMIN FOR NEWTON DAMPENING
-      IF (INWTDMP.LT.2) THEN
+      IF (NONMETH.EQ.0) THEN
         ALLOCATE(CELLBOTMIN(1))
       ELSE
         ALLOCATE(CELLBOTMIN(NODES))
         DO N = 1, NODES
           CELLBOTMIN(N) = 1.D20
-        END DO
-      END IF
-      IF (INWTDMP.EQ.1) THEN
-        BOTMIN = 1.D20
-        DO K = 1, NLAY
-          IF(LAYCON(K).EQ.4) THEN
-            NNDLAY = NODLAY(K)
-            NSTRT = NODLAY(K-1)+1
-            DO N = NSTRT, NNDLAY
-              IF(IBOUND(N).GT.0) THEN  
-                IF (BOT(N).LT.BOTMIN) THEN
-                  BOTMIN = BOT(N)
-                END IF
-              END IF
-            END DO
-          END IF
-        END DO
-      ELSE IF (INWTDMP.GT.1) THEN
-        BOTMIN = 1.D20
-        DO N = NODES, 1, -1
         END DO
         DO K = NLAY, 1, -1
           NNDLAY = NODLAY(K)
@@ -312,11 +278,9 @@ C-------SET BOTMIN FOR NEWTON DAMPENING
             IF (BBOT < CELLBOTMIN(N)) THEN
               CELLBOTMIN(N) = BBOT
             END IF
-            IF(IBOUND(N).GT.0 .AND. LAYCON(K).EQ.4) THEN  
-              IF (BBOT.LT.BOTMIN) THEN
-                BOTMIN = BBOT
-              END IF
-            END IF
+C-------------PUSH THE VALUE UP TO OVERLYING CELLS IF
+C             BBOT IS LESS THAN THE CELLBOTMIN IN THE
+C             OVERLYING CELL
             I0 = IA(N) + 1 
             I1 = IA(N+1) - 1
             DO J = I0, I1
@@ -330,11 +294,10 @@ C-------SET BOTMIN FOR NEWTON DAMPENING
             END DO
           END DO
         END DO
-        
       END IF
-C6------Return
+C-------RETURN
       RETURN
-      END
+      END SUBROUTINE SMS7U1AR
 C-----------------------------------------------------------------------------
 C
       SUBROUTINE GLO2SMS1AP(IOUT,KITER,ICNVG,KSTP,KPER)
@@ -570,11 +533,11 @@ C7------USE CONVERGE OPTION TO FORCE CONVERGENCE
       ENDIF
 C
 C-----------------------------------------------------------
-C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA
+C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA OR
+C        COOLEY METHODS. ALSO APPLYING MODFLOW-NWT BOTTOM
+C        AVERAGING (NEWTON DAMPENING) FOR LAYERS USING
+C        NEWTON-RAPHSON FORMULATION      
       IF(NONMETH.NE.0.AND.ICNVG.EQ.0) CALL GLO2SMS1UR(kiter)
-C
-C-------APPLY NEWTON DAMPENING
-      IF (INWTDMP.NE.0 .AND. ICNVG.EQ.0) CALL GLO2SMS1ND()
 C
 C9------WRITE ITERATION SUMMARY FOR CONVERGED SOLUTION
       IF(ICNVG.EQ.0 .AND. KITER.NE.MXITER) GOTO 600
@@ -748,12 +711,15 @@ C     ******************************************************************
       DOUBLE PRECISION  ww, hsave,DELH,RELAX,RELAXOLD,ES,
      *  AES,amom,closebot,FELEV
       SAVE RELAXOLD
-      INTEGER K,N,NNDLAY,NSTRT,I,kk,iflin,nc
+      INTEGER ::  K, N, NNDLAY, NSTRT, I, kk, iflin, nc
+      DOUBLE PRECISION :: BBOT
+      DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
+      DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
 !     -----------------------------------------------------------------
       closebot = 0.9
       IF(ABS(NONMETH).EQ.1) THEN
 C1-------OPTION FOR USING DELTA-BAR-DELTA SCHEME TO UNDER-RELAX SOLUTION FOR ALL EQUATIONS
-        DO N=1,NEQS
+        DO N=1, NEQS
 C
 C2---------COMPUTE NEWTON STEP-SIZE (DELTA H) AND INITIALIZE D-B-D PARAMETERS
           DELH = HNEW(N) - HTEMP(N)
@@ -792,28 +758,54 @@ C6----------COMPUTE ACCEPTED STEP-SIZE AND NEW HEAD
           if(kiter.gt.4) amom = amomentum
           DELH = DELH * ww + amom * Hchold(N)
           Hnew(N) = HTEMP(N) + DELH
-          IF(N.LE.NODES)THEN  !-------FOR POROUS MEDIUM NODES
-C7----------ACCOUNT FOR ICONCV=0 CONDITION FOR LAYCON=4 CASE
-            IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
-              DO K=1,NLAY
-                NNDLAY = NODLAY(K)
-                NSTRT = NODLAY(K-1)+1
-                IF(N.GE.NSTRT.AND.N.LE.NNDLAY)THEN
-                 KK = K
-                 GO TO 11
-                ENDIF
-              ENDDO
-11            CONTINUE
-              IF ( LAYCON(KK).EQ.4 ) THEN
-                IF ( Hnew(N).LT.Bot(N) ) THEN
-                  hsave = Hnew(N)
-                  Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
-                  DELH = Hnew(N) - hsave
+C
+C-----------APPLY ADDITIONAL DAMPENING
+C-----------FOR GWF NODES          
+          IF (N.LE.NODES) THEN  
+!JDH!C7----------ACCOUNT FOR ICONCV=0 CONDITION FOR LAYCON=4 CASE
+C---------IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) FOR GWF MODEL
+            IF (IUNSAT.EQ.0) THEN
+!JDH!            IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
+!JDH!              DO K=1,NLAY
+!JDH!                NNDLAY = NODLAY(K)
+!JDH!                NSTRT = NODLAY(K-1)+1
+!JDH!                IF(N.GE.NSTRT.AND.N.LE.NNDLAY)THEN
+!JDH!                 KK = K
+!JDH!                 GO TO 11
+!JDH!                ENDIF
+!JDH!              ENDDO
+!JDH!11            CONTINUE
+!JDH!              IF ( LAYCON(KK).EQ.4 ) THEN
+!JDH!                IF ( Hnew(N).LT.Bot(N) ) THEN
+!JDH!                  hsave = Hnew(N)
+!JDH!                  Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
+!JDH!                  DELH = Hnew(N) - hsave
+!JDH!                END IF
+!JDH!              ENDIF
+!JDH!            END IF
+C-------------DETERMINE CURRENT LAYER              
+            DO K = 1, NLAY
+              NNDLAY = NODLAY(K)
+              NSTRT = NODLAY(K-1) + 1
+              IF (N.GE.NSTRT .AND. N.LE.NNDLAY) THEN
+                KK = K
+                EXIT
+              END IF
+            END DO
+C-----------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL          
+            IF (LAYCON(KK).EQ.4) THEN
+                IF(IBOUND(N).GT.0) THEN  
+                  BBOT = CELLBOTMIN(N)
+                  IF (HNEW(N) < BBOT) THEN
+                    HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
+                  END IF
                 END IF
-              ENDIF
-            ENDIF
-cc---need below to be outside of the ICONCV if-check (or not at all).
-          ELSE !-----------------------FOR CLN CELLS
+            END IF
+          END IF
+              
+!JDH!cc---need below to be outside of the ICONCV if-check (or not at all).
+C-----------FOR CLN CELLS              
+          ELSE 
               NC = N - NODES
               iflin = iflincln(nc)
               if(iflin.gt.0)cycle ! head cannot go below if iflin.le.0
@@ -823,7 +815,7 @@ cc---need below to be outside of the ICONCV if-check (or not at all).
                 Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
                 DELH = Hnew(N) - hsave
               END IF
-            ENDIF
+          END IF
 C---------COMPUTE EXPONTENTIAL AVERAGE OF PAST CHANGES IN Hchold after correction for ICONCV=0
 C          If(kiter.eq.1)then
 C            Hchold(N) = DELH
@@ -831,9 +823,11 @@ C          Elseif(numtrack.eq.0)then
 C            Hchold(N) = (1-gamma) * DELH + gamma * Hchold(N)
 C          Endif
 C
-          ENDDO
+          END DO
 C---------------------------------------------------------------------------
-      ELSEIF(ABS(NONMETH).EQ.2) THEN
+C
+C-------COOLEY DAMPENING
+      ELSE IF (ABS(NONMETH).EQ.2) THEN
 C8-------DO COOLEY UNDERRELAXATION
         IF(KITER.EQ.1)THEN
           RELAX = 1.0
@@ -860,23 +854,44 @@ C11---------COMPUTE NEW HEAD AFTER UNDER-RELAXATION
             HNEW(N) = HTEMP(N) + RELAX * DELH
           ENDDO
         ENDIF
-C12-------ACCOUNT FOR ICONCV=0 CONDITION APPROPRIATELY
-        IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
-          DO K=1,NLAY
-            NNDLAY = NODLAY(K)
-            NSTRT = NODLAY(K-1)+1
-            IF ( LAYCON(K).EQ.4 ) THEN
-              DO N=NSTRT,NNDLAY
-                IF ( Hnew(N).LT.Bot(N) ) THEN
-                  Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
+C
+C-----------APPLY ADDITIONAL DAMPENING
+C-----------FOR GWF NODES          
+!JDH!C12-------ACCOUNT FOR ICONCV=0 CONDITION APPROPRIATELY
+C---------IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) FOR GWF MODEL
+        IF (IUNSAT.EQ.0) THEN
+          !JDH!IF (ICONCV.EQ.0) THEN
+          !JDH!  DO K=1,NLAY
+          !JDH!    NNDLAY = NODLAY(K)
+          !JDH!    NSTRT = NODLAY(K-1)+1
+          !JDH!    IF ( LAYCON(K).EQ.4 ) THEN
+          !JDH!      DO N=NSTRT,NNDLAY
+          !JDH!        IF ( Hnew(N).LT.Bot(N) ) THEN
+          !JDH!          Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
+          !JDH!        END IF
+          !JDH!      END DO
+          !JDH!    END IF
+          !JDH!  END DO
+          !JDH!END IF
+C-----------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL          
+          DO K = 1, NLAY
+            IF (LAYCON(K).EQ.4) THEN
+              NNDLAY = NODLAY(K)
+              NSTRT = NODLAY(K-1)+1
+              DO N = NSTRT, NNDLAY
+                IF(IBOUND(N).GT.0) THEN  
+                  BBOT = CELLBOTMIN(N)
+                  IF (HNEW(N) < BBOT) THEN
+                    HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
+                  END IF
                 END IF
-              ENDDO
-            ENDIF
-          ENDDO
-        ENDIF
-cc---need below to be outside of the ICONCV if-check (or not at all).
+              END DO
+            END IF
+          END DO
+        END IF
+!JDH!cc---need below to be outside of the ICONCV if-check (or not at all).
 C---------FOR CLN CELLS
-      IF(INCLN.EQ.0) GO TO 201
+      IF (INCLN.EQ.0) GO TO 201
         DO N=1,NCLNNDS
           FELEV = ACLNNDS(n,5)
           iflin = iflincln(n)
@@ -893,59 +908,6 @@ C---------------------------------------------------------------------------
 C13-----RETURN
       RETURN
       END SUBROUTINE GLO2SMS1UR
-C
-C
-      SUBROUTINE GLO2SMS1ND()
-C     ******************************************************************
-C     UNDERRELAX NEWTON SOLUTION USING BOTTOM OF MODEL
-C     ******************************************************************
-!     ------------------------------------------------------------------
-!     SPECIFICATIONS:
-!     -----------------------------------------------------------------
-      USE GLOBAL, ONLY: IBOUND, HNEW, BOT, IOUT, NODES, ICONCV,
-     2                  NLAY, NODLAY
-      USE GWFBCFMODULE, ONLY: LAYCON
-      USE SMSMODULE
-      IMPLICIT NONE
-!     -----------------------------------------------------------------
-!     ARGUMENTS
-!     -----------------------------------------------------------------
-
-!     -----------------------------------------------------------------
-!     LOCAL VARIABLES
-!     -----------------------------------------------------------------
-      INTEGER :: K
-      INTEGER :: N
-      INTEGER :: NSTRT
-      INTEGER :: NNDLAY
-      DOUBLE PRECISION :: BBOT
-      DOUBLE PRECISION, PARAMETER :: DONE = 1.0D0
-      DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
-      DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
-C
-C
-      DO K = 1, NLAY
-        IF (LAYCON(K).EQ.4) THEN
-          NNDLAY = NODLAY(K)
-          NSTRT = NODLAY(K-1)+1
-          DO N = NSTRT, NNDLAY
-            IF(IBOUND(N).GT.0) THEN  
-              IF (INWTDMP.EQ.1) THEN
-                BBOT = BOTMIN
-              ELSE
-              END IF
-              IF (HNEW(N) < BBOT) THEN
-                HNEW(n) = HTEMP(n)*DP1 + BBOT*DP9
-              END IF
-            END IF
-          END DO
-        END IF
-      END DO
-C
-C---------RETURN
-        RETURN
-      END SUBROUTINE GLO2SMS1ND
-      
 C
 C-----------------------------------------------------------------------
       SUBROUTINE SSMS2BCFU1DK
@@ -1731,8 +1693,6 @@ C
         CALL PCGU7U1DA
       ENDIF
       DEALLOCATE (ITER1,MXITER,LINMETH,NONMETH,IPRSMS)
-      DEALLOCATE (INWTDMP)
-      DEALLOCATE (BOTMIN)
       DEALLOCATE (CELLBOTMIN)
       DEALLOCATE(RES_LIM)
       DEALLOCATE(IBFLAG)
