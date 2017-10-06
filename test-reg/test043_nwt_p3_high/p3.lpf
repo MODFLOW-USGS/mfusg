@@ -1,6 +1,6 @@
 #Upstream Weighted Package Input File
 # Test Problem 3 for MODFLOW-NWT
-     0     -9999.     0      1 novfc constantcv                     IUPWCB, HDRY, NPUPW, HDRYOPT 
+     0     -9999.     0      1                IUPWCB, HDRY, NPUPW, HDRYOPT 
 4                                             LAYTYP
 1                                             LAYAVG
 1.0                                           CHANI

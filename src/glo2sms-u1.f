@@ -2,7 +2,7 @@
 
       USE GLOBAL, ONLY: NODES,IOUT,STRT,IBOUND,AMAT,RHS,HNEW,NJA,NEQS,
      1            NLAY,ILAYCON4,ISYMFLG,INCLN,INGNC,INGNC2,INGNCn,
-     2            NODLAY, BOT, IA, JA, JAS, IVC 
+     2            NODLAY, BOT, IA, JA, JAS, IVC, ICONCV 
       USE GWFBCFMODULE, ONLY: LAYCON
       USE SMSMODULE
 csp      USE GNCMODULE, ONLY:ISYMGNC
@@ -264,36 +264,40 @@ C-------SET BOTMIN FOR NEWTON DAMPENING
         ALLOCATE(CELLBOTMIN(1))
       ELSE
         ALLOCATE(CELLBOTMIN(NODES))
+C---------INITIALIZE CELLBOTM TO BOTTOM OF CELL
         DO N = 1, NODES
-          CELLBOTMIN(N) = 1.D20
+          CELLBOTMIN(N) = BOT(N)
         END DO
-        DO K = NLAY, 1, -1
-          NNDLAY = NODLAY(K)
-          NSTRT = NODLAY(K-1)+1
-          DO N = NNDLAY, NSTRT, -1
-            BBOT = BOT(N)
-            IF (CELLBOTMIN(N) < BBOT) THEN
-              BBOT = CELLBOTMIN(N)
-            END IF
-            IF (BBOT < CELLBOTMIN(N)) THEN
-              CELLBOTMIN(N) = BBOT
-            END IF
-C-------------PUSH THE VALUE UP TO OVERLYING CELLS IF
-C             BBOT IS LESS THAN THE CELLBOTMIN IN THE
-C             OVERLYING CELL
-            I0 = IA(N) + 1 
-            I1 = IA(N+1) - 1
-            DO J = I0, I1
-              JCOL = JA(J)
-              JCOLS = JAS(J)
-              IF (JCOL < N .AND. IVC(JCOLS).EQ.1) THEN
-                IF (BBOT < CELLBOTMIN(J)) THEN
-                  CELLBOTMIN(J) = BBOT
-                END IF
+C---------USE BOTTOM OF MODEL FOR CONSTANTCV MODELS        
+        IF (ICONCV.NE.0) THEN
+          DO K = NLAY, 1, -1
+            NNDLAY = NODLAY(K)
+            NSTRT = NODLAY(K-1)+1
+            DO N = NNDLAY, NSTRT, -1
+              BBOT = BOT(N)
+              IF (CELLBOTMIN(N) < BBOT) THEN
+                BBOT = CELLBOTMIN(N)
               END IF
+              !IF (BBOT < CELLBOTMIN(N)) THEN
+              !  CELLBOTMIN(N) = BBOT
+              !END IF
+C---------------PUSH THE VALUE UP TO OVERLYING CELLS IF
+C               BBOT IS LESS THAN THE CELLBOTMIN IN THE
+C               OVERLYING CELL
+              I0 = IA(N) + 1 
+              I1 = IA(N+1) - 1
+              DO J = I0, I1
+                JCOL = JA(J)
+                JCOLS = JAS(J)
+                IF (JCOL < N .AND. IVC(JCOLS).EQ.1) THEN
+                  IF (BBOT < CELLBOTMIN(JCOL)) THEN
+                    CELLBOTMIN(JCOL) = BBOT
+                  END IF
+                END IF
+              END DO
             END DO
           END DO
-        END DO
+        END IF
       END IF
 C-------RETURN
       RETURN
@@ -315,6 +319,8 @@ C******************************************************************
       USE GWFBASMODULE, ONLY: HNOFLO,IFRCNVG
       save itp
       double precision abigch,hdif,ahdif,ADIAG,big,ANUMBER
+      INTEGER :: ICNVGUR
+      DOUBLE PRECISION :: BIGCHL
 C---------------------------------------------------------------------
 C
 C1------ADJUST MATRIX FOR GHOST NODE CONTRIBUTION IF GNC MODULE IS ON
@@ -448,96 +454,136 @@ CCB        ENDIF
 CCB      ENDDO
 C------------------------------------------------------------
 C5------CHECK OUTER ITERATION CONVERGENCE
-      NB=1
-      ICNVG=0
-      BIGCH=0.0
-      ABIGCH=0.0
-      DO N=1,NODES
-        IF(IBOUND(N).EQ.0) CYCLE
-        HDIF=HNEW(N)-HTEMP(N)
-        AHDIF=ABS(HDIF)
-        IF(AHDIF.GE.ABIGCH)THEN
-          BIGCH= HDIF
-          ABIGCH= AHDIF
-          NB = N
-        ENDIF
-      ENDDO
-C
-      IF(ABIGCH.LE.HCLOSE) ICNVG=1
-C
-C5a------STORE MAXIMUM CHANGE VALUE AND LOCATION
-      HNCG(KITER) = BIGCH
-C
-      IF(IUNSTR.EQ.0)THEN !GET LAYER, ROW AND COLUMN FOR STRUCTURED GRID
-        KLAYER = (NB-1) / (NCOL*NROW) + 1
-        IJ = NB - (KLAYER-1)*NCOL*NROW
-        IROW = (IJ-1)/NCOL + 1
-        JCOLMN = IJ - (IROW-1)*NCOL
-        LRCH(1,KITER) = KLAYER
-        LRCH(2,KITER) = IROW
-        LRCH(3,KITER) = JCOLMN
-        IF(NUMTRACK.GT.0)THEN
-          write(iout,20)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
-20        format(i9,I17,69x,g15.6,6x,3i6,2x,'lay row col')
-        ELSE
-           write(iout,21)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
-21         format(I9,I17,10X,G16.5,6X,3I6,2x,'lay row col')
-        ENDIF
-
-      ELSE
-        LRCH(1,KITER) = NB
-        IF(NUMTRACK.GT.0)THEN
-          write(iout,22)kiter,IN_ITER,bigch,nb
-22        format(i9,I17,69x,g15.6,9x,i9,11x,'GWF-node number')
-        ELSE
-          write(iout,23)kiter,IN_ITER,bigch,nb
-23        format(I9,I17,10X,G16.5,9X,I9,11x,'GWF-node number')
-        ENDIF
-      ENDIF
-C6------CHECK OUTER ITERATION CONVERGENCE FOR CLN-CELLS
-      IF(INCLN.EQ.0) GO TO 204
-      NB=1
-      ICNVGL=0
-      BIGCHL=0.0
-      ABIGCHL=0.0
-      DO N=NODES+1,NODES+NCLNNDS
-        IF(IBOUND(N).EQ.0) CYCLE
-        HDIF=HNEW(N)-HTEMP(N)
-        AHDIF=ABS(HDIF)
-        IF(AHDIF.GE.ABIGCHL)THEN
-          BIGCHL= HDIF
-          ABIGCHL= AHDIF
-          NB = N
-        ENDIF
-      ENDDO
-C
-      IF(ABIGCHL.LE.HCLOSE) ICNVGL=1
-C
-C6a-----STORE MAXIMUM CHANGE VALUE AND LOCATION FOR CLN-CELLS
-      HNCGL(KITER) = BIGCHL
-      LRCHL(KITER) = NB - NODES
-      IF(NUMTRACK.GT.0)THEN
-        write(iout,24)kiter,IN_ITER,bigchl,nb-nodes
-24      format(i9,I17,69x,g15.6,9x,i9,11x,'CLN-node number')
-      ELSE
-         write(iout,25)kiter,IN_ITER,bigchl,nb-nodes
-25       format(I9,I17,10X,G16.5,9X,I9,11x,'CLN-node number')
-      ENDIF
-C-----NOT CONVERGED, IF EITHER IS NOT CONVERGED
-      IF(ICNVG.EQ.0.OR.ICNVGL.EQ.0) ICNVG = 0
-204   CONTINUE
+      CALL OUTER_CHECK(KITER, ICNVG, BIGCH, BIGCHL) 
+!      NB=1
+!      ICNVG=0
+!      BIGCH=0.0
+!      ABIGCH=0.0
+!      DO N=1,NODES
+!        IF(IBOUND(N).EQ.0) CYCLE
+!        HDIF=HNEW(N)-HTEMP(N)
+!        AHDIF=ABS(HDIF)
+!        IF(AHDIF.GE.ABIGCH)THEN
+!          BIGCH= HDIF
+!          ABIGCH= AHDIF
+!          NB = N
+!        ENDIF
+!      ENDDO
+!C
+!      IF(ABIGCH.LE.HCLOSE) ICNVG=1
+!C
+!C5a------STORE MAXIMUM CHANGE VALUE AND LOCATION
+!      HNCG(KITER) = BIGCH
+!C
+!      IF(IUNSTR.EQ.0)THEN !GET LAYER, ROW AND COLUMN FOR STRUCTURED GRID
+!        KLAYER = (NB-1) / (NCOL*NROW) + 1
+!        IJ = NB - (KLAYER-1)*NCOL*NROW
+!        IROW = (IJ-1)/NCOL + 1
+!        JCOLMN = IJ - (IROW-1)*NCOL
+!        LRCH(1,KITER) = KLAYER
+!        LRCH(2,KITER) = IROW
+!        LRCH(3,KITER) = JCOLMN
+!        IF(NUMTRACK.GT.0)THEN
+!          write(iout,20)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
+!20        format(i9,I17,69x,g15.6,6x,3i6,2x,'lay row col')
+!        ELSE
+!           write(iout,21)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
+!21         format(I9,I17,10X,G16.5,6X,3I6,2x,'lay row col')
+!        ENDIF
+!
+!      ELSE
+!        LRCH(1,KITER) = NB
+!        IF(NUMTRACK.GT.0)THEN
+!          write(iout,22)kiter,IN_ITER,bigch,nb
+!22        format(i9,I17,69x,g15.6,9x,i9,11x,'GWF-node number')
+!        ELSE
+!          write(iout,23)kiter,IN_ITER,bigch,nb
+!23        format(I9,I17,10X,G16.5,9X,I9,11x,'GWF-node number')
+!        ENDIF
+!      ENDIF
+!C6------CHECK OUTER ITERATION CONVERGENCE FOR CLN-CELLS
+!      IF(INCLN.EQ.0) GO TO 204
+!      NB=1
+!      ICNVGL=0
+!      BIGCHL=0.0
+!      ABIGCHL=0.0
+!      DO N=NODES+1,NODES+NCLNNDS
+!        IF(IBOUND(N).EQ.0) CYCLE
+!        HDIF=HNEW(N)-HTEMP(N)
+!        AHDIF=ABS(HDIF)
+!        IF(AHDIF.GE.ABIGCHL)THEN
+!          BIGCHL= HDIF
+!          ABIGCHL= AHDIF
+!          NB = N
+!        ENDIF
+!      ENDDO
+!C
+!      IF(ABIGCHL.LE.HCLOSE) ICNVGL=1
+!C
+!C6a-----STORE MAXIMUM CHANGE VALUE AND LOCATION FOR CLN-CELLS
+!      HNCGL(KITER) = BIGCHL
+!      LRCHL(KITER) = NB - NODES
+!      IF(NUMTRACK.GT.0)THEN
+!        write(iout,24)kiter,IN_ITER,bigchl,nb-nodes
+!24      format(i9,I17,69x,g15.6,9x,i9,11x,'CLN-node number')
+!      ELSE
+!         write(iout,25)kiter,IN_ITER,bigchl,nb-nodes
+!25       format(I9,I17,10X,G16.5,9X,I9,11x,'CLN-node number')
+!      ENDIF
+!C-----NOT CONVERGED, IF EITHER IS NOT CONVERGED
+!      IF (ICNVG.EQ.0.OR.ICNVGL.EQ.0) ICNVG = 0
+!204   CONTINUE
 C
 C7------USE CONVERGE OPTION TO FORCE CONVERGENCE
-      IF(IFRCNVG.EQ.1.AND.KITER.EQ.MXITER)THEN
+      IF (IFRCNVG.EQ.1.AND.KITER.EQ.MXITER) THEN
         ICNVG=1
-      ENDIF
+      END IF
 C
 C-----------------------------------------------------------
 C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA OR
 C        COOLEY METHODS. ALSO APPLYING MODFLOW-NWT BOTTOM
 C        AVERAGING (NEWTON DAMPENING) FOR LAYERS USING
 C        NEWTON-RAPHSON FORMULATION      
-      IF(NONMETH.NE.0.AND.ICNVG.EQ.0) CALL GLO2SMS1UR(kiter)
+      IF(NONMETH.NE.0.AND.ICNVG.EQ.0) THEN
+        CALL GLO2SMS1UR(kiter, inwtdmp)
+        CALL OUTER_CHECK(KITER, ICNVGUR, BIGCH, BIGCHL) 
+C
+        IF (inwtdmp.NE.0) THEN
+          ABIGCH = MAX(ABS(BIGCH), ABS(BIGCHL))
+          IF (ABIGCH.LE.HCLOSE) ICNVG = 1
+        END IF
+      END IF
+C
+C-------WRITE GWF CONVERGENCE INFORMATION
+      IF (IUNSTR.EQ.0) THEN
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,20) kiter, IN_ITER, BIGCH, 
+     2                    LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER)
+20        format(i9,I17,69x,g15.6,6x,3i6,2x,'lay row col')
+        ELSE
+           write (iout,21) kiter, IN_ITER, bigch, 
+     2                    LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER)
+21         format(I9,I17,10X,G16.5,6X,3I6,2x,'lay row col')
+        END IF
+      ELSE
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,22) kiter, IN_ITER, bigch, LRCH(1,KITER)
+22        format(i9,I17,69x,g15.6,9x,i9,11x,'GWF-node number')
+        ELSE
+          write(iout,23) kiter, IN_ITER, bigch, LRCH(1,KITER)
+23        format(I9,I17,10X,G16.5,9X,I9,11x,'GWF-node number')
+        END IF
+      END IF
+C-------WRITE CLN CONVERGENCE INFORMATION
+      IF (INCLN.GT.0) THEN
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,24) kiter, IN_ITER, bigchl, LRCHL(KITER)
+24        format(i9,I17,69x,g15.6,9x,i9,11x,'CLN-node number')
+        ELSE
+           write(iout,25) kiter, IN_ITER, bigchl, LRCHL(KITER)
+25        format(I9,I17,10X,G16.5,9X,I9,11x,'CLN-node number')
+        END IF
+      END IF
 C
 C9------WRITE ITERATION SUMMARY FOR CONVERGED SOLUTION
       IF(ICNVG.EQ.0 .AND. KITER.NE.MXITER) GOTO 600
@@ -687,8 +733,104 @@ C---------------------------------------------------------------------------
 C2------RETURN
       RETURN
       END
+C
+C
+      SUBROUTINE OUTER_CHECK(KITER, ICNVG, BIGCHG, BIGCHL) 
+C*********************************************************************
+C CHECK CONVERGENCE OF OUTER ITERATIONS
+C*********************************************************************
+        USE SMSMODULE
+        USE XMDMODULE
+        USE GLOBAL, ONLY: NCOL,NROW,NODES,IBOUND,HNEW,RHS,IUNSTR, INCLN
+        USE CLN1MODULE, ONLY: NCLNNDS
+        IMPLICIT NONE
+        INTEGER, INTENT(IN) :: KITER
+        INTEGER, INTENT(INOUT) :: ICNVG
+        DOUBLE PRECISION, INTENT(INOUT) :: BIGCHG
+        DOUBLE PRECISION, INTENT(INOUT) :: BIGCHL
+C---------LOCALS
+        INTEGER :: N
+        INTEGER :: NB
+        INTEGER :: NBL
+        INTEGER :: ICNVGL
+        INTEGER :: KLAYER
+        INTEGER :: IJ
+        INTEGER :: IROW
+        INTEGER :: JCOLMN
+        DOUBLE PRECISION :: ABIGCH
+        DOUBLE PRECISION :: ABIGCHL
+        DOUBLE PRECISION :: HDIF
+        DOUBLE PRECISION :: AHDIF
+C---------CODE      
+C
+C---------GWF MAXIMUM HEAD CHANGE
+        NB=1
+        ICNVG=0
+        BIGCHG=0.0
+        ABIGCH=0.0
+        DO N = 1, NODES
+          IF (IBOUND(N).EQ.0) CYCLE
+          HDIF = HNEW(N) - HTEMP(N)
+          AHDIF = ABS(HDIF)
+          IF (AHDIF.GE.ABIGCH) THEN
+            BIGCHG= HDIF
+            ABIGCH= AHDIF
+            NB = N
+          END IF
+        END DO
+C
+        IF (ABIGCH.LE.HCLOSE) ICNVG=1
+C
+C---------STORE MAXIMUM CHANGE VALUE AND LOCATION
+        HNCG(KITER) = BIGCH
+C
+C---------GET LAYER, ROW AND COLUMN FOR STRUCTURED GRID
+        IF (IUNSTR.EQ.0) THEN 
+          KLAYER = (NB - 1) / (NCOL * NROW) + 1
+          IJ = NB - (KLAYER - 1) * NCOL * NROW
+          IROW = (IJ - 1) / NCOL + 1
+          JCOLMN = IJ - (IROW - 1) * NCOL
+          LRCH(1,KITER) = KLAYER
+          LRCH(2,KITER) = IROW
+          LRCH(3,KITER) = JCOLMN
+        ELSE
+          LRCH(1,KITER) = NB
+        END IF
+C        
+C---------CHECK OUTER ITERATION CONVERGENCE FOR CLN-CELLS
+        ICNVGL = 1
+        IF (INCLN.GT.0) THEN
+          NBL=1
+          ICNVGL = 0
+          BIGCHL = 0.0
+          ABIGCHL = 0.0
+          DO N = NODES+1, NODES+NCLNNDS
+            IF (IBOUND(N).EQ.0) CYCLE
+              HDIF = HNEW(N) - HTEMP(N)
+              AHDIF = ABS(HDIF)
+              IF (AHDIF.GE.ABIGCHL) THEN
+                BIGCHL = HDIF
+                ABIGCHL = AHDIF
+                NBL = N
+              END IF
+          END DO
+C
+          IF (ABIGCHL.LE.HCLOSE) ICNVGL=1
+C
+C-----------STORE MAXIMUM CHANGE VALUE AND LOCATION FOR CLN-CELLS
+          HNCGL(KITER) = BIGCHL
+          LRCHL(KITER) = NBL - NODES
+        END IF
+C
+C---------CONFIRM THAT BOTH GWF AND CLN ARE CONVERGED
+        IF (ICNVG.EQ.0.OR.ICNVGL.EQ.0) ICNVG = 0
+C
+C---------RETURN
+        RETURN
+      END SUBROUTINE OUTER_CHECK
+C
 C-----------------------------------------------------------------------------
-      SUBROUTINE GLO2SMS1UR(kiter)
+      SUBROUTINE GLO2SMS1UR(kiter, inwtdmp)
 C     ******************************************************************
 C     UNDER RELAX AS PER DELTA-BAR-DELTA OR COOLEY FORMULA
 C     ******************************************************************
@@ -704,7 +846,8 @@ C     ******************************************************************
 !     -----------------------------------------------------------------
 !     ARGUMENTS
 !     -----------------------------------------------------------------
-      INTEGER kiter
+      INTEGER :: kiter
+      INTEGER :: inwtdmp
 !     -----------------------------------------------------------------
 !     LOCAL VARIABLES
 !     -----------------------------------------------------------------
@@ -717,6 +860,7 @@ C     ******************************************************************
       DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
 !     -----------------------------------------------------------------
       closebot = 0.9
+      inwtdmp = 0
       IF(ABS(NONMETH).EQ.1) THEN
 C1-------OPTION FOR USING DELTA-BAR-DELTA SCHEME TO UNDER-RELAX SOLUTION FOR ALL EQUATIONS
         DO N=1, NEQS
@@ -797,6 +941,7 @@ C-----------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL
                 IF(IBOUND(N).GT.0) THEN  
                   BBOT = CELLBOTMIN(N)
                   IF (HNEW(N) < BBOT) THEN
+                    inwtdmp = 1
                     HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
                   END IF
                 END IF
@@ -882,6 +1027,7 @@ C-----------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL
                 IF(IBOUND(N).GT.0) THEN  
                   BBOT = CELLBOTMIN(N)
                   IF (HNEW(N) < BBOT) THEN
+                    inwtdmp = 1
                     HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
                   END IF
                 END IF

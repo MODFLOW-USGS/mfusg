@@ -1,5 +1,5 @@
 PARAMETER  1  2
-         9         0    MXDRAI,IDRNBD
+         9        -1    MXDRAI,IDRNBD
 DRN1  DRN  1.0   2
          1         8         2        0.     1.E00
          1         8         3        0.     1.E00
