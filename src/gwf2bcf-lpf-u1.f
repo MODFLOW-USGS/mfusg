@@ -2144,6 +2144,98 @@ c7----return
       RETURN
       END
 C------------------------------------------------------------------------
+      SUBROUTINE GWF2BCFU1BDCLNWR(KSTP,KPER)
+C     ******************************************************************
+C     WRITE THE CLN-GW FLOWS TO THE GW BUDGET FILE
+C     ******************************************************************
+C
+C      SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,        ONLY:NODES,NCOL,NROW,NLAY,IBOUND,BUFF,
+     1                        IOUT,FLOWJA,IA,JA,IUNSTR
+      USE GWFBASMODULE,  ONLY:ICBCFL,DELT,PERTIM,TOTIM
+      USE GWFBCFMODULE,  ONLY:IBCFCB
+      USE CLN1MODULE,    ONLY:NCLNGWC,ACLNNDS,ACLNGWC
+      CHARACTER*16 TEXT
+      LOGICAL FOUND
+      DATA TEXT /'             CLN'/
+C     ------------------------------------------------------------------
+C
+C1-----RETURN IF BUDGETS ARE NOT REQUIRED
+      IBD=0
+      IF(IBCFCB.GT.0) IBD=ICBCFL
+      IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
+      IF(IBD.EQ.0) RETURN    
+C
+C2-----INITIALIZE BUFF
+      ZERO = 0.
+      DO I=1,NODES
+        BUFF(I) = ZERO
+      ENDDO
+C
+C3-----WRITE HEADER FOR COMPACT BUDGET
+      IF (IBD.EQ.2) THEN
+        IF(IUNSTR.EQ.0)THEN
+          CALL UBDSV2(KSTP,KPER,TEXT,IBCFCB,NCOL,NROW,NLAY,
+     1          NCLNGWC,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        ELSE 
+          CALL UBDSV2U(KSTP,KPER,TEXT,IBCFCB,NODES,
+     1          NCLNGWC,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        ENDIF
+      ENDIF
+C
+C4-----LOOP THROUGH EACH GW-CLN CONNECTION, RETRIEVE FLOW FROM
+C4-----FLOWJA AND STORE IN BUFF OR WRITE COMPACT BUDGET RECORD
+      DO NN = 1,NCLNGWC
+        IH = ACLNGWC(NN,1)
+        ND1 = ACLNNDS(IH,1)
+        N = ACLNGWC(NN,2)
+        FOUND = .FALSE.
+        DO II = IA(ND1)+1,IA(ND1+1)-1
+          JJ = JA(II)
+          IF(JJ.EQ.N) THEN
+            FOUND = .TRUE.
+            EXIT
+          ENDIF
+        ENDDO
+        IF(.NOT.FOUND) CALL USTOP('error in GWF2BCFU1BDCLNWR')
+        RATE=FLOWJA(II)
+        IF(ICHFLG.EQ.0) THEN
+          IF((IBOUND(ND1).LT.0) .AND. (IBOUND(JJ).LT.0)) RATE=ZERO
+        END IF
+        IF(IBOUND(ND1).EQ.0) RATE=ZERO
+        IF(IBOUND(JJ).EQ.0) RATE=ZERO
+
+        IF(IBD.EQ.1) THEN
+          BUFF(N) = BUFF(N) + RATE
+        ELSEIF(IBD.EQ.2) THEN
+          IF(IUNSTR.EQ.0) THEN
+            K = N / (NCOL*NROW) + 1
+            IJ = N - (K-1)*NCOL*NROW
+            I = (IJ-1)/NCOL + 1
+            J = IJ - (I-1)*NCOL
+            CALL UBDSVA(IBCFCB,NCOL,NROW,J,I,K,RATE,IBOUND,NLAY)
+          ELSE
+            CALL UBDSVAU(IBCFCB,NODES,N,RATE,IBOUND)
+          ENDIF
+        ENDIF
+      ENDDO
+C
+C5-----WRITE CLN-GW FLOWS FOR NONCOMPACT BUDGET
+      IF(IBD.EQ.1) THEN
+        IF(IUNSTR.EQ.0) THEN
+           CALL UBUDSV(KSTP,KPER,TEXT,
+     1                 IBCFCB,BUFF,NCOL,NROW,NLAY,IOUT)
+        ELSE
+          CALL UBUDSVU(KSTP,KPER,TEXT,IBCFCB,BUFF,NODES,IOUT,
+     1           PERTIM,TOTIM)
+        ENDIF
+      ENDIF
+C
+C6------RETURN.
+      RETURN
+      END
+C------------------------------------------------------------------------
       SUBROUTINE SGWF2BCFU1VCONDV(K)
 C     ******************************************************************
 C     STORE VERTICAL CONDUCTANCE TERM IN PGF. ALSO, IF KV IS READ THEN

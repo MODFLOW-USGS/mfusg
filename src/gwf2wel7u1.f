@@ -354,16 +354,15 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,NODES,
-     1                  IUNSTR,TOP,BOT,HNEW,NEQS,INCLN,NEQS
-      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,ICLNCB 
+     1                      IUNSTR,TOP,BOT,HNEW,NEQS,INCLN,NEQS
+      USE CLN1MODULE,  ONLY:ACLNNDS,NCLNNDS,ICLNCB 
       USE GWFBASMODULE,ONLY:MSUM,ICBCFL,IAUXSV,DELT,PERTIM,TOTIM,
      1                      VBVL,VBNM
       USE GWFWELMODULE,ONLY:NWELLS,IWELCB,WELL,NWELVL,WELAUX,IWELQV,IAFR
 C
-      CHARACTER*16 TEXT(2)
+      CHARACTER*16 TEXT
       DOUBLE PRECISION RATIN,RATOUT,QQ,QTHIK,X,Y,HD,THCK,BOTT
-      DATA TEXT(1) /'           WELLS'/
-      DATA TEXT(2) /'       CLN WELLS'/
+      DATA TEXT /'           WELLS'/
 C     ------------------------------------------------------------------
 C
 C1------CLEAR RATIN AND RATOUT ACCUMULATORS, AND SET CELL-BY-CELL
@@ -377,34 +376,43 @@ C1------BUDGET FLAG.
       IF(IWELCB.GT.0) IBD=ICBCFL
       IBDLBL=0
 C
-C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
+C2-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST (COMPACT), THEN
+C      WRITE HEADER TO BUDGET FILE FOR GW AND CLN.
       IF(IBD.EQ.2) THEN
-         NWELLSGW = 0                                                   !aq CLN CCF
-         NWELLSCLN = 0                                                  !aq CLN CCF
-         DO L=1,NWELLS                                                  !aq CLN CCF
-           N=WELL(1,L)                                                  !aq CLN CCF
-           IF(N.GT.NODES) THEN                                          !aq CLN CCF
-             NWELLSCLN = NWELLSCLN + 1                                  !aq CLN CCF
-           ELSE                                                         !aq CLN CCF
-             NWELLSGW = NWELLSGW + 1                                    !aq CLN CCF
-           ENDIF                                                        !aq CLN CCF
-         ENDDO                                                          !aq CLN CCF
-         NAUX=NWELVL-5
-         IF(IAUXSV.EQ.0) NAUX=0
-         IF(IUNSTR.EQ.0)THEN 
-           CALL UBDSV4(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NCOL,NROW,
-C    1          NLAY,NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)              !aq CLN CCF
-     1          NLAY,NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)            !aq CLN CCF
-         ELSE 
-           CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NEQS,
-C    1          NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)                   !aq CLN CCF
-     1          NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)                 !aq CLN CCF
-         ENDIF
-         IF(INCLN.GT.0) THEN                                            !aq CLN CCF
-           IF(ICLNCB.GT.0)                                              !aq CLN CCF
-     1       CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,ICLNCB,NCLNNDS, !aq CLN CCF
-     2                      NWELLSCLN,IOUT,DELT,PERTIM,TOTIM,IBOUND)    !aq CLN CCF
-         ENDIF                                                          !aq CLN CCF
+        NAUX=NWELVL-5
+        IF(IAUXSV.EQ.0) NAUX=0
+        CALL UBDSVHDR(IUNSTR,KSTP,KPER,IOUT,IWELCB,ICLNCB,NODES,
+     1    NCLNNDS,NCOL,NROW,NLAY,NWELLS,NWELVL,NAUX,IBOUND,
+     2    TEXT,WELAUX,DELT,PERTIM,TOTIM,WELL)
+        
+        
+        
+!         NWELLSGW = 0                                                   !aq CLN CCF
+!         NWELLSCLN = 0                                                  !aq CLN CCF
+!         DO L=1,NWELLS                                                  !aq CLN CCF
+!           N=WELL(1,L)                                                  !aq CLN CCF
+!           IF(N.GT.NODES) THEN                                          !aq CLN CCF
+!             NWELLSCLN = NWELLSCLN + 1                                  !aq CLN CCF
+!           ELSE                                                         !aq CLN CCF
+!             NWELLSGW = NWELLSGW + 1                                    !aq CLN CCF
+!           ENDIF                                                        !aq CLN CCF
+!         ENDDO                                                          !aq CLN CCF
+!         NAUX=NWELVL-5
+!         IF(IAUXSV.EQ.0) NAUX=0
+!         IF(IUNSTR.EQ.0)THEN 
+!           CALL UBDSV4(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NCOL,NROW,
+!C    1          NLAY,NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)              !aq CLN CCF
+!     1          NLAY,NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)            !aq CLN CCF
+!         ELSE 
+!           CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NEQS,
+!C    1          NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)                   !aq CLN CCF
+!     1          NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)                 !aq CLN CCF
+!         ENDIF
+!         IF(INCLN.GT.0) THEN                                            !aq CLN CCF
+!           IF(ICLNCB.GT.0)                                              !aq CLN CCF
+!     1       CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,ICLNCB,NCLNNDS, !aq CLN CCF
+!     2                      NWELLSCLN,IOUT,DELT,PERTIM,TOTIM,IBOUND)    !aq CLN CCF
+!         ENDIF                                                          !aq CLN CCF
       END IF
 C
 C3------CLEAR THE BUFFER.
@@ -447,7 +455,7 @@ C-------HONOR SUPPLY/DEMAND CONDITIONS FOR EXTRACTION WELLS
 C
 C5D-----PRINT FLOW RATE IF REQUESTED.
       IF(IBD.LT.0) THEN
-         IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT(1),KPER,KSTP
+         IF(IBDLBL.EQ.0) WRITE(IOUT,61) TEXT,KPER,KSTP
    61    FORMAT(1X,/1X,A,'   PERIOD ',I4,'   STEP ',I3)
         IF(IUNSTR.EQ.0)THEN
           IF(N.GT.NODES)THEN
@@ -488,22 +496,26 @@ C5I-----COPY FLOW TO WELL LIST.
 
    99 CONTINUE
       IF(IBD.EQ.2)THEN 
-        IF(N.GT.NODES.AND.ICLNCB.GT.0) THEN                             !aq CLN CCF
-          CALL UBDSVBU(ICLNCB,NCLNNDS,N-NODES,Q,WELL(1,L),NWELVL,NAUX,  !aq CLN CCF
-     1                   5,IBOUND)                                      !aq CLN CCF
-        ELSE                                                            !aq CLN CCF
-        IF(IUNSTR.EQ.0)THEN
-          IL = (N-1) / (NCOL*NROW) + 1
-          IJ = N - (IL-1)*NCOL*NROW
-          IR = (IJ-1)/NCOL + 1
-          IC = IJ - (IR-1)*NCOL
-          CALL UBDSVB(IWELCB,NCOL,NROW,IC,IR,IL,Q,
-     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND,NLAY)
-        ELSE
-          CALL UBDSVBU(IWELCB,NODES,N,Q,
-     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND)
-        ENDIF
-        ENDIF                                                           !aq CLN CCF
+        CALL UBDSVREC(IUNSTR,N,NODES,NCLNNDS,IWELCB,ICLNCB,NWELVL,
+     1    5,NAUX,Q,WELL(:,L),IBOUND,NCOL,NROW,NLAY)
+        
+        
+!        IF(N.GT.NODES.AND.ICLNCB.GT.0) THEN                             !aq CLN CCF
+!          CALL UBDSVBU(ICLNCB,NCLNNDS,N-NODES,Q,WELL(1,L),NWELVL,NAUX,  !aq CLN CCF
+!     1                   5,IBOUND)                                      !aq CLN CCF
+!        ELSE                                                            !aq CLN CCF
+!        IF(IUNSTR.EQ.0)THEN
+!          IL = (N-1) / (NCOL*NROW) + 1
+!          IJ = N - (IL-1)*NCOL*NROW
+!          IR = (IJ-1)/NCOL + 1
+!          IC = IJ - (IR-1)*NCOL
+!          CALL UBDSVB(IWELCB,NCOL,NROW,IC,IR,IL,Q,
+!     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND,NLAY)
+!        ELSE
+!          CALL UBDSVBU(IWELCB,NODES,N,Q,
+!     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND)
+!        ENDIF
+!        ENDIF                                                           !aq CLN CCF
       ENDIF
       WELL(NWELVL,L)=QQ
 C
@@ -553,14 +565,14 @@ C
 C6------IF CELL-BY-CELL FLOWS WILL BE SAVED AS A 3-D ARRAY,
 C6------CALL UBUDSV TO SAVE THEM.
       IF(IUNSTR.EQ.0)THEN
-        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT(1),IWELCB,BUFF(1),NCOL,
+        IF(IBD.EQ.1)CALL UBUDSV(KSTP,KPER,TEXT,IWELCB,BUFF(1),NCOL,
      1                   NROW,NLAY,IOUT)
         IF(IBD.EQ.1.AND.INCLN.GT.0)THEN
-          IF(ICLNCB.GT.0) CALL UBUDSVU(KSTP,KPER,TEXT(2),ICLNCB,
+          IF(ICLNCB.GT.0) CALL UBUDSVU(KSTP,KPER,TEXT,ICLNCB,
      1         BUFF(NODES+1),NCLNNDS,IOUT,PERTIM,TOTIM)
         ENDIF
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT(1),IWELCB,BUFF,NEQS,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,IWELCB,BUFF,NEQS,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C
@@ -571,7 +583,7 @@ C7------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.
       VBVL(4,MSUM)=ROUT
       VBVL(1,MSUM)=VBVL(1,MSUM)+RATIN*DELT
       VBVL(2,MSUM)=VBVL(2,MSUM)+RATOUT*DELT
-      VBNM(MSUM)=TEXT(1)
+      VBNM(MSUM)=TEXT
 C
 C8------INCREMENT BUDGET TERM COUNTER(MSUM).
       MSUM=MSUM+1
