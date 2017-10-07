@@ -164,3 +164,10 @@ src_temp
 obj_temp
 *.pyc
 distribution/mfusg.1_3
+
+*.lst
+*.list
+*.hds
+*.hed
+*.bhd
+*.chk

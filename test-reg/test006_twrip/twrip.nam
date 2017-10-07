@@ -9,3 +9,4 @@ OC    22 twrip.oc
 MULT   8 twrip.mlt
 ZONE   9 twrip.zon
 DIS   10 twrip.dis
+DATA(BINARY) 101 twrip.hds replace
