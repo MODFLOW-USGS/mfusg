@@ -333,7 +333,11 @@ C2------PERFORM RESIDUAL REDUCTION CYCLES IF REQUIRED
         IF(KITER.EQ.1.AND.IBFLAG.EQ.0)THEN
 C2A-------WRITE HEADER FOR SOLVER OUTPUT SUMMARY WITH BACKTRACKING
           WRITE(IOUT,11)
-11        FORMAT(/'    Outer-Iteration  Inner-Iteration  ',
+11        FORMAT(//1x,'OUTER ITERATION SUMMARY',/,
+     1    1X,23('-'),/,     
+     1    1x,'BT: Backtracking; LA: Linear Acceleration;',
+     1    1x,'UR: Under-relaxation',//,
+     1    '    Outer-Iteration  Inner-Iteration  ',
      1    'Backtracking  Number of        Incoming       Outgoing  ',
      1    'Maximum Head Change     Maximum Head Change'/
      1    3x,'     Number           Count           Flag',
@@ -356,7 +360,11 @@ C2C-------RETURN TO COMPUTE FLOW EQUATION IF BACKTRACKING IS REQUIRED
 C2D-------WRITE HEADER FOR SOLVER OUTPUT SUMMARY WITHOUT BACKTRACKING
         IF(KITER.EQ.1)THEN
           WRITE(IOUT,12)
-12        FORMAT(/'    Outer-Iteration  Inner-Iteration    ',
+12        FORMAT(//1x,'OUTER ITERATION SUMMARY',/,
+     1    1X,23('-'),/,
+     1    1x,'BT: Backtracking; LA: Linear Acceleration;',
+     1    1x,'UR: Under-relaxation',//,
+     1    '    Outer-Iteration  Inner-Iteration    ',
      1    'Maximum Head Change  Maximum Head Change'/
      1    3x,'     Number           Count               Value',
      1    14X,'Location')
