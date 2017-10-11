@@ -665,7 +665,7 @@ C24-----IF BUDGET TERMS WILL BE SAVED THEN WRITE TO DISK.              C
         IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,ISTCB1,BUFF,NCOL,NROW,
      1                          NLAY,IOUT)
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,ISTCB1,BUFF,NEQS,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,ISTCB1,BUFF(1),NODES,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C                                                                      C
