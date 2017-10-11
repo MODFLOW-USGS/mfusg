@@ -2013,7 +2013,7 @@ C     ------------------------------------------------------------------
 C
 C1------WRITE AN UNFORMATTED RECORD IDENTIFYING DATA.
       WRITE(IOUT,1) TEXT,IBDCHN,KSTP,KPER
-    1 FORMAT(1X,'UBUDSV  SAVING "',A16,'" ON UNIT',I3,
+    1 FORMAT(1X,'UBUDSV  SAVING "',A16,'" ON UNIT',I4,
      1     ' AT TIME STEP',I7,', STRESS PERIOD ',I7)
       WRITE(IBDCHN) KSTP,KPER,TEXT,NCOL,NROW,NLAY
 C

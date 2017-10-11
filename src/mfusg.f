@@ -314,6 +314,7 @@ C7C5----SAVE CELL-BY-CELL FLOW TERMS
           IF (IUNIT(29).GT.0) THEN
             CALL GWF2CLNU1BDCHWR(KKSTP,KKPER)
             CALL CLN1BDWR(KKSTP,KKPER)
+            IF(IUNIT(1).GT.0) CALL CLN1BDGWFWR(KKSTP,KKPER)
           ENDIF    
           DEALLOCATE(FLOWJA)
 C--------------------------------------------------------------------------------               

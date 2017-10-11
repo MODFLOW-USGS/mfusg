@@ -54,6 +54,7 @@ C3A-----CHECK FOR OPTIONS KEYWORD AT TOP OF FILE
    72     FORMAT(1X,'PRINT CLN IA AND JA OPTION:',
      1     ' THE CLN IA AND JA ARRAYS WILL BE PRINTED TO LIST FILE.')
         ELSEIF(LINE(ISTART:ISTOP).EQ.'PROCESSCCF') THEN                 !aq CLN CCF
+          CALL USTOP('PROCESSCCF OPTION NO LONGER SUPPORTED')
           CALL URWORD(LINE,LLOC,ISTART,ISTOP,2,ICLNGWCB,R,IOUT,IN)      !aq CLN CCF
           ICLNPCB=1                                                     !aq CLN CCF
           WRITE(IOUT,73)                                                !aq CLN CCF
@@ -1729,24 +1730,17 @@ C     ******************************************************************
 C
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL, ONLY:NCOL,NROW,NLAY,IBOUND,HNEW,BUFF,AMAT,NODLAY,
-     1    TOP,IOUT,NODES,NJA,IA,JA,JAS,IUNSTR,ISYM,ITRNSP,FLOWJA
+      USE GLOBAL, ONLY:IBOUND,TOP,IOUT,NODES,NJA,IA,JA,JAS,
+     1                 ITRNSP,FLOWJA
       USE CLN1MODULE, ONLY: ICLNCB,NCLN,NNDCLN,CLNCON,NCLNNDS,ACLNNDS,
-C    1    NCLNGWC,ACLNGWC,IA_CLN,JA_CLN,NJA_CLN,IDXGLO_CLN              !aq CLN CCF
-     1    NCLNGWC,ACLNGWC,IA_CLN,JA_CLN,NJA_CLN,IDXGLO_CLN,ICLNGWCB,    !aq CLN CCF
-     2    ICLNPCB                                                       !aq CLN CCF
+     1    NCLNGWC,ACLNGWC,IA_CLN,JA_CLN,NJA_CLN,IDXGLO_CLN
       USE GWFBASMODULE,ONLY:ICBCFL,DELT,PERTIM,TOTIM,ICHFLG
-      USE GWFBCFMODULE,ONLY:IBCFCB,LAYCON
       USE GWTBCTMODULE, ONLY: CBCF
 C
-      CHARACTER*16 TEXT(3)
-      DOUBLE PRECISION HD,TMP,HDIFF
-      REAL, DIMENSION(:),ALLOCATABLE :: FLOWCLNCLN(:),FLOWCLNGW(:)
-      REAL, DIMENSION(:),ALLOCATABLE :: FLOWTOCLN(:),FLOWTOGW(:)        !aq CLN CCF
+      CHARACTER*16 TEXT
+      REAL, DIMENSION(:),ALLOCATABLE :: FLOWCLNCLN(:)
 C
-      DATA TEXT(1) /'   FLOW CLN FACE'/
-      DATA TEXT(2) /'      GWF TO CLN'/
-      DATA TEXT(3) /'       CLN FLOWS'/
+      DATA TEXT /'   FLOW CLN FACE'/
 C     ------------------------------------------------------------------
 C
 C1------RETURN IF FLOWS ARE NOT BEING SAVED OR RETURNED.
@@ -1759,27 +1753,11 @@ C1------RETURN IF FLOWS ARE NOT BEING SAVED OR RETURNED.
 C2------ALLOCATE TEMPORARY ARRAY FOR FLOW ACCUMULATIONS
       LCLN = NJA_CLN
       ALLOCATE(FLOWCLNCLN(LCLN))
-C     ALLOCATE(FLOWCLNGW(NCLNGWC))                                      !aq CLN CCF
-      IF(ICLNPCB.EQ.0) ALLOCATE(FLOWCLNGW(NCLNGWC))                     !aq CLN CCF
-      IF(ICLNPCB.EQ.1) ALLOCATE(FLOWTOCLN(NCLNNDS))                     !aq CLN CCF
-      IF(ICLNPCB.EQ.1) ALLOCATE(FLOWTOGW(NODES))                        !aq CLN CCF
 C
 C3------INITIALIZE FLOW ACCUMULATION ARRAYS
       DO IJ=1,LCLN
         FLOWCLNCLN(IJ)=ZERO
       ENDDO
-      IF(ICLNPCB.EQ.0) THEN                                             !aq CLN CCF
-      DO IJ=1,NCLNGWC
-        FLOWCLNGW(IJ)=ZERO
-      ENDDO
-      ELSE                                                              !aq CLN CCF
-        DO IJ=1,NCLNNDS                                                 !aq CLN CCF
-          FLOWTOCLN(IJ)=ZERO                                            !aq CLN CCF
-        ENDDO                                                           !aq CLN CCF
-        DO IJ=1,NODES                                                   !aq CLN CCF
-          FLOWTOGW(IJ)=ZERO                                             !aq CLN CCF
-        ENDDO                                                           !aq CLN CCF
-      END IF                                                            !aq CLN CCF
 C----------------------------------------------------------------------------
 C4-----MOVE CLN-CLN FLOW INTO TEMPORARY ARRAY
 C4A------LOOP OVER ALL CLN NODES
@@ -1787,7 +1765,6 @@ C4A------LOOP OVER ALL CLN NODES
 C4B----------loop over all connections of node NC1
         DO II_CLN = IA_CLN(NC1)+1,IA_CLN(NC1+1)-1
           NC2 = JA_CLN(II_CLN)
-          !IF(NC2.GT.NC1) CYCLE
           ND1 = ACLNNDS(NC1,1)   !  NC1 + NODES
           ND2 = ACLNNDS(NC2,1)   !  NC2 + NODES
           IF(IBOUND(ND1).EQ.0.OR.IBOUND(ND2).EQ.0) CYCLE
@@ -1802,14 +1779,14 @@ C4B----------loop over all connections of node NC1
       ENDDO
 C4D------RECORD CLN-CLN FLOW
       IF(IBD.EQ.1)
-     1  CALL UBUDSVU(KSTP,KPER,TEXT(1),ICLNCB,FLOWCLNCLN,LCLN,IOUT,
+     1  CALL UBUDSVU(KSTP,KPER,TEXT,ICLNCB,FLOWCLNCLN,LCLN,IOUT,
      1         PERTIM,TOTIM)
       IF(IBD.EQ.2) 
-     1  CALL UBDSV1U(KSTP,KPER,TEXT(1),ICLNCB,FLOWCLNCLN,LCLN,IOUT,
-     2         DELT,PERTIM,TOTIM,IBOUND,NODES)
+     1  CALL UBDSV1U(KSTP,KPER,TEXT,ICLNCB,FLOWCLNCLN,LCLN,IOUT,
+     2         DELT,PERTIM,TOTIM,IBOUND(NODES+1),NCLNNDS)
       IF(IBD.EQ.-1)THEN
 C4E-----WRITE FLOWS TO OUTPUT FILE
-      WRITE(IOUT,1) TEXT(1),KSTP,KPER
+      WRITE(IOUT,1) TEXT,KSTP,KPER
 1     FORMAT(/1X,'WRITING "',A16,'" BELOW',1X,
      1     'AT TIME STEP',I7,', STRESS PERIOD',I7/
      2  1X,'CLN CELL AND LIST OF CONNECTED CLN CELLS AND FLOWS')
@@ -1822,83 +1799,83 @@ C
 3     FORMAT(12E15.6)
       ENDIF
 C
-C----------------------------------------------------------------------------
-C5-----MOVE CLN-MATRIX FLOW FOR EACH CLN NODE INTO TEMPORARY ARRAY
+C6------DEALLOCATE ALL TEMPORARY ARRAYS
+      DEALLOCATE(FLOWCLNCLN)
+C
+C7-------RETURN
+      RETURN
+      END
+C----------------------------------------------------------------------
+      SUBROUTINE CLN1BDGWFWR(KSTP,KPER)
+C     ******************************************************************
+C     WRITE THE GW-CLN FLOWS TO THE CLN BUDGET FILE
+C     ******************************************************************
+C
+C      SPECIFICATIONS:
+C     ------------------------------------------------------------------
+      USE GLOBAL,        ONLY:NODES,NCOL,NROW,NLAY,IBOUND,BUFF,ITRNSP,
+     1                        IOUT,FLOWJA,IA,JA,IUNSTR,NEQS
+      USE GWFBASMODULE,  ONLY:ICBCFL,DELT,PERTIM,TOTIM
+      USE CLN1MODULE,    ONLY:ICLNCB,NCLNNDS,NCLNGWC,ACLNNDS,ACLNGWC
+      CHARACTER*16 TEXT
+      LOGICAL FOUND
+      DATA TEXT /'             GWF'/
+C     ------------------------------------------------------------------
+C
+C1-----RETURN IF BUDGETS ARE NOT REQUIRED
+      IBD=0
+      IF(ICLNCB.GT.0) IBD=ICBCFL
+      IF(ITRNSP.GT.0.AND.IBD.EQ.0) IBD = 999
+      IF(IBD.EQ.0) RETURN    
+C
+C2-----INITIALIZE BUFF
+      ZERO = 0.
+      DO I=NODES+1,NEQS
+        BUFF(I) = ZERO
+      ENDDO
+C
+C3-----WRITE HEADER FOR COMPACT BUDGET
+      IF (IBD.EQ.2) THEN
+        CALL UBDSV2U(KSTP,KPER,TEXT,ICLNCB,NCLNNDS,
+     1          NCLNGWC,IOUT,DELT,PERTIM,TOTIM,IBOUND(NODES+1))
+      ENDIF
+C
+C4-----LOOP THROUGH EACH CLN-GW CONNECTION, RETRIEVE FLOW FROM
+C4-----FLOWJA AND ACCUMULATE IN BUFF OR WRITE COMPACT BUDGET RECORD
       DO NN = 1,NCLNGWC
         IH = ACLNGWC(NN,1)
         ND1 = ACLNNDS(IH,1)
-        NL = ACLNGWC(NN,2)
-        IF(IBOUND(ND1).EQ.0.OR.IBOUND(NL).EQ.0) CYCLE
-C5B-------FIND CLN-MATRIX CONNECTION
+        N = ACLNGWC(NN,2)
+        FOUND = .FALSE.
         DO II = IA(ND1)+1,IA(ND1+1)-1
           JJ = JA(II)
-          IF(JJ.NE.NL) CYCLE
-          IIS = JAS(II)
-          IF(ICHFLG.EQ.0) THEN
-            IF((IBOUND(ND1).LE.0) .AND. (IBOUND(JJ).LE.0)) CYCLE
-          END IF
-C
-C5C-------FILL FLOW THROUGH THIS FACE INTO THE ADJACENT CELL.
-          IF(ICLNPCB.EQ.0) THEN                                         !aq CLN CCF
-            FLOWCLNGW(NN) = -FLOWJA(II)
-          ELSE                                                          !aq CLN CCF
-            FLOWTOCLN(IH) = FLOWTOCLN(IH)-FLOWJA(II)                    !aq CLN CCF
-            FLOWTOGW(NL) = FLOWTOGW(NL)+FLOWJA(II)                      !aq CLN CCF
-          END IF                                                        !aq CLN CCF
-          IF(ITRNSP.GT.0) CBCF(IIS) = FLOWCLNGW(NN)
+          IF(JJ.EQ.N) THEN
+            FOUND = .TRUE.
+            EXIT
+          ENDIF
         ENDDO
+        IF(.NOT.FOUND) CALL USTOP('error in CLN1BDGWFWR')
+        RATE=-FLOWJA(II)
+        IF(ICHFLG.EQ.0) THEN
+          IF((IBOUND(ND1).LT.0) .AND. (IBOUND(JJ).LT.0)) RATE=ZERO
+        END IF
+        IF(IBOUND(ND1).EQ.0) RATE=ZERO
+        IF(IBOUND(JJ).EQ.0) RATE=ZERO
+
+        IF(IBD.EQ.1) THEN
+          BUFF(ND1) = BUFF(ND1) + RATE
+        ELSEIF(IBD.EQ.2) THEN
+          CALL UBDSVAU(ICLNCB,NCLNNDS,ND1,RATE,IBOUND(NODES+1))
+        ENDIF
       ENDDO
-C5D-----RECORD CLN-MATRIX FLOW
-      IF(ICLNPCB.EQ.0) THEN                                             !aq CLN CCF
-      IF(IBD.EQ.1)
-     1  CALL UBUDSVU(KSTP,KPER,TEXT(2),ICLNCB,FLOWCLNGW,NCLNGWC,IOUT,
-     1         PERTIM,TOTIM)
-      IF(IBD.EQ.2) 
-     1  CALL UBDSV1U(KSTP,KPER,TEXT(2),ICLNCB,FLOWCLNGW,NCLNGWC,IOUT,
-     2         DELT,PERTIM,TOTIM,IBOUND,NODES)
-      IF(IBD.EQ.-1)THEN
-C5E-----WRITE FLOWS TO OUTPUT FILE
-        IF(IOUT.GT.0) WRITE(IOUT,4) TEXT(2),KSTP,KPER
-4       FORMAT(/1X,'WRITING "',A16,'" BELOW',1X,
-     1     'AT TIME STEP',I7,', STRESS PERIOD',I7)
-        WRITE(IOUT,3)(FLOWCLNGW(N),N=1,NCLNGWC)
+C
+C5-----WRITE GW-CLN FLOWS FOR NONCOMPACT BUDGET
+      IF(IBD.EQ.1) THEN
+          CALL UBUDSVU(KSTP,KPER,TEXT,ICLNCB,BUFF(NODES+1),NCLNNDS,IOUT,
+     1           PERTIM,TOTIM)
       ENDIF
-      ELSE                                                              !aq CLN CCF
-C-------RECORD CLN-GW FLOW ON CLN SIDE                                  !aq CLN CCF
-      IF(IBD.EQ.1)                                                      !aq CLN CCF
-     1   CALL UBUDSVU(KSTP,KPER,TEXT(2),ICLNCB,FLOWTOCLN,NCLNNDS,IOUT,  !aq CLN CCF
-     1         PERTIM,TOTIM)                                            !aq CLN CCF
-      IF(IBD.EQ.2) CALL UBDSV1U(KSTP,KPER,TEXT(2),ICLNCB,FLOWTOCLN,     !aq CLN CCF
-     1     NCLNNDS,IOUT,DELT,PERTIM,TOTIM,IBOUND,NODES)                 !aq CLN CCF
-      IF(IBD.EQ.-1)THEN                                                 !aq CLN CCF
-C5E-----WRITE FLOWS TO OUTPUT FILE                                      !aq CLN CCF
-      IF(IOUT.GT.0) WRITE(IOUT,5) TEXT(2),KSTP,KPER                     !aq CLN CCF
-5     FORMAT(/1X,'WRITING "',A16,'" BELOW',1X,                          !aq CLN CCF
-     1     'AT TIME STEP',I7,', STRESS PERIOD',I7)                      !aq CLN CCF
-      WRITE(IOUT,3)(FLOWTOCLN(N),N=1,NCLNNDS)                           !aq CLN CCF
-      ENDIF                                                             !aq CLN CCF
-C-------RECORD CLN-GW FLOW ON GW SIDE                                   !aq CLN CCF
-      IF(IUNSTR.EQ.0)THEN                                               !aq CLN CCF
-        IF(IBD.EQ.1)                                                    !aq CLN CCF
-     1     CALL UBUDSV(KSTP,KPER,TEXT(2),ICLNGWCB,FLOWTOGW,NCOL,NROW,   !aq CLN CCF
-     2                   NLAY,IOUT)                                     !aq CLN CCF
-        IF(IBD.EQ.2) CALL UBDSV1(KSTP,KPER,TEXT(2),ICLNGWCB,FLOWTOGW,   !aq CLN CCF
-     1       NCOL,NROW,NLAY,IOUT,DELT,PERTIM,TOTIM,IBOUND)              !aq CLN CCF
-      ELSE                                                              !aq CLN CCF
-        IF(IBD.EQ.1)                                                    !aq CLN CCF
-     1     CALL UBUDSVU(KSTP,KPER,TEXT(2),ICLNGWCB,FLOWTOGW,NODES,IOUT, !aq CLN CCF
-     1           PERTIM,TOTIM)                                          !aq CLN CCF
-        IF(IBD.EQ.2) CALL UBDSV1U(KSTP,KPER,TEXT(2),ICLNGWCB,           !aq CLN CCF
-     1     FLOWTOGW,NODES,IOUT,DELT,PERTIM,TOTIM,IBOUND,NODES)          !aq CLN CCF
-      ENDIF                                                             !aq CLN CCF
-      ENDIF                                                             !aq CLN CCF
-C6------DEALLOCATE ALL TEMPORARY ARRAYS
-      DEALLOCATE(FLOWCLNCLN)
-C     DEALLOCATE(FLOWCLNGW)                                             !aq CLN CCF
-      IF(ICLNPCB.EQ.0) DEALLOCATE(FLOWCLNGW)                            !aq CLN CCF
-      IF(ICLNPCB.EQ.1) DEALLOCATE(FLOWTOCLN)                            !aq CLN CCF
-      IF(ICLNPCB.EQ.1) DEALLOCATE(FLOWTOGW)                             !aq CLN CCF
-C7-------RETURN
+C
+C6------RETURN.
       RETURN
       END
 C----------------------------------------------------------------------

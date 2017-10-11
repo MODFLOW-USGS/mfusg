@@ -381,38 +381,15 @@ C      WRITE HEADER TO BUDGET FILE FOR GW AND CLN.
       IF(IBD.EQ.2) THEN
         NAUX=NWELVL-5
         IF(IAUXSV.EQ.0) NAUX=0
-        CALL UBDSVHDR(IUNSTR,KSTP,KPER,IOUT,IWELCB,ICLNCB,NODES,
-     1    NCLNNDS,NCOL,NROW,NLAY,NWELLS,NWELVL,NAUX,IBOUND,
+        IICLNCB=0
+        NNCLNNDS=0
+        IF(INCLN.GT.0) THEN
+          IICLNCB=ICLNCB
+          NNCLNNDS=NCLNNDS
+        ENDIF
+        CALL UBDSVHDR(IUNSTR,KSTP,KPER,IOUT,IWELCB,IICLNCB,NODES,
+     1    NNCLNNDS,NCOL,NROW,NLAY,NWELLS,NWELVL,NAUX,IBOUND,
      2    TEXT,WELAUX,DELT,PERTIM,TOTIM,WELL)
-        
-        
-        
-!         NWELLSGW = 0                                                   !aq CLN CCF
-!         NWELLSCLN = 0                                                  !aq CLN CCF
-!         DO L=1,NWELLS                                                  !aq CLN CCF
-!           N=WELL(1,L)                                                  !aq CLN CCF
-!           IF(N.GT.NODES) THEN                                          !aq CLN CCF
-!             NWELLSCLN = NWELLSCLN + 1                                  !aq CLN CCF
-!           ELSE                                                         !aq CLN CCF
-!             NWELLSGW = NWELLSGW + 1                                    !aq CLN CCF
-!           ENDIF                                                        !aq CLN CCF
-!         ENDDO                                                          !aq CLN CCF
-!         NAUX=NWELVL-5
-!         IF(IAUXSV.EQ.0) NAUX=0
-!         IF(IUNSTR.EQ.0)THEN 
-!           CALL UBDSV4(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NCOL,NROW,
-!C    1          NLAY,NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)              !aq CLN CCF
-!     1          NLAY,NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)            !aq CLN CCF
-!         ELSE 
-!           CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,IWELCB,NEQS,
-!C    1          NWELLS,IOUT,DELT,PERTIM,TOTIM,IBOUND)                   !aq CLN CCF
-!     1          NWELLSGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)                 !aq CLN CCF
-!         ENDIF
-!         IF(INCLN.GT.0) THEN                                            !aq CLN CCF
-!           IF(ICLNCB.GT.0)                                              !aq CLN CCF
-!     1       CALL UBDSV4U(KSTP,KPER,TEXT(1),NAUX,WELAUX,ICLNCB,NCLNNDS, !aq CLN CCF
-!     2                      NWELLSCLN,IOUT,DELT,PERTIM,TOTIM,IBOUND)    !aq CLN CCF
-!         ENDIF                                                          !aq CLN CCF
       END IF
 C
 C3------CLEAR THE BUFFER.
@@ -496,26 +473,8 @@ C5I-----COPY FLOW TO WELL LIST.
 
    99 CONTINUE
       IF(IBD.EQ.2)THEN 
-        CALL UBDSVREC(IUNSTR,N,NODES,NCLNNDS,IWELCB,ICLNCB,NWELVL,
+        CALL UBDSVREC(IUNSTR,N,NODES,NNCLNNDS,IWELCB,IICLNCB,NWELVL,
      1    5,NAUX,Q,WELL(:,L),IBOUND,NCOL,NROW,NLAY)
-        
-        
-!        IF(N.GT.NODES.AND.ICLNCB.GT.0) THEN                             !aq CLN CCF
-!          CALL UBDSVBU(ICLNCB,NCLNNDS,N-NODES,Q,WELL(1,L),NWELVL,NAUX,  !aq CLN CCF
-!     1                   5,IBOUND)                                      !aq CLN CCF
-!        ELSE                                                            !aq CLN CCF
-!        IF(IUNSTR.EQ.0)THEN
-!          IL = (N-1) / (NCOL*NROW) + 1
-!          IJ = N - (IL-1)*NCOL*NROW
-!          IR = (IJ-1)/NCOL + 1
-!          IC = IJ - (IR-1)*NCOL
-!          CALL UBDSVB(IWELCB,NCOL,NROW,IC,IR,IL,Q,
-!     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND,NLAY)
-!        ELSE
-!          CALL UBDSVBU(IWELCB,NODES,N,Q,
-!     1                  WELL(1,L),NWELVL,NAUX,5,IBOUND)
-!        ENDIF
-!        ENDIF                                                           !aq CLN CCF
       ENDIF
       WELL(NWELVL,L)=QQ
 C
