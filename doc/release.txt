@@ -11,16 +11,16 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
-o Version 1.4 10/13/2017
+o Version 1.4 10/17/2017
     MFUSG -- Updated program version and date.  Added calls for the
        ETS and DRT Packages.  Revised the way flow terms are written 
        to the budget file for CLN.
     GLO2BASU1 -- Added JA symmetry check.  Program now terminates
        with an error if the user-provided JA is not symmetric.
     GWF2BCF-LPF-U1 -- Removed the minimum saturation value.  Difficult
-       problems behave better by allowing them and handling those
-       problems in the solver. Revised the way CLN-GW flows are
-       written to the budget file.
+       problems behave better by allowing saturation to go to zero
+       and letting the solver handle it. Revised the way CLN-GW flows 
+       are written to the budget file.
     GWF2ETS8U1 -- This is the Segmented Evapotranspiration Package
        added in this release.
     GWF2DRT8U1 -- This is the Drain with Return Flow Package added
