@@ -926,7 +926,7 @@ C13-----RETURN
       END SUBROUTINE GLO2SMS1UR
 C
 C
-      SUBROUTINE NEWTON_DAMPENING(N, DELH, inwtdmp, abigchur)
+      SUBROUTINE NEWTON_DAMPENING(N, DELH, INWTDMP, ABIGCHUR)
 C     ******************************************************************
 C     IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) 
 C     ******************************************************************
@@ -944,8 +944,8 @@ C     ******************************************************************
 !     -----------------------------------------------------------------
         INTEGER, INTENT(IN) :: N
         DOUBLE PRECISION, INTENT(IN) ::DELH
-        INTEGER, INTENT(INOUT) :: inwtdmp
-        DOUBLE PRECISION, INTENT(INOUT) :: abigchur
+        INTEGER, INTENT(INOUT) :: INWTDMP
+        DOUBLE PRECISION, INTENT(INOUT) :: ABIGCHUR
 !     -----------------------------------------------------------------
 !     LOCAL VARIABLES
 !     -----------------------------------------------------------------
@@ -955,6 +955,7 @@ C     ******************************************************************
         INTEGER :: NNDLAY
         INTEGER :: NC
         INTEGER :: IFLIN
+        INTEGER :: IEVAL
         DOUBLE PRECISION :: BBOT
         DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
         DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
@@ -974,18 +975,21 @@ C-------------DETERMINE CURRENT LAYER
               END IF
             END DO
 C-------------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL          
+            IEVAL = 1
             IF (LAYCON(KK).EQ.4) THEN
                 IF(IBOUND(N).GT.0) THEN  
                   BBOT = CELLBOTMIN(N)
                   IF (HNEW(N) < BBOT) THEN
-                    inwtdmp = 1
+                    INWTDMP = 1
+                    IEVAL = 0
                     HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
-                  ELSE
-                    IF (ABS(DELH) > abigchur) THEN
-                      abigchur = ABS(DELH)
-                    END IF
                   END IF
                 END IF
+            END IF
+            IF (IEVAL.GT.0) THEN
+              IF (ABS(DELH) > ABIGCHUR) THEN
+                ABIGCHUR = ABS(DELH)
+              END IF
             END IF
           END IF
 C              
@@ -993,14 +997,29 @@ C-----------FOR CLN CELLS
         ELSE 
             NC = N - NODES
             IFLIN = IFLINCLN(NC)
-            IF (IFLIN.LE.0) THEN ! head cannot go below if iflin.le.0
-              BBOT = ACLNNDS(nc,5)
-              IF (HNEW(N).LT.BBOT) THEN
-                HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
-              ELSE
-                IF (ABS(DELH) > abigchur) THEN
-                  abigchur = ABS(DELH)
-                END IF
+            IEVAL = 1
+            !
+            ! ---- JDH 10/25/2017
+            ! BOTTOM AVERAGING OF CLN NOT PERFORMED BECAUSE WATER-LEVEL 
+            ! IN CLN CELL MAY BE BELOW BOTTOM OF LAYER TO SATISFY SPECIFIED  
+            ! PUMPING RATE. BOTTOM AVERAGING WOULD CAUSE A WATER BALANCE 
+            ! ERROR IN FINAL RESULTS. AUTO FLOW REDUCE SHOULD BE USED TO 
+            ! RESTRICT PUMPING RATES AND KEEP CLN WATER LEVELS ABOVE THE  
+            ! BOTTOM OF A CLN CELL.
+            ! ---- JDH 10/25/2017
+            !
+            ! HEAD CANNOT GO BELOW BOTTOM OF CLN CELL IF IFLIN.LE.0
+            !IF (IFLIN.LE.0) THEN 
+            !  BBOT = ACLNNDS(NC,5)
+            !  IF (HNEW(N).LT.BBOT) THEN
+            !    INWTDMP = 1
+            !    IEVAL = 0
+            !    HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
+            !  END IF
+            !END IF
+            IF (IEVAL.GT.0) THEN
+              IF (ABS(DELH) > ABIGCHUR) THEN
+                ABIGCHUR = ABS(DELH)
               END IF
             END IF
         END IF
