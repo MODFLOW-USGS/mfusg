@@ -2556,12 +2556,21 @@ Cdep 890         RATIN=RATIN+RATE
                    GWOUT(LAKE)=GWOUT(LAKE)+RATE
                  END IF
 C11-------IF SAVING COMPACT BUDGET, WRITE FLOW FOR ONE LAKE FACE.
-899              IF(IBD.EQ.2) THEN    !RGN need to fix this for USGs
+899              IF(IBD.EQ.2) THEN
                    FACE(1)=ILAKE(6,L)
                    R=RATE
-C            CALL UBDSVBU(ILKCB,NL,IL,R,FACE(1),1,NAUX,
-C     1                 1,IBOUND,NLAY)
-                 END IF
+                   IF(IUNSTR.EQ.0)THEN
+                     IL = (NL-1) / (NCOL*NROW) + 1
+                     IJ = NL - (IL-1)*NCOL*NROW
+                     IR = (IJ-1)/NCOL + 1
+                     IC = IJ - (IR-1)*NCOL
+                     CALL UBDSVB(ILKCB,NCOL,NROW,IC,IR,IL,R,FACE(1),1,
+     1                           NAUX,1,IBOUND,NLAY)
+                   ELSE
+                     CALL UBDSVBU(ILKCB,NODES,NL,R,FACE(1),1,NAUX,
+     1                            1,IBOUND)
+                   END IF
+                 END IF                 
                END IF
              END IF
            END DO

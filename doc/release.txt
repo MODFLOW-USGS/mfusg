@@ -11,7 +11,7 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
-o Version 1.4 10/17/2017
+o Version 1.4 10/27/2017
     MFUSG -- Updated program version and date.  Added calls for the
        ETS and DRT Packages.  Revised the way flow terms are written 
        to the budget file for CLN.
