@@ -1,0 +1,4 @@
+ 100 50 0 0  AUX TEST RETURNFLOW
+ 2  0                  Stress Period 1
+   99  0. 0. 20001 0.5 -9999.
+20002  0. 0.    98 0.5 -999.

@@ -1,0 +1,20 @@
+LIST  7           clntest.lst
+DISU 12           clntest.dis
+BAS6  1           clntest.bas
+BCF6 11           clntest.bcf
+OC   22           clntest.oc
+SMS  19           clntest.sms
+CHD  42           clntest.chd
+WEL  36           clntest.wel
+DRN  37           clntest.drn
+DRT  38           clntest.drt
+FHB  31           clntest.fhb
+GHB  33           clntest.ghb
+RIV  34           clntest.riv
+STR  41           clntest.str
+CLN  35           clntest.cln
+DATA 166          clntest.wel.flowreduce replace
+DATA(BINARY) 32   clntest.cln.hds        replace
+DATA(BINARY) 45   clntest.cln.cbc        replace
+DATA(BINARY) 50   clntest.cbb            replace
+DATA(BINARY) 30   clntest.hds            replace
