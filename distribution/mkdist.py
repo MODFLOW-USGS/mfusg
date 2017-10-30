@@ -10,15 +10,16 @@ import subprocess
 import shlex
 
 def zipdir(dirname, zipname):
+    print('Zipping directory: {}'.format(dirname))
     zipf = zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(dirname):
         for file in files:
             if '.DS_Store' not in file:
                 fname = os.path.join(root, file)
-                arcname = fname.split(dirname, 1)[1]
-                print('adding to zip: ==> ', arcname)
-                zipf.write(fname, arcname=arcname)
+                print('  Adding to zip: ==> ', fname)
+                zipf.write(fname, arcname=fname)
     zipf.close()
+    print('\n')
     return
 
 destpath = '.'
