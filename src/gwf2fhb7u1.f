@@ -591,7 +591,9 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IUNSTR,NODES
+      USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,IUNSTR,
+     1                      NODES,NEQS,INCLN
+      USE CLN1MODULE,  ONLY:NCLNNDS,ICLNCB 
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,PERTIM,TOTIM
       USE GWFFHBMODULE,ONLY:NBDTIM,NFLW,NHED,IFHBCB,NFHBX1,NFHBX2,
      1                      IFHBSS,IFLLOC,IHDLOC,BDTIM,FLWRAT,SBHED,
@@ -600,6 +602,7 @@ C
       CHARACTER*16 TEXT
       DOUBLE PRECISION RATIN,RATOUT,QQ
 C
+      DIMENSION XFACE(1)
       DATA TEXT/' SPECIFIED FLOWS'/
 C     ------------------------------------------------------------------
 C
@@ -612,18 +615,41 @@ C1------CLEAR RATIN AND RATOUT ACCUMULATORS.
       IF(IFHBCB.GT.0) IBD=ICBCFL
 C
 C2A----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
-      IF(IBD.EQ.2) THEN 
-        IF(IUNSTR.EQ.0) THEN 
-          CALL UBDSV2(KSTP,KPER,TEXT,IFHBCB,NCOL,NROW,NLAY,
-     1          NFLW,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+      IF(IBD.EQ.2) THEN
+        NFHBGW = 0
+        NFHBCLN = 0
+        DO L=1,NFLW
+          N=IFLLOC(1,L)
+          IF(N.GT.NODES) THEN
+            NFHBCLN = NFHBCLN + 1
+          ELSE
+            NFHBGW = NFHBGW + 1
+          ENDIF
+        ENDDO
+        IICLNCB=0
+        NNCLNNDS=0
+        IF(INCLN.GT.0) THEN
+          IICLNCB=ICLNCB
+          NNCLNNDS=NCLNNDS
+        ENDIF
+        NAUX=1
+        IF(IAUXSV.EQ.0) NAUX=0
+        IF(IUNSTR.EQ.0) THEN
+          CALL UBDSV4(KSTP,KPER,TEXT,NAUX,'IFACE           ',IFHBCB,
+     1          NCOL,NROW,NLAY,NFHBGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)
         ELSE
-          CALL UBDSV2U(KSTP,KPER,TEXT,IFHBCB,NODES,
-     1          NFLW,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+          CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,'IFACE           ',IFHBCB,
+     1          NODES,NFHBGW,IOUT,DELT,PERTIM,TOTIM,IBOUND)
+        ENDIF
+        IF(INCLN.GT.0) THEN
+          IF(ICLNCB.GT.0)
+     1      CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,'IFACE           ',IICLNCB,
+     2                 NNCLNNDS,NFHBCLN,IOUT,DELT,PERTIM,TOTIM,IBOUND)
         ENDIF
       ENDIF
 C
 C2B----CLEAR THE BUFFER.
-      DO 50 ND=1,NFLW
+      DO 50 ND=1,NEQS
       BUFF(ND)=ZERO
    50 CONTINUE
 C
@@ -646,11 +672,11 @@ C4A-----GET FLOW RATE FROM SPECIFIED-FLOW LIST
 C
 C4B-----PRINT THE INDIVIDUAL RATES IF REQUESTED(IFHBCB<0).
       IF(IBD.LT.0) THEN
+        IF(IUNSTR.EQ.0)THEN
         IL = (ND-1) / (NCOL*NROW) + 1
         IJ = ND - (IL-1)*NCOL*NROW
         IR = (IJ-1)/NCOL + 1
         IC = IJ - (IR-1)*NCOL
-        IF(IUNSTR.EQ.0)THEN
         WRITE(IOUT,900) TEXT,KPER,KSTP,L,IL,IR,IC,Q
   900   FORMAT(1H0,4A4,'   PERIOD',I3,'   STEP',I3,' SEQ NO',I4,
      1    '   LAYER',I3,'   ROW ',I4,'   COL',I4,'   RATE',G15.7)
@@ -679,15 +705,24 @@ C6------IF CELL-BY-CELL FLOWS ARE BEING SAVED AS A LIST, WRITE FLOW.
 C6------RETURN THE ACTUAL FLOW IN THE BDFV ARRAY.
    97 CONTINUE
       IF(IBD.EQ.2)THEN
-        IF(IUNSTR.EQ.0)THEN
-          IL = (ND-1) / (NCOL*NROW) + 1
-          IJ = ND - (IL-1)*NCOL*NROW
-          IR = (IJ-1)/NCOL + 1
-          IC = IJ - (IR-1)*NCOL
-          CALL UBDSVA(IFHBCB,NCOL,NROW,IC,IR,IL,Q,IBOUND,NLAY)
+        XFACE(1)=IFLLOC(4,L)
+        IF(ND.GT.NODES) THEN
+          IF(IICLNCB.GT.0)
+     1    CALL UBDSVBU(ICLNCB,NCLNNDS,ND-NODES,Q,XFACE,1,NAUX,
+     2                 1,IBOUND)
         ELSE
-          CALL UBDSVAU(IFHBCB,NODES,ND,Q,IBOUND)
-        ENDIF 
+          IF(IUNSTR.EQ.0)THEN
+            IL = (ND-1) / (NCOL*NROW) + 1
+            IJ = ND - (IL-1)*NCOL*NROW
+            IR = (IJ-1)/NCOL + 1
+            IC = IJ - (IR-1)*NCOL
+            CALL UBDSVB(IFHBCB,NCOL,NROW,IC,IR,IL,Q,
+     1                    XFACE,1,NAUX,1,IBOUND,NLAY)          
+          ELSE
+            CALL UBDSVBU(IFHBCB,NODES,ND,Q,
+     1                    XFACE,1,NAUX,1,IBOUND)          
+          ENDIF 
+        ENDIF
       ENDIF
       BDFV(2,L)=Q
   100 CONTINUE
@@ -699,9 +734,13 @@ C7------CALL UBUDSV TO SAVE THEM
           CALL UBUDSV(KSTP,KPER,TEXT,IFHBCB,BUFF,NCOL,NROW,
      1                          NLAY,IOUT)
         ELSE
-          CALL UBUDSVU(KSTP,KPER,TEXT,IFHBCB,BUFF,NODES,
+          CALL UBUDSVU(KSTP,KPER,TEXT,IFHBCB,BUFF(1),NODES,
      1                          IOUT,PERTIM,TOTIM)
         ENDIF
+      ENDIF
+      IF(IBD.EQ.1.AND.INCLN.GT.0)THEN
+        IF(ICLNCB.GT.0) CALL UBUDSVU(KSTP,KPER,TEXT,ICLNCB,
+     1    BUFF(NODES+1),NCLNNDS,IOUT,PERTIM,TOTIM)
       ENDIF
 C
 C8------MOVE RATES, VOLUMES & LABELS INTO ARRAYS FOR PRINTING.

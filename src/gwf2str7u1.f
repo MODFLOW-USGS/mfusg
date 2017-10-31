@@ -489,7 +489,8 @@ C                                                                      C
 C     SPECIFICATIONS:                                                  C
 C     -----------------------------------------------------------------C
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,IBOUND,BUFF,HNEW,IUNSTR,
-     *                 NODES
+     *                 NODES,NEQS
+      USE CLN1MODULE,  ONLY:NCLNNDS,ICLNCB 
       USE GWFBASMODULE,ONLY:MSUM,VBVL,VBNM,ICBCFL,DELT,
      *                 IAUXSV,PERTIM,TOTIM
       USE GWFSTRMODULE,ONLY:MXSTRM,NSTREM,NSS,NTRIB,NDIV,ICALC,ISTCB1,
@@ -510,15 +511,15 @@ C1------SET IBD IF BUDGET TERMS SHOULD BE SAVED ON DISK.               C
 C
 C1A-----IF CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST, WRITE HEADER.
       IF(IBD.EQ.2) THEN
-         NAUX=NSTRVL-11
-         IF(IAUXSV.EQ.0) NAUX=0
-         IF(IUNSTR.EQ.0) THEN
-         CALL UBDSV4(KSTP,KPER,TEXT,NAUX,STRAUX,ISTCB1,NCOL,NROW,NLAY,
+        NAUX=NSTRVL-11
+        IF(IAUXSV.EQ.0) NAUX=0
+        IF(IUNSTR.EQ.0) THEN
+          CALL UBDSV4(KSTP,KPER,TEXT,NAUX,STRAUX,ISTCB1,NCOL,NROW,NLAY,
      1          NSTREM,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-         ELSE
-         CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,STRAUX,ISTCB1,NODES,
+        ELSE
+          CALL UBDSV4U(KSTP,KPER,TEXT,NAUX,STRAUX,ISTCB1,NODES,
      1          NSTREM,IOUT,DELT,PERTIM,TOTIM,IBOUND)
-         ENDIF
+        ENDIF
       END IF
 C                                                                      C
 C2------IF NO REACHES, KEEP ZEROS IN ACCUMULATORS.                     C
@@ -526,7 +527,7 @@ C2------IF NO REACHES, KEEP ZEROS IN ACCUMULATORS.                     C
 C                                                                      C
 C3A-----CLEAR BUFF IF CELL-BY-CELL TERMS WILL BE STORED IN BUFF.       C
       IF(IBD.EQ.1) THEN
-        DO 5 N=1,NODES
+        DO 5 N=1,NEQS
         BUFF(N)=0.
     5   CONTINUE
       END IF
@@ -651,10 +652,10 @@ C23A----IF SAVING CELL-BY-CELL FLOWS IN A LIST, WRITE FLOW.
           IC = IJ - (IR-1)*NCOL
           CALL UBDSVB(ISTCB1,NCOL,NROW,IC,IR,IL,FLOBOT,
      1                  STRM(:,L),NSTRVL,NAUX,12,IBOUND,NLAY)
-	ELSE
-          CALL UBDSVBU(ISTCB1,NODES,ND,FLOBOT,
+	  ELSE
+          CALL UBDSVBU(ISTCB1,NEQS,ND,FLOBOT,
      1                  STRM(:,L),NSTRVL,NAUX,12,IBOUND)
-	ENDIF
+	  ENDIF
       ENDIF
 C
   500 CONTINUE
@@ -664,7 +665,7 @@ C24-----IF BUDGET TERMS WILL BE SAVED THEN WRITE TO DISK.              C
         IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,TEXT,ISTCB1,BUFF,NCOL,NROW,
      1                          NLAY,IOUT)
       ELSE
-        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,ISTCB1,BUFF,NODES,
+        IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,TEXT,ISTCB1,BUFF(1),NODES,
      1                          IOUT,PERTIM,TOTIM)
       ENDIF
 C                                                                      C
@@ -686,7 +687,7 @@ C27----IF STREAM OUTFLOW FROM EACH REACH IS TO BE STORED ON DISK       C
 C     THEN STORE OUTFLOW RATES TO BUFFER, UNLESS COMPACT BUDGET.       C
       IF((ICBCFL.EQ.0).OR.(ISTCB2.LE.0)) GO TO 625
       IF(IBD.EQ.1) THEN
-        DO 605 ND=1,NODES
+        DO 605 ND=1,NEQS
   605     BUFF(ND)=0.
       ENDIF
 C
@@ -698,7 +699,7 @@ C28-----AUX VARIABLES BECAUSE THEY WOULD BE WITH STREAM LEAKAGE.
            CALL UBDSV4(KSTP,KPER,STRTXT,NAUX,STRAUX,ISTCB2,NCOL,NROW,
      1          NLAY,NSTREM,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ELSE
-           CALL UBDSV4U(KSTP,KPER,STRTXT,NAUX,STRAUX,ISTCB2,NODES,
+           CALL UBDSV4U(KSTP,KPER,STRTXT,NAUX,STRAUX,ISTCB2,NEQS,
      1          NSTREM,IOUT,DELT,PERTIM,TOTIM,IBOUND)
          ENDIF
       END IF
@@ -717,7 +718,7 @@ C     THEN STORE OUTFLOW RATES TO BUFFER OR WRITE INDIVIDUAL RATES.    C
              CALL UBDSVB(ISTCB2,NCOL,NROW,IC,IR,IL,STRM(9,L),
      1                  STRM(:,L),NSTRVL,NAUX,12,IBOUND,NLAY)
           ELSE
-             CALL UBDSVBU(ISTCB2,NODES,ND,STRM(9,L),
+             CALL UBDSVBU(ISTCB2,NEQS,ND,STRM(9,L),
      1                  STRM(:,L),NSTRVL,NAUX,12,IBOUND)
           ENDIF
         ENDIF
@@ -726,7 +727,7 @@ C     THEN STORE OUTFLOW RATES TO BUFFER OR WRITE INDIVIDUAL RATES.    C
           IF(IBD.EQ.1) CALL UBUDSV(KSTP,KPER,STRTXT,ISTCB2,BUFF,NCOL,
      1                             NROW,NLAY,IOUT)
       ELSE
-          IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,STRTXT,ISTCB2,BUFF,NODES,
+          IF(IBD.EQ.1) CALL UBUDSVU(KSTP,KPER,STRTXT,ISTCB2,BUFF,NEQS,
      1                              IOUT,PERTIM,TOTIM)
       ENDIF
 C                                                                      C

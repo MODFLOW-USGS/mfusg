@@ -768,6 +768,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE PARAMMODULE
+      USE GLOBAL, ONLY:NCOL,NROW,IUNSTR
       CHARACTER*(*) PACK,PTYP
       DIMENSION RLIST(LSTVL,LSTDIM)
       CHARACTER*(*) LABEL
@@ -884,6 +885,12 @@ C8A-----value.
             IF (IOUTU.GT.0) WRITE(IOUT,89) II,IL,IR,IC,
      &          (RLIST(JJ,II),JJ=4,NREAD)
    89       FORMAT(1X,I6,I7,I7,I7,14G16.4)
+C
+CDL 1/9/7 PUT NODENUMBER IN COLUMNN 1
+            IF(IUNSTR.EQ.0) THEN
+              N = IC + NCOL*(IR-1) + (IL-1)* NROW*NCOL
+              RLIST(1,II)=N
+            ENDIF
    90     CONTINUE
 C
 C8B------After moving the data, return.

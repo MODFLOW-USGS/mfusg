@@ -14,11 +14,11 @@ def compare(namefile1, namefile2):
 
     # Compare budgets from the list files in namefile1 and namefile2
     outfile = os.path.join(os.path.split(namefile1)[0], 'bud.cmp')
-    success1 = compare_budget(namefile1, namefile2, max_cumpd=0.01, max_incpd=0.01,
-                   outfile=outfile)
+    success1 = compare_budget(namefile1, namefile2, max_cumpd=0.01,
+                              max_incpd=0.01, outfile=outfile)
 
     outfile = os.path.join(os.path.split(namefile1)[0], 'hds.cmp')
-    success2 = compare_heads(namefile1, namefile2, htol=0.001,
+    success2 = compare_heads(namefile1, namefile2, htol=0.001, difftol=True,
                              outfile=outfile)
 
     success = False
@@ -87,8 +87,9 @@ def run_mfusg(namefile, regression=True):
 
 def test_mfusg():
     namefiles = []
-    for pth in config.testpaths:
+    for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
+    # for namefile in ['../test-reg/test042_45usg/45usg.nam']:
     for namefile in namefiles:
         yield run_mfusg, namefile
     return
@@ -96,7 +97,7 @@ def test_mfusg():
 
 if __name__ == '__main__':
     namefiles = []
-    for pth in config.testpaths:
+    for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
     for namefile in namefiles:
         run_mfusg(namefile)

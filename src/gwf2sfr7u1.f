@@ -79,6 +79,7 @@ C         DLEAK, ISTCB1, ISTCB2.
       HEPS = 1.0e-7
       IERR = 0
       IFLG = 0
+      IHAVEDIV = 1
       CALL URDCOM(In, IOUT, line)
 ! Check for alternate input (replacement for setting NSTRM<0).
       CALL UPARLSTAL(IN,IOUT,LINE,NPP,MXVL)
@@ -1138,7 +1139,7 @@ C         SEGMENTS. Moved NSEGCK below ELSE IF 6/9/2005 dep
         CALL USTOP(' ')
       ELSE IF ( NSFRPAR.EQ.0 .AND. IUZT.EQ.0 ) THEN
         WRITE (IOUT, 9003)
-        RETURN
+        GO TO 1991
       ELSE IF ( NSFRPAR.NE.0 ) THEN
 C
 C5------INITIALIZE NSEGCK TO 0 FOR SEGMENTS THAT ARE DEFINED BY 
@@ -1896,7 +1897,15 @@ CC45-----READ TABLES FOR SPECIFIED INFLOWS
             END DO
           END DO
         END IF
-      END IF
+        END IF
+C-------DM: Determine whether any diversions are present this stress period
+ 1991 IHAVEDIV = 0
+      DO nseg=1,NSS
+          IF(IDIVAR(1, nseg).NE.0 .OR. IDIVAR(2, nseg).NE.0) THEN
+              IHAVEDIV = 1
+          END IF
+      END DO
+C      
  9029 FORMAT('A NEGATIVE VALUE FOR FLOW WAS SPECIFIED IN A ',
      +        'SFR TABULAR INFLOW FILE. VALUE WILL BE RESET TO ZERO')
  9033 FORMAT('TABULAR INFLOWS WERE READ FOR SEGMENT ',I6,/
@@ -2185,7 +2194,8 @@ C13-----FLOW FROM LAKE COMPUTED USING TABULATED VALUES.
 C
 C14-----COMPUTE ONE OR MORE DIVERSIONS FROM UPSTREAM SEGMENT.
 Crgn&dep   revised computation of diversions and added subroutine
-            IF( istsg.GT.1 )THEN
+C-------DM: Added IHAVEDIV check to skip entire loop when no diversions exist
+              IF( IHAVEDIV.EQ.1 .AND. istsg.GT.1 )THEN
               DO kss = 2, NSS
                 upflw = SGOTFLW(istsg-1)
                 idivseg = kss
@@ -3571,7 +3581,7 @@ C     *****************************************************************
       USE GWFLAKMODULE, ONLY: VOL, LKARR1, STGNEW, STGOLD
       USE GLOBAL,       ONLY: NCOL, NROW, NLAY, IOUT, ISSFLG, IBOUND,
      +                        HNEW, BUFF, BOT, NODES, IVSD, NODLAY,
-     +                        IA, JAS, IVC, JA, IUNSTR
+     +                        IA, JAS, IVC, JA, IUNSTR, NEQS
       USE GWFBASMODULE, ONLY: MSUM, ICBCFL, IBUDFL, DELT, PERTIM, TOTIM,
      +                        VBVL, VBNM
       USE GWFBCFMODULE, ONLY: HDRY
@@ -3681,15 +3691,23 @@ Cdep    revised to allow for compact and non compact budgets
       ibstlb = 0
 C
 C2------WRITE HEADER WHEN CELL-BY-CELL FLOWS WILL BE SAVED AS A LIST.
-      IF ( ibd.EQ.2 ) CALL UBDSV2(Kkstp, Kkper, text, iout1, NCOL, NROW,
+      IF(IBD.EQ.2) THEN
+         IF(IUNSTR.EQ.0) THEN
+           CALL UBDSV2(Kkstp, Kkper, text, iout1, NCOL, NROW,
      +                            NLAY, NSTRM, IOUT, DELT, PERTIM, 
      +                            TOTIM, IBOUND)
+         ELSE
+           CALL UBDSV2U(Kkstp, Kkper, text, iout1, NEQS,
+     +                            NSTRM, IOUT, DELT, PERTIM, 
+     +                            TOTIM, IBOUND)
+         ENDIF
+      END IF
       IF ( ibdst.EQ.2 ) CALL UBDSV2 (Kkstp, Kkper, strtxt, iout2, NCOL, 
      +                               NROW, NLAY, NSTRM, IOUT, DELT, 
      +                               PERTIM, TOTIM, IBOUND)
 C
 C3------CLEAR BUFFERS.
-      DO NN = 1, NODES
+      DO NN = 1, NEQS
             BUFF(NN) = zero
       END DO
 C
@@ -4355,7 +4373,7 @@ cDEP   need to fix for unsaturated flow
               CALL UBDSVA(iout1, NCOL, NROW, ic, ir, il,
      +                     SNGL(gwflow), IBOUND, NLAY)
             ELSE
-              CALL UBDSVAU(iout1, nodes, NCPT,
+              CALL UBDSVAU(iout1, NEQS, NCPT,
      +                     SNGL(gwflow), IBOUND)
             ENDIF
           END IF
@@ -4466,7 +4484,7 @@ C         IBD IS EQUAL TO 1. revised dep 5/10/2006
      +                            NROW, NLAY, IOUT)
               ELSE
       IF ( ibd.EQ.1 ) CALL UBUDSVU(Kkstp, Kkper, text, iout1, BUFF,
-     +                            NODES, IOUT,pertim,totim)
+     +                            NEQS, IOUT,pertim,totim)
               ENDIF
 C
 C49-----MOVE RATES, VOLUMES, AND LABELS INTO ARRAYS FOR PRINTING.
@@ -4485,7 +4503,7 @@ C51-----STREAMFLOW OUT OF EACH REACH IS SAVED TO A LIST FILE
 C       WHEN COMPACT BUDGET REQUESTED OR TO A 3-D ARRAY
 C       WHEN STANDARD UNFORMATTED BUDGET. revised dep 5/10/2006
       IF ( ibdst.GT.0 ) THEN
-        DO NN = 1, NODES
+        DO NN = 1, NEQS
               BUFF(NN) = zero
         END DO
         DO l = 1, NSTRM
@@ -4501,7 +4519,7 @@ Cdep   added compact budget option for streamflow out of reach
      +                                   il, STRM(9, l), IBOUND, NLAY)
           ELSE
           QA = STRM(9,1)
-          IF ( ibdst.EQ.2 )  CALL UBDSVAU(iout2, NODES, NN,
+          IF ( ibdst.EQ.2 )  CALL UBDSVAU(iout2, NEQS, NN,
      +                                    STRM(9, l), IBOUND)
           ENDIF
         END DO
@@ -4511,7 +4529,7 @@ Cdep   added compact budget option for streamflow out of reach
      +              BUFF, NCOL, NROW, NLAY, IOUT)
         ELSE
         IF ( ibdst.EQ.1 ) CALL UBUDSVU(Kkstp, Kkper, strtxt, iout2,
-     +              BUFF, NODES, IOUT,PERTIM,TOTIM)
+     +              BUFF, NEQS, IOUT,PERTIM,TOTIM)
         ENDIF
       END IF
       SFRRATIN = RATIN

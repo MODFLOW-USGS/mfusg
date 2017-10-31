@@ -1076,7 +1076,7 @@ C     ------------------------------------------------------------------
 C     SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GWFLAKMODULE
-      USE GLOBAL,       ONLY: IOUT,NODES,IFREFM,IBOUND,IVC,NODLAY,
+      USE GLOBAL,       ONLY: IOUT,NODES,IFREFM,IBOUND,IVC,NODLAY,IVSD,
      +                        BOT,TOP,AREA,ISSFLG,IA,JA,JAS,NLAY,ISYM
 C     USE GWFSFRMODULE, ONLY: NSS
       CHARACTER*24 ANAME(2)
@@ -1094,6 +1094,13 @@ C     ------------------------------------------------------------------
 C
 C1A-----IF MXLKND IS LESS THAN 1, THEN LAKE IS INACTIVE. RETURN.
       IF(MXLKND.LT.1) RETURN
+      IF(IVSD.NE.-1) THEN
+        WRITE(IOUT,11)
+        STOP
+      ENDIF  
+11    FORMAT(10X,'*** THE LAKE PACKAGE REQUIRES THAT ALL LAYERS HAVE',
+     1  1X,'THE SAME DISCRETIZATION (FLAG IVSD = -1). ***',
+     1  /10X,'*** STOPPING ***.')      
 C
 C1A1----READ INITIAL CONDITIONS FOR ALL LAKES (ONLY READ ONCE)
       ISS = ISSFLG(KKPER)
@@ -2549,12 +2556,21 @@ Cdep 890         RATIN=RATIN+RATE
                    GWOUT(LAKE)=GWOUT(LAKE)+RATE
                  END IF
 C11-------IF SAVING COMPACT BUDGET, WRITE FLOW FOR ONE LAKE FACE.
-899              IF(IBD.EQ.2) THEN    !RGN need to fix this for USGs
+899              IF(IBD.EQ.2) THEN
                    FACE(1)=ILAKE(6,L)
                    R=RATE
-C            CALL UBDSVBU(ILKCB,NL,IL,R,FACE(1),1,NAUX,
-C     1                 1,IBOUND,NLAY)
-                 END IF
+                   IF(IUNSTR.EQ.0)THEN
+                     IL = (NL-1) / (NCOL*NROW) + 1
+                     IJ = NL - (IL-1)*NCOL*NROW
+                     IR = (IJ-1)/NCOL + 1
+                     IC = IJ - (IR-1)*NCOL
+                     CALL UBDSVB(ILKCB,NCOL,NROW,IC,IR,IL,R,FACE(1),1,
+     1                           NAUX,1,IBOUND,NLAY)
+                   ELSE
+                     CALL UBDSVBU(ILKCB,NODES,NL,R,FACE(1),1,NAUX,
+     1                            1,IBOUND)
+                   END IF
+                 END IF                 
                END IF
              END IF
            END DO

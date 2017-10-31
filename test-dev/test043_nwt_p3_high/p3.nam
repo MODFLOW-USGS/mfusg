@@ -1,8 +1,0 @@
-# NWT Problem 3 -- higher recharge
-LIST  7 p3.lst
-BAS6  1 p3.bas
-DIS  10 p3.dis
-LPF  11 p3.lpf
-RCH  18 p3.rch
-SMS  13 p3.sms
-OC   22 p3.oc

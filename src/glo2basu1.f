@@ -702,22 +702,37 @@ C     ******************************************************************
 C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
-      USE GLOBAL, ONLY:  NODES,IA,JA,NJA,ISYM,NEQS,JAS,NJAS
+      USE GLOBAL, ONLY:  NODES,IA,JA,NJA,ISYM,NEQS,JAS,NJAS,IOUT
+      LOGICAL :: FOUND
 C
 C1------FILL SYMMETRIC LOCATION INDEX ARRAY ISYM
+      NASYM=0
       DO I=1,NEQS
         DO II=IA(I),IA(I+1)-1
           J = JA(II)
           IF(J.NE.I)THEN !FIND LOCATION OF I IN ROW J
+            FOUND=.FALSE.
             DO JJ=IA(J),IA(J+1)-1
               IF(JA(JJ).EQ.I)THEN !FOUND LOCATION
                 ILOC = JJ
                 ISYM(II) = ILOC
+                FOUND=.TRUE.
+                EXIT
               ENDIF
             ENDDO
+            IF(.NOT. FOUND) THEN
+              WRITE(IOUT,'(A,I0,A,I0,A)') 'NODE ',I,' CONNECTED TO ',J,
+     1          ' BUT NO SYMMETRIC CONNECTION'
+              NASYM=NASYM+1
+            ENDIF
           ENDIF
         ENDDO
       ENDDO
+      IF(NASYM.GT.0) THEN
+        WRITE(IOUT,'(A,A,I0,A)') 'ERROR. JA IS NOT SYMMETRIC.',
+     1    ' FOUND ',NASYM,' ASYMMETRIC CONNECTIONS.'
+        CALL USTOP('')
+      ENDIF
 C2------ALLOCATE SYMMETRIC INDEX POINTER ARRAY JAS
       ALLOCATE(NJAS)
       NJAS = (NJA-NEQS) / 2

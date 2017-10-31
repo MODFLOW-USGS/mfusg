@@ -1,0 +1,17 @@
+LIST 7 SUB_Test_Regular.lst
+BAS6  1 SUB_Test_Regular.bas
+DIS  29 SUB_Test_Regular.dis
+LPF 11 SUB_Test_Regular.lpf
+WEL 12 SUB_Test_Regular.wel
+OC  22 SUB_Test_Regular.oc
+SMS 19 SUB_Test_Regular.sms
+SUB 28 SUB_Test_Regular.sub
+DATA(BINARY) 50 SUB_Test_Regular.cbb
+DATA(BINARY) 30 SUB_Test_Regular.hds
+DATA(BINARY) 31 SUB_Test_Regular.ddn
+Data(binary) 150 SUB_Test_Regular_subsidence.hds
+Data(binary) 151 SUB_Test_Regular_compaction.hds
+Data(binary) 152 SUB_Test_Regular_interbedcomp.hds
+Data(binary) 153 SUB_Test_Regular_displacement.hds
+Data(binary) 154 SUB_Test_Regular_nodelay_precon.hds
+Data(binary) 155 SUB_Test_Regular_delay_precon.hds

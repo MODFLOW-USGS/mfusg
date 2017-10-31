@@ -40,6 +40,8 @@
 		<File RelativePath="..\src\gwf2bcf-lpf-u1.f"/>
 		<File RelativePath="..\src\gwf2chd7u1.f"/>
 		<File RelativePath="..\src\gwf2drn7u1.f"/>
+		<File RelativePath="..\src\gwf2drt8u.f"/>
+		<File RelativePath="..\src\gwf2ets8u1.f"/>
 		<File RelativePath="..\src\gwf2evt8u1.f"/>
 		<File RelativePath="..\src\gwf2fhb7u1.f"/>
 		<File RelativePath="..\src\gwf2gag7u1.f"/>

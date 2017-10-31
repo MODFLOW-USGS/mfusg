@@ -1,7 +1,8 @@
       SUBROUTINE SMS7U1AR(IN)
 
       USE GLOBAL, ONLY: NODES,IOUT,STRT,IBOUND,AMAT,RHS,HNEW,NJA,NEQS,
-     1            NLAY,ILAYCON4,ISYMFLG,INCLN,INGNC,INGNC2,INGNCn
+     1            NLAY,ILAYCON4,ISYMFLG,INCLN,INGNC,INGNC2,INGNCn,
+     2            NODLAY, BOT, IA, JA, JAS, IVC, ICONCV 
       USE GWFBCFMODULE, ONLY: LAYCON
       USE SMSMODULE
 csp      USE GNCMODULE, ONLY:ISYMGNC
@@ -24,9 +25,14 @@ csp      USE GNC2MODULE, ONLY:ISYMGNC2
 !     ------------------------------------------------------------------
       INTEGER lloc, istart, istop, i, n, K, IFDPARAM, MXVL, NPP
       INTEGER IPCGUM
+      INTEGER :: NSTRT, NNDLAY
       CHARACTER(LEN=200) line
       REAL r, HCLOSEdum, HICLOSEdum,  thetadum, amomentdum,yo
       REAL akappadum, gammadum, BREDUCDUM,BTOLDUM,RESLIMDUM
+      
+      INTEGER :: J, JCOL, JCOLS
+      INTEGER :: I0, I1
+      DOUBLE PRECISION :: BBOT
 !     LOCAL VARIABLES FOR GCG SOLVER
 
 !     ------------------------------------------------------------------
@@ -120,11 +126,11 @@ C
       IF ( Theta.LT.CLOSEZERO ) Theta = 1.0e-3
 C
       ILAYCON4=0
-      DO K=1,NLAY
-        IF(LAYCON(K).EQ.4)THEN
-          ILAYCON4=1
-        ENDIF
-      ENDDO
+      DO K = 1, NLAY
+        IF (LAYCON(K).EQ.4) THEN
+          ILAYCON4 = 1
+        END IF
+      END DO
 c
 c      IF(ILAYCON4.NE.1.AND.INCLN.EQ.0)THEN
 c        IF(NONMETH.GT.0)NONMETH = -NONMETH
@@ -160,7 +166,7 @@ C
      &  E15.6,
      &      /1X,'BACKTRACKING REDUCTION FACTOR     (BREDUC)      = ',
      &  E15.6,
-     &      /1X,'BACKTRACKING REIDUAL LIMIT       (RES_LIM)      = ',
+     &      /1X,'BACKTRACKING RESIDUAL LIMIT      (RES_LIM)      = ',
      &  E15.6)
       IF(MXITER.LE.0) THEN
         WRITE(*,5)
@@ -252,9 +258,47 @@ C5-----Allocate space for nonlinear arrays and initialize
       LRCH = 0
       HncgL = 0.0D0
       LRCHL = 0
-C6------Return
+C
+C-------SET BOTMIN FOR NEWTON DAMPENING
+      IF (NONMETH.EQ.0) THEN
+        ALLOCATE(CELLBOTMIN(1))
+      ELSE
+        ALLOCATE(CELLBOTMIN(NODES))
+C---------INITIALIZE CELLBOTM TO BOTTOM OF CELL
+        DO N = 1, NODES
+          CELLBOTMIN(N) = BOT(N)
+        END DO
+C---------USE BOTTOM OF MODEL FOR CONSTANTCV MODELS        
+        IF (ICONCV.NE.0) THEN
+          DO K = NLAY, 1, -1
+            NNDLAY = NODLAY(K)
+            NSTRT = NODLAY(K-1)+1
+            DO N = NNDLAY, NSTRT, -1
+              BBOT = BOT(N)
+              IF (CELLBOTMIN(N) < BBOT) THEN
+                BBOT = CELLBOTMIN(N)
+              END IF
+C---------------PUSH THE VALUE UP TO OVERLYING CELLS IF
+C               BBOT IS LESS THAN THE CELLBOTMIN IN THE
+C               OVERLYING CELL
+              I0 = IA(N) + 1 
+              I1 = IA(N+1) - 1
+              DO J = I0, I1
+                JCOL = JA(J)
+                JCOLS = JAS(J)
+                IF (JCOL < N .AND. IVC(JCOLS).EQ.1) THEN
+                  IF (BBOT < CELLBOTMIN(JCOL)) THEN
+                    CELLBOTMIN(JCOL) = BBOT
+                  END IF
+                END IF
+              END DO
+            END DO
+          END DO
+        END IF
+      END IF
+C-------RETURN
       RETURN
-      END
+      END SUBROUTINE SMS7U1AR
 C-----------------------------------------------------------------------------
 C
       SUBROUTINE GLO2SMS1AP(IOUT,KITER,ICNVG,KSTP,KPER)
@@ -270,8 +314,13 @@ C******************************************************************
       USE CLN1MODULE, ONLY: NCLNNDS,HWADICC,HWADICG,DWADICC,DWADICG
       USE GWFBCFMODULE, ONLY: HWADIGW,DWADIGW
       USE GWFBASMODULE, ONLY: HNOFLO,IFRCNVG
+      CHARACTER (LEN=15) :: cval
+      CHARACTER (LEN=17) :: citer
       save itp
-      double precision abigch,hdif,ahdif,ADIAG,big
+      double precision abigch,hdif,ahdif,ADIAG,big,ANUMBER
+      INTEGER :: ICNVGUR
+      DOUBLE PRECISION :: BIGCHL
+      DOUBLE PRECISION :: ABIGCHUR
 C---------------------------------------------------------------------
 C
 C1------ADJUST MATRIX FOR GHOST NODE CONTRIBUTION IF GNC MODULE IS ON
@@ -284,12 +333,16 @@ C2------PERFORM RESIDUAL REDUCTION CYCLES IF REQUIRED
         IF(KITER.EQ.1.AND.IBFLAG.EQ.0)THEN
 C2A-------WRITE HEADER FOR SOLVER OUTPUT SUMMARY WITH BACKTRACKING
           WRITE(IOUT,11)
-11        FORMAT(/' Outer-Iteration  Inner-Iteration  Backtracking  ',
-     1    'Number of        Incoming       Outgoing  Maximum Head',
-     1    'Change      Maximum Head Change'/
-     1    '     Number           Count           Flag       Backtracks',
-     1    7X,'Residual       Residual           Value              ',
-     1    'Location')
+11        FORMAT(//1x,'OUTER ITERATION SUMMARY',/,
+     1    1X,23('-'),/,     
+     1    1x,'BT: Backtracking; LA: Linear Acceleration;',
+     1    1x,'UR: Under-relaxation',//,
+     1    '    Outer-Iteration  Inner-Iteration  ',
+     1    'Backtracking  Number of        Incoming       Outgoing  ',
+     1    'Maximum Head Change     Maximum Head Change'/
+     1    3x,'     Number           Count           Flag',
+     1    '       Backtracks       Residual       Residual',
+     1    '           Value              Location')
         ENDIF
 C
 C2B-------CALL SUBROUTINE TO DETERMINE IF BACKTRACKING IS NEEDED
@@ -307,9 +360,13 @@ C2C-------RETURN TO COMPUTE FLOW EQUATION IF BACKTRACKING IS REQUIRED
 C2D-------WRITE HEADER FOR SOLVER OUTPUT SUMMARY WITHOUT BACKTRACKING
         IF(KITER.EQ.1)THEN
           WRITE(IOUT,12)
-12        FORMAT(/' Outer-Iteration  Inner-Iteration    Maximum Head ',
-     1    'Change  Maximum Head Change'/
-     1    '     Number           Count               Value',
+12        FORMAT(//1x,'OUTER ITERATION SUMMARY',/,
+     1    1X,23('-'),/,
+     1    1x,'BT: Backtracking; LA: Linear Acceleration;',
+     1    1x,'UR: Under-relaxation',//,
+     1    '    Outer-Iteration  Inner-Iteration    ',
+     1    'Maximum Head Change  Maximum Head Change'/
+     1    3x,'     Number           Count               Value',
      1    14X,'Location')
         ENDIF
       ENDIF
@@ -381,9 +438,10 @@ ccb          ENDDO
         ELSE
 C3c---------TAKE CARE OF ZERO ROW DIAGONAL
           ADIAG = ABS(AMAT(IA(N)))
-          IF(ADIAG.LT.1.0E-15)THEN
-            AMAT(IA(N)) = 1.0E06
-            RHS(N) = RHS(N) + HNEW(N)*1.0E06
+          IF(ADIAG.LT.1.0D-15)THEN
+            ANUMBER = 1.D0
+            AMAT(IA(N)) = ANUMBER
+            RHS(N) = RHS(N) + HNEW(N) * ANUMBER
           ENDIF
         ENDIF
       ENDDO
@@ -404,93 +462,96 @@ CCB        ENDIF
 CCB      ENDDO
 C------------------------------------------------------------
 C5------CHECK OUTER ITERATION CONVERGENCE
-      NB=1
-      ICNVG=0
-      BIGCH=0.0
-      ABIGCH=0.0
-      DO N=1,NODES
-        IF(IBOUND(N).EQ.0) CYCLE
-        HDIF=HNEW(N)-HTEMP(N)
-        AHDIF=ABS(HDIF)
-        IF(AHDIF.GE.ABIGCH)THEN
-          BIGCH= HDIF
-          ABIGCH= AHDIF
-          NB = N
-        ENDIF
-      ENDDO
+      CALL OUTER_CHECK(KITER, ICNVG, BIGCH, BIGCHL) 
 C
-      IF(ABIGCH.LE.HCLOSE) ICNVG=1
-C
-C5a------STORE MAXIMUM CHANGE VALUE AND LOCATION
-      HNCG(KITER) = BIGCH
-C
-      IF(IUNSTR.EQ.0)THEN !GET LAYER, ROW AND COLUMN FOR STRUCTURED GRID
-        KLAYER = (NB-1) / (NCOL*NROW) + 1
-        IJ = NB - (KLAYER-1)*NCOL*NROW
-        IROW = (IJ-1)/NCOL + 1
-        JCOLMN = IJ - (IROW-1)*NCOL
-        LRCH(1,KITER) = KLAYER
-        LRCH(2,KITER) = IROW
-        LRCH(3,KITER) = JCOLMN
-        IF(NUMTRACK.GT.0)THEN
-          write(iout,20)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
-20        format(i9,I17,69x,g15.6,6x,3i6,2x,'lay row col')
+C-------WRITE GWF CONVERGENCE INFORMATION FOR LINEAR ACCELERATOR
+      write(citer, '(i17)') IN_ITER
+      IF (IUNSTR.EQ.0) THEN
+        cval = 'lay row col'
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,20) 'LA', kiter, citer, BIGCH, 
+     2                    LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER),
+     3                    cval
+20        format(a2,1x,i9,a17,69x,g15.6,6x,3i6,2x,a)
         ELSE
-           write(iout,21)kiter,IN_ITER,bigch,klayer,Irow,jcolmn
-21         format(I9,I17,10X,G16.5,6X,3I6,2x,'lay row col')
-        ENDIF
-
+           write (iout,21) 'LA', kiter, citer, BIGCH, 
+     2                     LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER),
+     3                     cval
+21         format(a2,1x,I9,a17,10X,G16.5,6X,3I6,2x,a)
+        END IF
       ELSE
-        LRCH(1,KITER) = NB
-        IF(NUMTRACK.GT.0)THEN
-          write(iout,22)kiter,IN_ITER,bigch,nb
-22        format(i9,I17,69x,g15.6,9x,i9,11x,'GWF-node number')
+        cval = 'GWF-node number'
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,22) 'LA', kiter, citer, BIGCH, LRCH(1,KITER),
+     2                    cval     
+22        format(a2,1x,i9,a17,69x,g15.6,9x,i9,11x,a)
         ELSE
-          write(iout,23)kiter,IN_ITER,bigch,nb
-23        format(I9,I17,10X,G16.5,9X,I9,11x,'GWF-node number')
-        ENDIF
-      ENDIF
-C6------CHECK OUTER ITERATION CONVERGENCE FOR CLN-CELLS
-      IF(INCLN.EQ.0) GO TO 204
-      NB=1
-      ICNVGL=0
-      BIGCHL=0.0
-      ABIGCHL=0.0
-      DO N=NODES+1,NODES+NCLNNDS
-        IF(IBOUND(N).EQ.0) CYCLE
-        HDIF=HNEW(N)-HTEMP(N)
-        AHDIF=ABS(HDIF)
-        IF(AHDIF.GE.ABIGCHL)THEN
-          BIGCHL= HDIF
-          ABIGCHL= AHDIF
-          NB = N
-        ENDIF
-      ENDDO
-C
-      IF(ABIGCHL.LE.HCLOSE) ICNVGL=1
-C
-C6a-----STORE MAXIMUM CHANGE VALUE AND LOCATION FOR CLN-CELLS
-      HNCGL(KITER) = BIGCHL
-      LRCHL(KITER) = NB - NODES
-      IF(NUMTRACK.GT.0)THEN
-        write(iout,24)kiter,IN_ITER,bigchl,nb-nodes
-24      format(i9,I17,69x,g15.6,9x,i9,11x,'CLN-node number')
-      ELSE
-         write(iout,25)kiter,IN_ITER,bigchl,nb-nodes
-25       format(I9,I17,10X,G16.5,9X,I9,11x,'CLN-node number')
-      ENDIF
-C-----NOT CONVERGED, IF EITHER IS NOT CONVERGED
-      IF(ICNVG.EQ.0.OR.ICNVGL.EQ.0) ICNVG = 0
-204   CONTINUE
+          write(iout,23) 'LA', kiter, citer, BIGCH, LRCH(1,KITER), 
+     2                   cval
+23        format(a2,1x,I9,a17,10X,G16.5,9X,I9,11x,a)
+        END IF
+      END IF
+C-------WRITE CLN CONVERGENCE INFORMATION
+      IF (INCLN.GT.0) THEN
+        cval = 'CLN-node number'
+        IF (NUMTRACK.GT.0) THEN
+          write (iout,22) 'LA', kiter, citer, BIGCHL, LRCHL(KITER), 
+     2                    cval
+        ELSE
+           write(iout,23) 'LA', kiter, citer, BIGCHL, LRCHL(KITER), 
+     2                    cval
+        END IF
+      END IF
 C
 C7------USE CONVERGE OPTION TO FORCE CONVERGENCE
-      IF(IFRCNVG.EQ.1.AND.KITER.EQ.MXITER)THEN
+      IF (IFRCNVG.EQ.1.AND.KITER.EQ.MXITER) THEN
         ICNVG=1
-      ENDIF
+      END IF
 C
 C-----------------------------------------------------------
-C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA
-      IF(NONMETH.NE.0.AND.ICNVG.EQ.0) CALL GLO2SMS1UR(kiter)
+C8-------PERFORM UNDERRELAXATION WITH DELTA-BAR-DELTA OR
+C        COOLEY METHODS. ALSO APPLYING MODFLOW-NWT BOTTOM
+C        AVERAGING (NEWTON DAMPENING) FOR LAYERS USING
+C        NEWTON-RAPHSON FORMULATION      
+      IF(NONMETH.NE.0.AND.ICNVG.EQ.0) THEN
+        CALL GLO2SMS1UR(kiter, inwtdmp, ABIGCHUR)
+        CALL OUTER_CHECK(KITER, ICNVGUR, BIGCH, BIGCHL) 
+C
+        IF (inwtdmp.NE.0) THEN
+          ABIGCH = MAX(ABS(BIGCH), ABS(BIGCHL))
+          IF (ABIGCHUR.LE.HCLOSE) ICNVG = 1
+        END IF
+C
+C---------WRITE GWF CONVERGENCE INFORMATION AFTER UNDERRELAXATION
+        IF (IUNSTR.EQ.0) THEN
+          cval = 'lay row col'
+          IF (NUMTRACK.GT.0) THEN
+            write (iout,20) 'UR', kiter, '', BIGCH, 
+     2                      LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER),
+     3                      cval       
+          ELSE
+            write (iout,21) 'UR', kiter, '', BIGCH, 
+     2                      LRCH(1,KITER), LRCH(2,KITER), LRCH(3,KITER),
+     3                      cval       
+          END IF
+        ELSE
+          cval = 'GWF-node number'
+          IF (NUMTRACK.GT.0) THEN
+            write (iout,22) 'UR', kiter, '', BIGCH, LRCH(1,KITER), cval
+          ELSE
+            write (iout,23) 'UR', kiter, '', BIGCH, LRCH(1,KITER), cval
+          END IF
+        END IF
+C---------WRITE CLN CONVERGENCE INFORMATION
+        IF (INCLN.GT.0) THEN
+          cval = 'CLN-node number'
+          IF (NUMTRACK.GT.0) THEN
+            write (iout,22) 'UR', kiter, '', BIGCHL, LRCHL(KITER), cval
+          ELSE
+             write(iout,23) 'UR', kiter, '', BIGCHL, LRCHL(KITER), cval
+          END IF
+        END IF
+      END IF
 C
 C9------WRITE ITERATION SUMMARY FOR CONVERGED SOLUTION
       IF(ICNVG.EQ.0 .AND. KITER.NE.MXITER) GOTO 600
@@ -640,8 +701,104 @@ C---------------------------------------------------------------------------
 C2------RETURN
       RETURN
       END
+C
+C
+      SUBROUTINE OUTER_CHECK(KITER, ICNVG, BIGCHG, BIGCHL) 
+C*********************************************************************
+C CHECK CONVERGENCE OF OUTER ITERATIONS
+C*********************************************************************
+        USE SMSMODULE
+        USE XMDMODULE
+        USE GLOBAL, ONLY: NCOL,NROW,NODES,IBOUND,HNEW,RHS,IUNSTR, INCLN
+        USE CLN1MODULE, ONLY: NCLNNDS
+        IMPLICIT NONE
+        INTEGER, INTENT(IN) :: KITER
+        INTEGER, INTENT(INOUT) :: ICNVG
+        DOUBLE PRECISION, INTENT(INOUT) :: BIGCHG
+        DOUBLE PRECISION, INTENT(INOUT) :: BIGCHL
+C---------LOCALS
+        INTEGER :: N
+        INTEGER :: NB
+        INTEGER :: NBL
+        INTEGER :: ICNVGL
+        INTEGER :: KLAYER
+        INTEGER :: IJ
+        INTEGER :: IROW
+        INTEGER :: JCOLMN
+        DOUBLE PRECISION :: ABIGCH
+        DOUBLE PRECISION :: ABIGCHL
+        DOUBLE PRECISION :: HDIF
+        DOUBLE PRECISION :: AHDIF
+C---------CODE      
+C
+C---------GWF MAXIMUM HEAD CHANGE
+        NB=1
+        ICNVG=0
+        BIGCHG=0.0
+        ABIGCH=0.0
+        DO N = 1, NODES
+          IF (IBOUND(N).EQ.0) CYCLE
+          HDIF = HNEW(N) - HTEMP(N)
+          AHDIF = ABS(HDIF)
+          IF (AHDIF.GE.ABIGCH) THEN
+            BIGCHG= HDIF
+            ABIGCH= AHDIF
+            NB = N
+          END IF
+        END DO
+C
+        IF (ABIGCH.LE.HCLOSE) ICNVG=1
+C
+C---------STORE MAXIMUM CHANGE VALUE AND LOCATION
+        HNCG(KITER) = BIGCH
+C
+C---------GET LAYER, ROW AND COLUMN FOR STRUCTURED GRID
+        IF (IUNSTR.EQ.0) THEN 
+          KLAYER = (NB - 1) / (NCOL * NROW) + 1
+          IJ = NB - (KLAYER - 1) * NCOL * NROW
+          IROW = (IJ - 1) / NCOL + 1
+          JCOLMN = IJ - (IROW - 1) * NCOL
+          LRCH(1,KITER) = KLAYER
+          LRCH(2,KITER) = IROW
+          LRCH(3,KITER) = JCOLMN
+        ELSE
+          LRCH(1,KITER) = NB
+        END IF
+C        
+C---------CHECK OUTER ITERATION CONVERGENCE FOR CLN-CELLS
+        ICNVGL = 1
+        IF (INCLN.GT.0) THEN
+          NBL=1
+          ICNVGL = 0
+          BIGCHL = 0.0
+          ABIGCHL = 0.0
+          DO N = NODES+1, NODES+NCLNNDS
+            IF (IBOUND(N).EQ.0) CYCLE
+              HDIF = HNEW(N) - HTEMP(N)
+              AHDIF = ABS(HDIF)
+              IF (AHDIF.GE.ABIGCHL) THEN
+                BIGCHL = HDIF
+                ABIGCHL = AHDIF
+                NBL = N
+              END IF
+          END DO
+C
+          IF (ABIGCHL.LE.HCLOSE) ICNVGL=1
+C
+C-----------STORE MAXIMUM CHANGE VALUE AND LOCATION FOR CLN-CELLS
+          HNCGL(KITER) = BIGCHL
+          LRCHL(KITER) = NBL - NODES
+        END IF
+C
+C---------CONFIRM THAT BOTH GWF AND CLN ARE CONVERGED
+        IF (ICNVG.EQ.0.OR.ICNVGL.EQ.0) ICNVG = 0
+C
+C---------RETURN
+        RETURN
+      END SUBROUTINE OUTER_CHECK
+C
 C-----------------------------------------------------------------------------
-      SUBROUTINE GLO2SMS1UR(kiter)
+      SUBROUTINE GLO2SMS1UR(kiter, inwtdmp, abigchur)
 C     ******************************************************************
 C     UNDER RELAX AS PER DELTA-BAR-DELTA OR COOLEY FORMULA
 C     ******************************************************************
@@ -650,26 +807,33 @@ C     ******************************************************************
 !     -----------------------------------------------------------------
       USE GLOBAL, ONLY:Ibound, Hnew, bot, Iout, Nodes,ICONCV,
      1  NLAY,NODLAY,NEQS,INCLN,iunsat
-      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS
+      USE CLN1MODULE, ONLY: ACLNNDS,NCLNNDS,iflincln
       USE GWFBCFMODULE, ONLY: LAYCON
       USE SMSMODULE
       IMPLICIT NONE
 !     -----------------------------------------------------------------
 !     ARGUMENTS
 !     -----------------------------------------------------------------
-      INTEGER kiter
+      INTEGER :: kiter
+      INTEGER :: inwtdmp
+      DOUBLE PRECISION :: abigchur
 !     -----------------------------------------------------------------
 !     LOCAL VARIABLES
 !     -----------------------------------------------------------------
       DOUBLE PRECISION  ww, hsave,DELH,RELAX,RELAXOLD,ES,
      *  AES,amom,closebot,FELEV
       SAVE RELAXOLD
-      INTEGER K,N,NNDLAY,NSTRT,I,kk
+      INTEGER ::  K, N, NNDLAY, NSTRT, I, kk, iflin, nc
+      DOUBLE PRECISION :: BBOT
+      DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
+      DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
 !     -----------------------------------------------------------------
       closebot = 0.9
+      inwtdmp = 0
+      abigchur = 0.0D0
       IF(ABS(NONMETH).EQ.1) THEN
 C1-------OPTION FOR USING DELTA-BAR-DELTA SCHEME TO UNDER-RELAX SOLUTION FOR ALL EQUATIONS
-        DO N=1,NEQS
+        DO N=1, NEQS
 C
 C2---------COMPUTE NEWTON STEP-SIZE (DELTA H) AND INITIALIZE D-B-D PARAMETERS
           DELH = HNEW(N) - HTEMP(N)
@@ -705,38 +869,13 @@ C5--------STORE SLOPE (CHANGE) TERM FOR NEXT ITERATION
 C
 C6----------COMPUTE ACCEPTED STEP-SIZE AND NEW HEAD
           amom = 0.0
-          if(kiter.gt.4) amom = amomentum
+          if (kiter.gt.4) amom = amomentum
           DELH = DELH * ww + amom * Hchold(N)
-          Hnew(N) = HTEMP(N) + DELH
-C7----------ACCOUNT FOR ICONCV=0 CONDITION FOR LAYCON=4 CASE
-          IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
-            IF(N.LE.NODES)THEN  !-------FOR POROUS MEDIUM NODES
-            DO K=1,NLAY
-              NNDLAY = NODLAY(K)
-              NSTRT = NODLAY(K-1)+1
-              IF(N.GE.NSTRT.AND.N.LE.NNDLAY)THEN
-               KK = K
-               GO TO 11
-              ENDIF
-            ENDDO
-11          CONTINUE
-              IF ( LAYCON(KK).EQ.4 ) THEN
-                IF ( Hnew(N).LT.Bot(N) ) THEN
-                  hsave = Hnew(N)
-                  Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
-                  DELH = Hnew(N) - hsave
-                END IF
-              ENDIF
-cc---need below to be outside of the ICONCV if-check (or not at all).
-cc            ELSE !-----------------------FOR CLN CELLS
-cc              FELEV = ACLNNDS(I,7)
-cc              IF ( Hnew(N).LT.FELEV ) THEN
-cc                hsave = Hnew(N)
-cc                Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
-cc                DELH = Hnew(N) - hsave
-CC              END IF
-            ENDIF
-          ENDIF
+          HNEW(N) = HTEMP(N) + DELH
+C
+C-----------APPLY ADDITIONAL DAMPENING
+C           IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) 
+          CALL NEWTON_DAMPENING(N, DEOLD(N), inwtdmp, abigchur)
 C---------COMPUTE EXPONTENTIAL AVERAGE OF PAST CHANGES IN Hchold after correction for ICONCV=0
 C          If(kiter.eq.1)then
 C            Hchold(N) = DELH
@@ -744,9 +883,11 @@ C          Elseif(numtrack.eq.0)then
 C            Hchold(N) = (1-gamma) * DELH + gamma * Hchold(N)
 C          Endif
 C
-          ENDDO
+          END DO
 C---------------------------------------------------------------------------
-      ELSEIF(ABS(NONMETH).EQ.2) THEN
+C
+C-------COOLEY DAMPENING
+      ELSE IF (ABS(NONMETH).EQ.2) THEN
 C8-------DO COOLEY UNDERRELAXATION
         IF(KITER.EQ.1)THEN
           RELAX = 1.0
@@ -766,44 +907,126 @@ C9---------COMPUTE RELAXATION FACTOR
 C10---------MODIFY COOLEY TO USE EXPONENTIAL AVERAGE OF PAST CHANGES AS PER LINE BELOW
         BIGCHOLD = (1-gamma)*BIGCH  + gamma*BIGCHOLD  !this method does it right after Newton - need to do it after underrelaxation and backtracking.
 C        if(numtrack.eq.0) BIGCHOLD = (1-gamma)*BIGCH  + gamma*BIGCHOLD
-        IF(RELAX.LT.1.0)THEN
-C11---------COMPUTE NEW HEAD AFTER UNDER-RELAXATION
-          DO N = 1, NEQS
-            DELH = HNEW(N) - HTEMP(N)
-            HNEW(N) = HTEMP(N) + RELAX * DELH
-          ENDDO
-        ENDIF
-C12-------ACCOUNT FOR ICONCV=0 CONDITION APPROPRIATELY
-         IF ( ICONCV.EQ.0.AND.IUNSAT.EQ.0) THEN
-          DO K=1,NLAY
-            NNDLAY = NODLAY(K)
-            NSTRT = NODLAY(K-1)+1
-            IF ( LAYCON(K).EQ.4 ) THEN
-              DO N=NSTRT,NNDLAY
-                IF ( Hnew(N).LT.Bot(N) ) THEN
-                  Hnew(N) = HTEMP(N)*(1.0-closebot) + Bot(N)*closebot
-                END IF
-              ENDDO
-            ENDIF
-          ENDDO
-cc---need below to be outside of the ICONCV if-check (or not at all).
-ccC---------FOR CLN CELLS
-cc          IF(INCLN.EQ.0) GO TO 101
-cc          DO N=1,NCLNNDS
-cc              FELEV = ACLNNDS(I,7)
-cc              IF ( Hnew(N).LT.FELEV ) THEN
-cc                Hnew(N) = HTEMP(N)*(1.0-closebot) + FELEV*closebot
-cc              END IF
-cc          ENDDO
-101       CONTINUE
+C11-------COMPUTE NEW HEAD AFTER UNDER-RELAXATION
+        DO N = 1, NEQS
+          DELH = (HNEW(N) - HTEMP(N))
+          IF (RELAX.LT.1.0) THEN
+            HNEW(N) = HTEMP(N) + DELH * RELAX
+          END IF
 C
-        ENDIF
+C-----------APPLY ADDITIONAL DAMPENING
+C           IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) 
+          CALL NEWTON_DAMPENING(N, DELH, inwtdmp, abigchur)
+        END DO
+C
 C---------------------------------------------------------------------------
       ENDIF
 C13-----RETURN
       RETURN
       END SUBROUTINE GLO2SMS1UR
 C
+C
+      SUBROUTINE NEWTON_DAMPENING(N, DELH, INWTDMP, ABIGCHUR)
+C     ******************************************************************
+C     IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) 
+C     ******************************************************************
+!     ------------------------------------------------------------------
+!     SPECIFICATIONS:
+!     -----------------------------------------------------------------
+        USE GLOBAL, ONLY: IBOUND, HNEW, BOT, IOUT, NODES, ICONCV,
+     1                    NLAY, NODLAY, NEQS, INCLN, IUNSAT
+        USE CLN1MODULE, ONLY: ACLNNDS, NCLNNDS, IFLINCLN
+        USE GWFBCFMODULE, ONLY: LAYCON
+        USE SMSMODULE
+        IMPLICIT NONE
+!     -----------------------------------------------------------------
+!     ARGUMENTS
+!     -----------------------------------------------------------------
+        INTEGER, INTENT(IN) :: N
+        DOUBLE PRECISION, INTENT(IN) ::DELH
+        INTEGER, INTENT(INOUT) :: INWTDMP
+        DOUBLE PRECISION, INTENT(INOUT) :: ABIGCHUR
+!     -----------------------------------------------------------------
+!     LOCAL VARIABLES
+!     -----------------------------------------------------------------
+        INTEGER :: K
+        INTEGER :: KK
+        INTEGER :: NSTRT
+        INTEGER :: NNDLAY
+        INTEGER :: NC
+        INTEGER :: IFLIN
+        INTEGER :: IEVAL
+        DOUBLE PRECISION :: BBOT
+        DOUBLE PRECISION, PARAMETER :: DP9  = 0.9D0
+        DOUBLE PRECISION, PARAMETER :: DP1  = 0.1D0
+!     -----------------------------------------------------------------
+C
+C---------FOR GWF NODES          
+        IF (N.LE.NODES) THEN  
+C-------IMPLEMENT MODFLOW-NWT BOTTOM AVERAGING (NEWTON DAMPENING) FOR GWF MODEL
+          IF (IUNSAT.EQ.0) THEN
+C-------------DETERMINE CURRENT LAYER              
+            DO K = 1, NLAY
+              NNDLAY = NODLAY(K)
+              NSTRT = NODLAY(K-1) + 1
+              IF (N.GE.NSTRT .AND. N.LE.NNDLAY) THEN
+                KK = K
+                EXIT
+              END IF
+            END DO
+C-------------UNDERRELAX NEWTON SOLUTION USING BOTTOM OF GWF MODEL          
+            IEVAL = 1
+            IF (LAYCON(KK).EQ.4) THEN
+                IF(IBOUND(N).GT.0) THEN  
+                  BBOT = CELLBOTMIN(N)
+                  IF (HNEW(N) < BBOT) THEN
+                    INWTDMP = 1
+                    IEVAL = 0
+                    HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
+                  END IF
+                END IF
+            END IF
+            IF (IEVAL.GT.0) THEN
+              IF (ABS(DELH) > ABIGCHUR) THEN
+                ABIGCHUR = ABS(DELH)
+              END IF
+            END IF
+          END IF
+C              
+C-----------FOR CLN CELLS              
+        ELSE 
+            NC = N - NODES
+            IFLIN = IFLINCLN(NC)
+            IEVAL = 1
+            !
+            ! ---- JDH 10/25/2017
+            ! BOTTOM AVERAGING OF CLN NOT PERFORMED BECAUSE WATER-LEVEL 
+            ! IN CLN CELL MAY BE BELOW BOTTOM OF LAYER TO SATISFY SPECIFIED  
+            ! PUMPING RATE. BOTTOM AVERAGING WOULD CAUSE A WATER BALANCE 
+            ! ERROR IN FINAL RESULTS. AUTO FLOW REDUCE SHOULD BE USED TO 
+            ! RESTRICT PUMPING RATES AND KEEP CLN WATER LEVELS ABOVE THE  
+            ! BOTTOM OF A CLN CELL.
+            ! ---- JDH 10/25/2017
+            !
+            ! HEAD CANNOT GO BELOW BOTTOM OF CLN CELL IF IFLIN.LE.0
+            !IF (IFLIN.LE.0) THEN 
+            !  BBOT = ACLNNDS(NC,5)
+            !  IF (HNEW(N).LT.BBOT) THEN
+            !    INWTDMP = 1
+            !    IEVAL = 0
+            !    HNEW(N) = HTEMP(N)*DP1 + BBOT*DP9
+            !  END IF
+            !END IF
+            IF (IEVAL.GT.0) THEN
+              IF (ABS(DELH) > ABIGCHUR) THEN
+                ABIGCHUR = ABS(DELH)
+              END IF
+            END IF
+        END IF
+C---------RETURN
+        RETURN
+      END SUBROUTINE NEWTON_DAMPENING
+C     
 C-----------------------------------------------------------------------
       SUBROUTINE SSMS2BCFU1DK
 C     ******************************************************************
@@ -1444,10 +1667,10 @@ c1A------RESET RESIDUAL REDUCTION COUNT AND FLAG
 C
 C1B------INITIALIZE PREVIOUS RESIDUAL AND RETURN
         CALL RES_FUNC(RES_PREV)
-        WRITE(IOUT,66) KITER,IBFLAG,IBCOUNT,RES_PREV,RES_PREV
+        WRITE (IOUT,66) 'BT', KITER, IBFLAG, IBCOUNT, RES_PREV, RES_PREV
         RETURN
       ENDIF
-66    FORMAT(I9,17X,I13,I14,7X,G15.6,2X,G15.6)
+66    FORMAT(A2,1X,I9,17X,I13,I14,7X,G15.6,2X,G15.6)
 C--------------------------------------------------------------
 C2------COMPUTE CURRENT RESIDUAL
       CALL RES_FUNC(RES_NEW)
@@ -1459,7 +1682,7 @@ C
 C3A-------BUT NO BACKTRACKING IF MAXIMUM TRACKS ARE EXCEEDED SO RETURN
         IF(IBCOUNT.GE.NUMTRACK)THEN
           IBFLAG = 2
-          WRITE(IOUT,66) KITER,IBFLAG,IBCOUNT,RESIN,RES_PREV
+          WRITE(IOUT,66) 'BT',KITER,IBFLAG,IBCOUNT,RESIN,RES_PREV
           IBFLAG = 0
           IBCOUNT = 0
           RES_PREV = RES_NEW
@@ -1469,7 +1692,7 @@ C
 C3B-------BUT NO BACKTRACKING IF RESIDUAL IS SMALLER THAN LIMIT SO RETURN
         IF(RES_NEW.LT.RES_LIM)THEN
           IBFLAG = 3
-          WRITE(IOUT,66) KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
+          WRITE(IOUT,66) 'BT',KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
           IBFLAG = 0
           IBCOUNT = 0
           RES_PREV = RES_NEW
@@ -1485,7 +1708,7 @@ C3C-------ALSO NO BACKTRACKING IF MAXIMUM CHANGE IS LESS THAN CLOSURE SO RETURN
         ENDDO
         IF(CHMAX.LT.HCLOSE)THEN
           IBFLAG = 4
-          WRITE(IOUT,66) KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
+          WRITE(IOUT,66) 'BT',KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
           IBFLAG = 0
           IBCOUNT = 0
           RES_PREV = RES_NEW
@@ -1502,7 +1725,7 @@ C4-------PERFORM BACKTRACKING IF FREE OF CONSTRAINTS AND SET COUNTER AND FLAG
 C
 C5------RESET COUNT AND FLAG IF DESIRED RESIDUAL REDUCTION DID OCCUR
       ELSE
-        WRITE(IOUT,66) KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
+        WRITE(IOUT,66) 'BT',KITER,IBFLAG,IBCOUNT,RESIN,RES_NEW
         IBFLAG = 0
         IBCOUNT = 0
         RES_PREV = RES_NEW
@@ -1588,6 +1811,7 @@ C
         CALL PCGU7U1DA
       ENDIF
       DEALLOCATE (ITER1,MXITER,LINMETH,NONMETH,IPRSMS)
+      DEALLOCATE (CELLBOTMIN)
       DEALLOCATE(RES_LIM)
       DEALLOCATE(IBFLAG)
 C

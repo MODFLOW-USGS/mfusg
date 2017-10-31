@@ -58,6 +58,12 @@ METHOD
 
 HISTORY
 
+      MODFLOW-USG Version 1.4.00 10/27/2017 -- Added the Segmented
+         Evapotranspiration and Drain with Return Flow Packages.  
+         This change, bug fixes, and other changes are described 
+         in release.txt.
+
+         
       MODFLOW-USG Version 1.3.00 12/01/2015 -- Added DDREFERENCE
          capability, similar to the capability available in MODFLOW-2005.
          This change, bug fixes, and other minor changes are described in 
@@ -172,6 +178,13 @@ Investigations Report 00-4167, 146 p.
 
   The GAG Package is documented as part of the above SFR and LAK
   documentation.
+
+  The DRT and ETS Packages are documented in:
+
+Banta, E.R., 2000, MODFLOW-2000, the U.S. Geological Survey modular
+ground-water model -- documentation of packages for simulating
+evapotranspiration with a segmented function (ETS1) and drains with return
+flow (DRT1): U.S. Geological Survey Open-File Report 00-466, 127 p.
 
 
 CONTACTS

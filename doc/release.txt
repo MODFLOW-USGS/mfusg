@@ -11,6 +11,58 @@ For information and references related to these packages, see mfusg.txt
 NOTE: Any use of trade, product or firm names is for descriptive purposes 
       only and does not imply endorsement by the U.S. Government.
       
+o Version 1.4 10/27/2017
+    MFUSG -- Updated program version and date.  Added calls for the
+       ETS and DRT Packages.  Revised the way flow terms are written 
+       to the budget file for CLN.
+    GLO2BASU1 -- Added JA symmetry check.  Program now terminates
+       with an error if the user-provided JA is not symmetric.
+    GWF2BCF-LPF-U1 -- Removed the minimum saturation value.  Difficult
+       problems behave better by allowing saturation to go to zero
+       and letting the solver handle it. Revised the way CLN-GW flows 
+       are written to the budget file.
+    GWF2ETS8U1 -- This is the Segmented Evapotranspiration Package
+       added in this release.
+    GWF2DRT8U1 -- This is the Drain with Return Flow Package added
+       in this release.
+    GWF2WEL7U1 -- Revised the way flow terms are written to the
+       budget file for CLN.
+    GWF2DRN7U1 -- Revised the way flow terms are written to the
+       budget file for CLN.
+    GWF2RIV7U1 -- Revised the way flow terms are written to the
+       budget file for CLN.
+    GWF2GHB7U1 -- Revised the way flow terms are written to the
+       budget file for CLN.
+    GWF2FHB7U1 -- Revised the way flow terms are written to the
+       budget file for CLN.
+    GWF2LAK7U1 -- Added ability to read bathymetry and stage/volume
+       tables.
+    GWF2SFR7U1 -- Corrected an error in saving stream flows to
+       a compact budget file.
+    GWF2SUB7U1 -- Corrected errors in the unstructured subsidence
+       formulation and output.
+    CLN2BASU1 -- Removed the minimum saturation value. Revised the
+       way GW-CLN flow terms are written to the CLN budget file.
+    GLO2SMS-U1 -- Modified the way constant head and inactive cells
+       are handled at the matrix level.  In the present version,
+       these cells are handled by inserting a 1.0 on the diagonal,
+       zeroing out the off-diagonal terms, and putting the head
+       value on the right-hand side.
+    UTL7U1 -- Added two new subroutines for writing flow terms
+       to budget files.
+    PARUTL7 -- Corrected an error that caused list-based parameter
+       to work incorrectly for structured grids.
+    GMODULES -- Added a placedholder variable (IATS) that is not
+       used by the program.
+    ZONBUDUSG -- Updated to version 1.01.  A bug could be
+       encountered with non-compact budget files, output in the
+       CSV format, and a changing number of budget types in the
+       budget file.  The program now terminates with an error
+       if this condition is encountered and recommends use of the
+       COMPACT BUDGET format.
+    Executables -- Compiled using Intel Fortran 2017.4.210. 
+
+
 o Version 1.3 12/01/2015
     GLO2BASU1 -- Added DDREFERENCE option so that the reference head
        used to calculate drawdown can change during the simulation.
@@ -68,6 +120,7 @@ o Version 1.3 12/01/2015
         control volume finite-difference formulation:  U.S. 
         Geological Survey Software Release, 01 December 2015,  
         http://dx.doi.org/10.5066/F7R20ZFJ
+
 
 o Version 1.2 03/21/2014
     CLN2BASU1 -- Added transient IBOUND option so that CLN nodes can 

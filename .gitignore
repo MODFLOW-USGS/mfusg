@@ -154,3 +154,20 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# USG stuff
+support/*
+autotest/temp/*
+.idea
+mod_temp
+src_temp
+obj_temp
+*.pyc
+distribution/mfusg.1_3
+
+*.lst
+*.list
+*.hds
+*.hed
+*.bhd
+*.chk

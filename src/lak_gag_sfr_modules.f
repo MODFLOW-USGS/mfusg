@@ -122,6 +122,7 @@ C-------------------------------------------------------------------------------
         DOUBLE PRECISION,SAVE,DIMENSION(:,:),ALLOCATABLE::QSTRM,SLKOTFLW
         DOUBLE PRECISION,SAVE,DIMENSION(:,:),ALLOCATABLE:: DLKOTFLW,
      +    DLKSTAGE
+        INTEGER,SAVE:: IHAVEDIV        
       END MODULE GWFSFRMODULE
 
       MODULE GWFSFRBLK

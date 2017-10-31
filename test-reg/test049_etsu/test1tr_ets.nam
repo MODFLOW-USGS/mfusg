@@ -1,0 +1,26 @@
+LIST 7 test1tr_ets.lst
+BAS6  1 test1tr_ets.bas
+LPF 14 test1tr_ets.lpf
+DISU  12 test1tr_ets.dis
+SMS  13 test1tr_ets.sms
+OC  22 test1tr_ets.oc
+SFR 15 test1tr_ets.sfr
+WEL  16 test1tr_ets.wel
+GHB  17 test1tr_ets.ghb
+ETS  18 test1tr_ets.ets
+RCH  19 test1tr_ets.rch
+CHD  199 test1tr_ets.chd
+GAGE 32 test1tr_ets.gag
+DATA 166 test1tr_ets_FlowReduction.dat
+DATA(BINARY) 59 test1tr_ets.cbe
+DATA(BINARY) 60 test1tr_ets.cbg
+DATA(BINARY) 58 test1tr_ets.hds
+DATA 83 test1tr_ets.sg1    REPLACE
+DATA 84 test1tr_ets.sg2    REPLACE
+DATA 85 test1tr_ets.sg3    REPLACE
+DATA 86 test1tr_ets.sg4    REPLACE
+DATA 87 test1tr_ets.sg5    REPLACE
+DATA 88 test1tr_ets.sg6    REPLACE
+DATA 89 test1tr_ets.sg7    REPLACE
+DATA 90 test1tr_ets.sg8    REPLACE
+DATA 91 test1tr_ets.dvsg9  REPLACE

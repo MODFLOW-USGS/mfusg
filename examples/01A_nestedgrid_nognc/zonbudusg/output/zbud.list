@@ -1,4 +1,4 @@
- ZONEBUDGET USG version 1.00             
+ ZONEBUDGET USG version 1.01             
  Program to compute a flow budget for subregions of a model using
  budget data from MODFLOW-USG
 # Unstructured discretization file for MODFLOW-USG                                                                      
@@ -11,7 +11,7 @@
 
  TOP                      =   0.00000    
 
- BOT                      = -100.0000    
+ BOT                      =  -100.000    
 
 
 
