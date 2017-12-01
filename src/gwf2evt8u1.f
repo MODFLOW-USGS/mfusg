@@ -144,7 +144,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:IOUT,NCOL,NROW,NLAY,DELR,DELC,IFREFM,NODLAY,
-     1  AREA,IUNSTR
+     1  AREA,IUNSTR,NODES
       USE GWFEVTMODULE,ONLY:NEVTOP,NPEVT,IEVTPF,EVTR,EXDP,SURF,IEVT,
      1  INIEVT,NIEVT,iznevt,mxznevt
       REAL, DIMENSION(:,:),ALLOCATABLE  ::TEMP
