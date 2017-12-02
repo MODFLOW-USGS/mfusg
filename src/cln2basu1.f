@@ -264,8 +264,8 @@ csp          IC=IFTYP
 csp          CALL CLNR(IC,FRAD)
 csp          IF(FDPTH.LT.2.0*FRAD) IFDIR = 1
 csp        ENDIF
-csp        WRITE(IOUT,22)IFNO,IFTYP,IFDIR,FLENG,FELEV,FANGLE,IFLIN,ICCWADI
-csp22      FORMAT(5X,I10,1X,I6,1X,I10,3(1X,E15.6),1X,I10,1X,I10)
+        WRITE(IOUT,22)IFNO,IFTYP,IFDIR,FLENG,FELEV,FANGLE,IFLIN,ICCWADI
+22      FORMAT(5X,I10,1X,I6,1X,I10,3(1X,E15.6),1X,I10,1X,I10)
 C11B--------FILL PROPERTY ARRAYS WITH READ AND PREPARE INFORMATION
         ACLNNDS(I,1) = IFNO + NODES ! GLOBAL NODE NUMBER FOR CLN-CELL
         ACLNNDS(I,2) = IFTYP
@@ -313,20 +313,23 @@ CADD------ADD OTHER CLN TYPE READ AND PREPARE INFORMATION HERE
 C----------------------------------------------------------------------------------------
 C----------------------------------------------------------------------------------------
 C18-------FOR ANGLED PIPE, IF DEPTH OF FLOW IS LESS THAN DIAMETER MAKE HORIZONTAL
+      WRITE(IOUT,*)
       DO I = 1,NCLNNDS
-        IFTYP =  ACLNNDS(I,2)
-        IFDIR = ACLNNDS(I,3) 
-        FLENG = ACLNNDS(I,4) 
-        FANGLE = ACLNNDS(I,6) 
         IF(IFDIR.EQ.2)THEN
+          IFTYP =  ACLNNDS(I,2)
+          IFDIR = ACLNNDS(I,3) 
+          FLENG = ACLNNDS(I,4) 
+          FANGLE = ACLNNDS(I,6)            
           FDPTH = FLENG * SIN(FANGLE)
           IC=IFTYP
           CALL CLNR(IC,FRAD)
-          IF(FDPTH.LT.2.0*FRAD) IFDIR = 1
-          ACLNNDS(I,3) = IFDIR
+          IF(FDPTH.LT.2.0*FRAD) THEN
+              IFDIR = 1
+              ACLNNDS(I,3) = IFDIR
+              WRITE(IOUT,222)IFNO
+          ENDIF    
         ENDIF
-        WRITE(IOUT,22)IFNO,IFTYP,IFDIR,FLENG,FELEV,FANGLE,IFLIN,ICCWADI
-22      FORMAT(5X,I10,1X,I6,1X,I10,3(1X,E15.6),1X,I10,1X,I10)        
+222      FORMAT(5X,'ANGLED CLN CELL NO', I7,' MADE HORIZONTAL')        
       ENDDO      
 C19-----RETURN
       RETURN
