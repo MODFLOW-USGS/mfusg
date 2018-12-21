@@ -1230,7 +1230,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,      ONLY:NCOL,NROW,NLAY,IXSEC,HNEW,STRT,NODLAY,
-     1                      IBOUND,IOUT,BUFF,NODES
+     1                      IBOUND,IOUT,BUFF,NODES,DDREF
       USE GWFBASMODULE,ONLY:PERTIM,TOTIM,IDDNFM,IDDNUN,LBDDSV,
      2                      CDDNFM,IOFLG
 C
@@ -1253,7 +1253,7 @@ C3------CALCULATE DRAWDOWN FOR THE LAYER.
       NSTRT = NODLAY(K-1)+1
       DO 58 N=NSTRT,NNDLAY
       BUFF(N)=HNEW(N)
-      SSTRT=STRT(N)
+      SSTRT=DDREF(N)
       IF(IBOUND(N).NE.0) BUFF(N)=SSTRT-HNEW(N)
    58 CONTINUE
    59 CONTINUE
