@@ -3233,9 +3233,14 @@ C2A-------Y-DIRECTION COMPONENT OF HY BETWEEN NODES N1 AND N2
 C2B-------HY OF CONNECTION IS RESULTANT OF X- AND Y-DIRECTION COMPONENTS
         IIS = JAS(II)
         ANGLE = ARAD(IIS)
-        ACA = ABS(COS(ANGLE))
-        ASA = ABS(SIN(ANGLE))
-        ANUM = ANUM * ACA + HYMEAN*ASA
+c         
+c        ACA = ABS(COS(ANGLE))
+c        ASA = ABS(SIN(ANGLE))
+c        ANUM = ANUM * ACA + HYMEAN*ASA
+c .......use flux formulation to compute the anisotropy angle        
+        ACA = COS(ANGLE) * COS(ANGLE)
+        ASA = SIN(ANGLE) * SIN(ANGLE)
+        ANUM = 1.0 / (ACA/ANUM + ASA/HYMEAN)        
       ENDIF
 C3------FOR LAYAVG OF 2, MULTIPLY LOG MEAN K BY AVERAGE SAT THICKNESS
       IF(LAYAVG(K).EQ.2)THEN
