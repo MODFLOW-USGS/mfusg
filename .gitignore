@@ -164,6 +164,8 @@ src_temp
 obj_temp
 *.pyc
 distribution/mfusg.1_3
+.ipynb_checkpoints/*
+ref/*
 
 *.lst
 *.list

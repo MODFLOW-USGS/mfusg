@@ -27,6 +27,7 @@ def compare(namefile1, namefile2):
 
     return success
 
+
 def run_mfusg(namefile, regression=True):
     """
     Run the simulation.

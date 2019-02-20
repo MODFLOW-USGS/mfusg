@@ -41,3 +41,7 @@ target_dict[program] = target_release
 # Comparison information
 target_dict['mfnwt'] = 'mfnwt' + target_extension
 target_dict['mf2005'] = 'mf2005' + target_extension
+
+# zonbudusg information
+zbudusg_target = os.path.join('temp', 'zbudusg' + target_extension)
+zbudusg_srcdir = os.path.join('..', 'zbudusg', 'src')

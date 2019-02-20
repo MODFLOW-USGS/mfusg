@@ -6,11 +6,14 @@ import config
 
 
 def test_compile_dev():
-    # Compile development version of the program from source.
+    """
+    Compile development version of the program from ../src.
+
+    """
 
     # Compile
     target = config.target
-    pymake.main(config.srcdir, target, config.fc, 'gcc', makeclean=False,
+    pymake.main(config.srcdir, target, config.fc, 'gcc', makeclean=True,
                 expedite=False, dryrun=False, double=False, debug=False,
                 include_subdirs=False, arch=config.target_arch)
 
@@ -21,7 +24,10 @@ def test_compile_dev():
 
 
 def test_compile_ref():
-    # Compile reference version of the program from the source.
+    """
+    Compile reference version of the program from the usgs website.
+
+    """
 
     # Remove the existing distribution directory if it exists
     dir_release = config.dir_release
@@ -38,7 +44,7 @@ def test_compile_ref():
     pymake.download_and_unzip(url, pth=config.testdir)
 
     # compile
-    pymake.main(srcdir, target, config.fc, 'gcc', makeclean=False,
+    pymake.main(srcdir, target, config.fc, 'gcc', makeclean=True,
                 expedite=False, dryrun=False, double=False, debug=False,
                 include_subdirs=False, arch=config.target_arch)
 
@@ -46,6 +52,28 @@ def test_compile_ref():
 
     return
 
+
+def test_compile_zonbudusg():
+    """
+    Compile development version of zonbudusg.
+
+    """
+
+    # Compile
+    target = config.zbudusg_target
+    srcdir = config.zbudusg_srcdir
+    assert os.path.isdir(srcdir)
+    pymake.main(srcdir, target, config.fc, 'gcc', makeclean=True,
+                expedite=False, dryrun=False, double=False, debug=False,
+                include_subdirs=False, arch=config.target_arch)
+
+    # Ensure target has been built
+    assert os.path.isfile(target) is True, 'Target {} does not exist.'.format(target)
+
+    return
+
+
 if __name__ == '__main__':
     test_compile_dev()
     test_compile_ref()
+    test_compile_zonbudusg()
