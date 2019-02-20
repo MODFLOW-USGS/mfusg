@@ -8,7 +8,7 @@
 ## Automated Testing Status on Travis-CI
 
 ### Version 1.4.01 develop
-[![Build Status](https://travis-ci.com/MODFLOW-USGS/mfusg.svg?branch=develop)](https://travis-ci.org/MODFLOW-USGS/mfusg)
+[![Build Status](https://travis-ci.com/MODFLOW-USGS/mfusg.svg?branch=develop)](https://travis-ci.com/MODFLOW-USGS/mfusg)
 
 ## Introduction
 
