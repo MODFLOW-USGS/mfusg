@@ -201,6 +201,7 @@ script:
     - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"
     - pwd
     - ls ../
+    - gfortran --version
     - which python
     - python --version
     - python -c "import numpy as np; print('numpy version {}'.format(np.__version__))"
