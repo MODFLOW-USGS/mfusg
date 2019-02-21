@@ -12,6 +12,16 @@ NOTE: Any use of trade, product or firm names is for descriptive purposes
       only and does not imply endorsement by the U.S. Government.
       
 o Version 1.4 10/27/2017
+    MFUSG -- Updated program version and date.
+    CLN2BASU1 --
+    GLO2BASU1 -- Fixed DDREFERENCE bug.
+    GWF2BASU1 -- Fixed DDREFERENCE bug.
+    GWF2BCF-LPF-U1 -- Fixed horizontal anisotropy rotation equation.
+    GWF2EVT8U1 -- Adding missing variable to use statement.
+    GWF2WEL7U1 -- Initialized variable to zero.
+    UTL7U1 -- Modified UBDSVBU to use correct node number.
+
+o Version 1.4 10/27/2017
     MFUSG -- Updated program version and date.  Added calls for the
        ETS and DRT Packages.  Revised the way flow terms are written 
        to the budget file for CLN.
