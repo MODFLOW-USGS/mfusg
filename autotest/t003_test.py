@@ -87,7 +87,7 @@ def run_mfusg(regression=True):
     nam = 'biscayne.new.nam'
     exe_name = os.path.abspath(config.target)
     success, buff = flopy.run_model(exe_name, nam, model_ws=testpth,
-                                    silent=True)
+                                    silent=False)
     assert success, 'biscayne model did not run successfully.'
 
 
@@ -103,7 +103,7 @@ def run_mfusg(regression=True):
         print('running regression model...{}'.format(testname_reg))
         exe_name = os.path.abspath(config.target_release)
         success, buff = flopy.run_model(exe_name, nam, model_ws=testpth_reg,
-                                         silent=True)
+                                         silent=False)
 
         # Make comparison
         success = compare(os.path.join(testpth, nam),

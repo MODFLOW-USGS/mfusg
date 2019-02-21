@@ -40,7 +40,7 @@ def run_mfusg(namefile, comparison=True):
     print('running model...{}'.format(testname))
     exe_name = os.path.abspath(config.target)
     success, buff = flopy.run_model(exe_name, nam, model_ws=testpth,
-                                    silent=True)
+                                    silent=False)
     success_cmp = True
     if comparison:
         action = pymake.setup_comparison(namefile, testpth)
@@ -60,7 +60,7 @@ def run_mfusg(namefile, comparison=True):
                 exe_name = config.target_dict[key]
                 success_cmp, buff = flopy.run_model(exe_name, nam,
                                                     model_ws=testpth_cmp,
-                                                    silent=True)
+                                                    silent=False)
             if success_cmp:
                 outfile1 = os.path.join(os.path.split(os.path.join(testpth, nam))[0], 'bud.cmp')
                 outfile2 = os.path.join(os.path.split(os.path.join(testpth, nam))[0], 'hds.cmp')
