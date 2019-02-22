@@ -1115,6 +1115,12 @@ c      total      5*nblack
       allocate( avk(nblack), q(nblack), aq(nblack), res(nblack),
      [          v(nblack), stat = ierror )
       if (ierror /= 0) stop "== not enough memory (xmdcnjgd) =="
+      
+c     initialize q and aq work arrays (cdl 2/22/2019)
+      do i = 1, nblack
+        q(i) = 0.0d0
+        aq(i) = 0.0d0
+      enddo
 
 
 c     get [a]{x} and calculate {res} -- note: use {soln} as tmp
