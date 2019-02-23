@@ -78,11 +78,6 @@ def run_mfusg(namefile, regression=True):
         # Make comparison
         success = compare(os.path.join(testpth, nam),
                           os.path.join(testpth_reg, nam))
-        if not success:
-            fname = os.path.join(testpth, 'etsdrt.lst')
-            print(open(fname).read())
-            fname = os.path.join(testpth_reg, 'etsdrt.lst')
-            print(open(fname).read())
         assert success, 'Models do not compare: {} and {}'.format(testname,
                                                                   testname_reg)
 
@@ -98,8 +93,8 @@ def test_mfusg():
     namefiles = []
     for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
-    for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
-    #for namefile in namefiles:
+    #for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
+    for namefile in namefiles:
         yield run_mfusg, namefile
     return
 
@@ -108,6 +103,6 @@ if __name__ == '__main__':
     namefiles = []
     for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
-    #for namefile in namefiles:
-    for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
+    for namefile in namefiles:
+    #for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
         run_mfusg(namefile)
