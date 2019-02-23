@@ -53,7 +53,8 @@ def run_mfusg(namefile, regression=True):
     for line in buff:
         f.write(line + '\n')
     f.close()
-    assert success, 'model did not run successfully: {}'.format(testname)
+    msg = '{} model did not run successfully with {}'.format(testname, exe_name)
+    assert success, msg
 
     # If it is a regression run, then setup and run the model with the
     # release target
@@ -62,19 +63,26 @@ def run_mfusg(namefile, regression=True):
         testname_reg = os.path.basename(config.target_release)
         testpth_reg = os.path.join(testpth, testname_reg)
         pymake.setup(namefile, testpth_reg)
-        print('running regression model...{}'.format(testname_reg))
         exe_name = os.path.abspath(config.target_release)
+        print('running {} regression model with {}'.format(testname, exe_name))
         success, buff = flopy.run_model(exe_name, nam, model_ws=testpth_reg,
                                         silent=False, report=True)
         f = open(os.path.join(testpth_reg, 'output.dat'), 'w')
         for line in buff:
             f.write(line + '\n')
         f.close()
-        assert success, 'model did not run successfully: {}'.format(testname_reg)
+        msg = '{} model did not run successfully with {}'.format(testname,
+                                                                 exe_name)
+        assert success, msg
 
         # Make comparison
         success = compare(os.path.join(testpth, nam),
                           os.path.join(testpth_reg, nam))
+        if not success:
+            fname = os.path.join(testpth, 'etsdrt.lst')
+            print(open(fname).read())
+            fname = os.path.join(testpth_reg, 'etsdrt.lst')
+            print(open(fname).read())
         assert success, 'Models do not compare: {} and {}'.format(testname,
                                                                   testname_reg)
 
@@ -90,8 +98,8 @@ def test_mfusg():
     namefiles = []
     for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
-    # for namefile in ['../test-reg/test042_45usg/45usg.nam']:
-    for namefile in namefiles:
+    for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
+    #for namefile in namefiles:
         yield run_mfusg, namefile
     return
 
@@ -100,5 +108,6 @@ if __name__ == '__main__':
     namefiles = []
     for pth in config.testpaths[0:2]:
         namefiles += get_namefiles(pth, exclude='.cmp')
-    for namefile in namefiles:
+    #for namefile in namefiles:
+    for namefile in ['../test-reg/test050_drt/etsdrt.nam']:
         run_mfusg(namefile)
