@@ -19,7 +19,7 @@ def compare(namefile1, namefile2):
 
     outfile = os.path.join(os.path.split(namefile1)[0], 'hds.cmp')
     success2 = compare_heads(namefile1, namefile2, htol=0.001, difftol=True,
-                             outfile=outfile)
+                             outfile=outfile, verbose=True)
 
     success = False
     if success1 and success2:
