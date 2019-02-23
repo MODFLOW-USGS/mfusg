@@ -6,7 +6,7 @@
 # likely that DATA FORM will need to be changed
 # from 'BINARY' to 'UNFORMATTED'. Testing also
 # suggests that changing DATA ACCESS from
-# 'SEQUENTIAL' TO 'STREAM' can make it easier to
+# 'SEQUENTIAL' to 'STREAM' can make it easier to
 # work with the binary files created by MODFLOW-USG.
 # Note, however, that if using 'STREAM', it may be
 # necessary to manually delete all output binary
@@ -50,12 +50,14 @@ OBJECTS = \
         glo2btnu1.o \
         gwf2chd7u1.o \
         gwf2drn7u1.o \
+        gwf2drt8u.o \
         gwf2fhb7u1.o \
         gwf2ghb7u1.o \
         gwf2hfb7u1.o \
         gwf2riv7u1.o \
         gwf2rch8u1.o \
         gwf2evt8u1.o \
+        gwf2ets8u1.o \
         lak_gag_sfr_modules.o \
         gwf2sfr7u1.o \
         gwf2str7u1.o \

@@ -37,12 +37,14 @@ OBJECTS = \
         glo2btnu1.obj \
         gwf2chd7u1.obj \
         gwf2drn7u1.obj \
+        gwf2drt8u.obj \
         gwf2fhb7u1.obj \
         gwf2ghb7u1.obj \
         gwf2hfb7u1.obj \
         gwf2riv7u1.obj \
         gwf2rch8u1.obj \
         gwf2evt8u1.obj \
+        gwf2ets8u1.obj \
         lak_gag_sfr_modules.obj \
         gwf2sfr7u1.obj \
         gwf2str7u1.obj \
