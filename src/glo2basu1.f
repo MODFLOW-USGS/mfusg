@@ -602,8 +602,7 @@ C10A1-----LOOP OVER CONNECTIONS OF NODE N AND FILL
         ENDDO
       ELSE
 C10B----read IVC, for IVSD. GT. 0.
-        IF(NLAY.GT.1) 
-     *  CALL U1DINTNJA(IVC,IATMP,ANAME,NJATMP,INDIS,IOUT,IDSYMRD)
+        CALL U1DINTNJA(IVC,IATMP,ANAME,NJATMP,INDIS,IOUT,IDSYMRD)
       ENDIF
 C      
 C--------------------------------------------------------------------------

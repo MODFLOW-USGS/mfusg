@@ -1999,7 +1999,9 @@ C5A-------TO NEXT FACE.
           END IF
           HD=HNEW(JJ)
           IF(IVC(IIS).EQ.1.AND.JJ.GT.N)THEN !VERTICAL DIRECTION DOWN
-            IF(LAYCON(K+1).NE.3 .AND. LAYCON(K+1).NE.2) GO TO 122 !CSP 2 SHOULD BE 1
+            KK = K+1
+            IF(NLAY.EQ.1) KK = K
+            IF(LAYCON(KK).NE.3 .AND. LAYCON(KK).NE.2) GO TO 122 !CSP 2 SHOULD BE 1
             TMP=HD
             IF(NOVFC.EQ.0)THEN
               IF(TMP.LT.TOP(JJ)) HD=TOP(JJ)
@@ -3629,6 +3631,7 @@ C3------------COMUTE WHEN VERTICAL DIRECTION IS FOUND
               ISLOC = ISYM(II)
               IF(IBOUND(JJ).NE.0) THEN
                 KK = K+1
+                IF(NLAY.EQ.1) KK = K
 C
 C4--------------CALCULATE VERTICAL HYDRAULIC CONDUCTIVITY FOR CELL.
                 IF(LAYVKA(K).EQ.0) THEN

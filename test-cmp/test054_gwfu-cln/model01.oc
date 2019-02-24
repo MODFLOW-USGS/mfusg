@@ -1,0 +1,41 @@
+head save unit 30
+period   1 step 1
+print budget
+save head
+save budget
+period   2 step 1
+print budget
+save head
+save budget
+period   3 step 1
+print budget
+save head
+save budget
+period   4 step 1
+print budget
+save head
+save budget
+period   5 step 1
+print budget
+save head
+save budget
+period   6 step 1
+print budget
+save head
+save budget
+period   7 step 1
+print budget
+save head
+save budget
+period   8 step 1
+print budget
+save head
+save budget
+period   9 step 1
+print budget
+save head
+save budget
+period  10 step 1
+print budget
+save head
+save budget

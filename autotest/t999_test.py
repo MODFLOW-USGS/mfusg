@@ -20,6 +20,10 @@ def test_teardown():
         print('Removing ' + config.target_release)
         os.remove(config.target_release)
 
+    if os.path.isfile(config.zbudusg_target):
+        print('Removing ' + config.zbudusg_target)
+        os.remove(config.zbudusg_target)
+
     return
 
 if __name__ == '__main__':

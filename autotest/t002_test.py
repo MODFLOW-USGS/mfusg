@@ -99,5 +99,6 @@ if __name__ == '__main__':
         exclude = list(config.exclude)
     exclude.append('.cmp')
     namefiles = get_namefiles(config.testpaths[2], exclude=exclude)
+    #namefiles = ['../test-cmp/test054_gwfu-cln/model01.nam']
     for namefile in namefiles:
         run_mfusg(namefile)

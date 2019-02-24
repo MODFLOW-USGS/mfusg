@@ -1,0 +1,2328 @@
+                                  MODFLOW-USG      
+      U.S. GEOLOGICAL SURVEY MODULAR FINITE-DIFFERENCE GROUNDWATER FLOW MODEL
+                            VERSION 1.5.00 02/27/2019
+
+ LIST FILE: model01.lst
+                         UNIT    3
+
+ OPENING model01.bas
+ FILE TYPE:BAS6   UNIT    4   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.sms
+ FILE TYPE:SMS   UNIT   10   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.dis
+ FILE TYPE:DISU   UNIT   11   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.oc
+ FILE TYPE:OC   UNIT   12   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.lpf
+ FILE TYPE:LPF   UNIT   13   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.rch
+ FILE TYPE:RCH   UNIT   15   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.ghb
+ FILE TYPE:GHB   UNIT   16   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.cln
+ FILE TYPE:CLN   UNIT   17   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+#CLN 17 model01.cln.working                                                                                                                                                                                                                                                                                 
+
+ OPENING top.ref
+ FILE TYPE:DATA   UNIT   60   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING bot.ref
+ FILE TYPE:DATA   UNIT   61   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING area.ref
+ FILE TYPE:DATA   UNIT   62   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING qt01.iac.dat
+ FILE TYPE:DATA   UNIT   63   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING qt01.ja.dat
+ FILE TYPE:DATA   UNIT   64   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING qt01.c1.dat
+ FILE TYPE:DATA   UNIT   65   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING qt01.c2.dat
+ FILE TYPE:DATA   UNIT   66   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING qt01.fahl.dat
+ FILE TYPE:DATA   UNIT   67   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING kx.ref
+ FILE TYPE:DATA   UNIT   70   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING kz.ref
+ FILE TYPE:DATA   UNIT   71   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING ss.ref
+ FILE TYPE:DATA   UNIT   72   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING sy.ref
+ FILE TYPE:DATA   UNIT   73   STATUS:UNKNOWN
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING model01.cbb
+ FILE TYPE:DATA(BINARY)   UNIT   50   STATUS:UNKNOWN
+ FORMAT:BINARY                 ACCESS:SEQUENTIAL          
+
+ OPENING model01.cln.cbb
+ FILE TYPE:DATA(BINARY)   UNIT   51   STATUS:UNKNOWN
+ FORMAT:BINARY                 ACCESS:SEQUENTIAL          
+
+ OPENING model01.hds
+ FILE TYPE:DATA(BINARY)   UNIT   30   STATUS:UNKNOWN
+ FORMAT:BINARY                 ACCESS:SEQUENTIAL          
+
+ OPENING model01.cln.hds
+ FILE TYPE:DATA(BINARY)   UNIT   31   STATUS:UNKNOWN
+ FORMAT:BINARY                 ACCESS:SEQUENTIAL          
+
+ BAS -- BASIC PACKAGE-USG      1.5.00 02/27/2019                        INPUT READ FROM UNIT    4
+ 
+ THE FREE FORMAT OPTION HAS BEEN SELECTED
+ THE UNSTRUCTURED GRID OPTION HAS BEEN SELECTED
+
+ DIS -- UNSTRUCTURED GRID DISCRETIZATION PACKAGE, VERSION 1 : 5/17/2010 - INPUT READ FROM UNIT   11
+      39310 NODES        10 NLAY    267428 NJAG  VERT. SUBDISCRETIZATION INDEX, IVSD =  0
+ INDEX FOR INPUT OF UNSTRUCTURED, FINITE-VOLUME CONNECTIVITY INFORMATION, IDSYMRD =   1
+   10 STRESS PERIOD(S) IN SIMULATION
+ MODEL TIME UNIT IS DAYS
+ MODEL LENGTH UNIT IS FEET
+  Confining bed flag for each layer:
+   0   0   0   0   0   0   0   0   0   0
+
+ CLN -- CONNECTED LINE NETWORK DISCRETIZATION PROCESS, VERSION 1, 3/3/2012 INPUT READ FROM UNIT   17
+ OPTIONS LINE DETECTED.
+ PRINT CLN IA AND JA OPTION: THE CLN IA AND JA ARRAYS WILL BE PRINTED TO LIST FILE.
+ FLAG (0) OR MAXIMUM NUMBER OF LINEAR NODES (NCLN) =      1
+ FLAG (-VE) OR NUMBER OF LINEAR NODES (+VE) (ICLNNDS) =     -1
+ NUMBER OF LINEAR NODE TO MATRIX GRID CONNECTIONS (NCLNGWC) =     18
+
+ CELL-BY-CELL FLOWS WILL BE SAVED ON UNIT    51(FLAG ICLNCB IS GREATER THAN ZERO)
+ CLN HEAD OUTPUT WILL BE SAVED ON UNIT   31(FLAG ICLNHD IS GREATER THAN ZERO)
+ CLN DDN OUTPUT WILL NOT BE SAVED OR PRINTED (FLAG ICLNDD IS EQUAL TO ZERO)
+ CLN IBOUND OUTPUT WILL NOT BE SAVED OR PRINTED (FLAG ICLNIB IS EQUAL TO ZERO)
+
+
+
+              NODES PER CLN SEGMENT
+ READING ON UNIT   17 WITH FORMAT: (FREE)              
+
+                     CONNECTED LINE NETWORK INFORMATION
+                    ----------------------------------------
+     CLN-NODE NO. CLNTYP ORIENTATION  CLN LENGTH    BOT ELEVATION         FANGLE         IFLIN           ICCWADI
+     -----------  ------ ----------- -----------    -------------    -----------        ------    -------
+              1      1          1    0.124000E+02   -0.500000E+02    0.000000E+00         -1          0
+              2      1          1    0.740000E+01   -0.500000E+02    0.000000E+00         -1          0
+              3      1          1    0.171000E+02   -0.500000E+02    0.000000E+00         -1          0
+              4      1          1    0.176000E+02   -0.500000E+02    0.000000E+00         -1          0
+              5      1          1    0.680000E+01   -0.500000E+02    0.000000E+00         -1          0
+              6      1          1    0.245000E+02   -0.500000E+02    0.000000E+00         -1          0
+              7      1          1    0.350000E+01   -0.500000E+02    0.000000E+00         -1          0
+              8      1          1    0.210000E+02   -0.500000E+02    0.000000E+00         -1          0
+              9      1          1    0.138000E+02   -0.500000E+02    0.000000E+00         -1          0
+             10      1          1    0.107000E+02   -0.500000E+02    0.000000E+00         -1          0
+             11      1          1    0.241000E+02   -0.500000E+02    0.000000E+00         -1          0
+             12      1          1    0.400000E+00   -0.500000E+02    0.000000E+00         -1          0
+             13      1          1    0.245000E+02   -0.500000E+02    0.000000E+00         -1          0
+             14      1          1    0.990000E+01   -0.500000E+02    0.000000E+00         -1          0
+             15      1          1    0.145000E+02   -0.500000E+02    0.000000E+00         -1          0
+             16      1          1    0.202000E+02   -0.500000E+02    0.000000E+00         -1          0
+             17      1          1    0.430000E+01   -0.500000E+02    0.000000E+00         -1          0
+             18      1          1    0.245000E+02   -0.500000E+02    0.000000E+00         -1          0
+
+                     CLN TO 3-D GRID CONNECTION INFORMATION
+                    ----------------------------------------
+     F-NODE NO. GW-NODE NO  EQTN. TYPE        FSKIN           FLENG         FANISO   ICGWADI
+     ---------- ---------- -----------     ----------- ----------------- ---------------   ----------
+              1       1308           3    0.400000E+02    0.124000E+02    0.100000E+01         0
+              2       1330           3    0.400000E+02    0.740000E+01    0.100000E+01         0
+              3       1319           3    0.400000E+02    0.171000E+02    0.100000E+01         0
+              4       1321           3    0.400000E+02    0.176000E+02    0.100000E+01         0
+              5       1320           3    0.400000E+02    0.680000E+01    0.100000E+01         0
+              6       1326           3    0.400000E+02    0.245000E+02    0.100000E+01         0
+              7       1328           3    0.400000E+02    0.350000E+01    0.100000E+01         0
+              8       1325           3    0.400000E+02    0.210000E+02    0.100000E+01         0
+              9       1408           3    0.400000E+02    0.138000E+02    0.100000E+01         0
+             10       1407           3    0.400000E+02    0.107000E+02    0.100000E+01         0
+             11       1409           3    0.400000E+02    0.241000E+02    0.100000E+01         0
+             12       1369           3    0.400000E+02    0.400000E+00    0.100000E+01         0
+             13       1375           3    0.400000E+02    0.245000E+02    0.100000E+01         0
+             14       1377           3    0.400000E+02    0.990000E+01    0.100000E+01         0
+             15       1376           3    0.400000E+02    0.145000E+02    0.100000E+01         0
+             16       1395           3    0.400000E+02    0.202000E+02    0.100000E+01         0
+             17       1392           3    0.400000E+02    0.430000E+01    0.100000E+01         0
+             18       1394           3    0.400000E+02    0.245000E+02    0.100000E+01         0
+
+                     CONDUIT NODE INFORMATION
+                    ----------------------------------------
+     CONDUIT NODE        RADIUS   CONDUIT SAT K
+     ------------        ------   -------------
+              1    0.300000E+00    0.323000E+11
+
+ IA_CLN IS BELOW, 40I10
+         1         3         6         9        12        15        18        21        24        27        30        33        36        39        42        45        48        51        53
+ NJA_CLN =           52
+ JA_CLN IS BELOW, 40I10
+         1         2         2         1         3         3         2         4         4         3         5         5         4         6         6         5         7         7         6         8         8         7         9         9         8        10        10         9        11        11        10        12        12        11        13        13        12        14        14        13
+        15        15        14        16        16        15        17        17        16        18        18        17
+ 
+
+ DIS -- UNSTRUCTURED GRID DISCRETIZATION PACKAGE, VERSION 1 : 5/17/2010 - INPUT READ FROM UNIT   11
+
+
+
+             NO. OF NODES PER LAYER
+ READING ON UNIT   11 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   1
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   2
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   3
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   4
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   5
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   6
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   7
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   8
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER   9
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                TOP FOR LAYER  10
+ READING ON UNIT   60 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   1
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   2
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   3
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   4
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   5
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   6
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   7
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   8
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER   9
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                                BOT FOR LAYER  10
+ READING ON UNIT   61 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   1
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   2
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   3
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   4
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   5
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   6
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   7
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   8
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER   9
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                               AREA FOR LAYER  10
+ READING ON UNIT   62 WITH FORMAT: (FREE)              
+
+
+
+                                 IA
+ READING ON UNIT   63 WITH FORMAT: (FREE)              
+
+
+
+                                 JA
+ READING ON UNIT   64 WITH FORMAT: (FREE)              
+
+
+
+                CONNECTION LENGTH 1
+ READING ON UNIT   65 WITH FORMAT: (FREE)              
+
+
+
+                CONNECTION LENGTH 2
+ READING ON UNIT   66 WITH FORMAT: (FREE)              
+
+
+
+                 PERPENDICULAR AREA
+ READING ON UNIT   67 WITH FORMAT: (FREE)              
+
+
+ STRESS PERIOD     LENGTH       TIME STEPS     MULTIPLIER FOR DELT    SS FLAG
+ ----------------------------------------------------------------------------
+        1         1.000000          1                    1.200         SS
+        2         1.000000          1                    1.200         TR
+        3         1.000000          1                    1.200         TR
+        4         1.000000          1                    1.200         TR
+        5         1.000000          1                    1.200         TR
+        6         1.000000          1                    1.200         TR
+        7         1.000000          1                    1.200         TR
+        8         1.000000          1                    1.200         TR
+        9         1.000000          1                    1.200         TR
+       10         1.000000          1                    1.200         TR
+
+ COMBINED STEADY-STATE AND TRANSIENT SIMULATION
+
+
+
+
+           BOUNDARY ARRAY =         1 FOR LAYER   1
+
+           BOUNDARY ARRAY =         1 FOR LAYER   2
+
+           BOUNDARY ARRAY =         1 FOR LAYER   3
+
+           BOUNDARY ARRAY =         1 FOR LAYER   4
+
+           BOUNDARY ARRAY =         1 FOR LAYER   5
+
+           BOUNDARY ARRAY =         1 FOR LAYER   6
+
+           BOUNDARY ARRAY =         1 FOR LAYER   7
+
+           BOUNDARY ARRAY =         1 FOR LAYER   8
+
+           BOUNDARY ARRAY =         1 FOR LAYER   9
+
+           BOUNDARY ARRAY =         1 FOR LAYER  10
+
+ AQUIFER HEAD WILL BE SET TO  -99999.     AT ALL NO-FLOW NODES (IBOUND=0).
+
+             INITIAL HEAD =   0.00000     FOR LAYER   1
+
+             INITIAL HEAD =   0.00000     FOR LAYER   2
+
+             INITIAL HEAD =   0.00000     FOR LAYER   3
+
+             INITIAL HEAD =   0.00000     FOR LAYER   4
+
+             INITIAL HEAD =   0.00000     FOR LAYER   5
+
+             INITIAL HEAD =   0.00000     FOR LAYER   6
+
+             INITIAL HEAD =   0.00000     FOR LAYER   7
+
+             INITIAL HEAD =   0.00000     FOR LAYER   8
+
+             INITIAL HEAD =   0.00000     FOR LAYER   9
+
+             INITIAL HEAD =   0.00000     FOR LAYER  10
+
+ OUTPUT CONTROL IS SPECIFIED ONLY AT TIME STEPS FOR WHICH OUTPUT IS DESIRED
+ HEAD PRINT FORMAT CODE IS   0    DRAWDOWN PRINT FORMAT CODE IS   0
+ HEADS WILL BE SAVED ON UNIT   30    DRAWDOWNS WILL BE SAVED ON UNIT    0
+
+ LPF -- LAYER-PROPERTY FLOW PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   13
+ CELL-BY-CELL FLOWS WILL BE SAVED ON UNIT   50
+ HEAD AT CELLS THAT CONVERT TO DRY=  -99999.    
+ No named parameters
+ IKCFLAG=0, NODAL INPUT OF HY AND CV
+ CONSTANTCV OPTION:
+ Constant vertical conductance for convertible layers
+ NOVFC OPTION:
+ Do not apply the vertical flow correction
+
+   LAYER FLAGS:
+ LAYER       LAYTYP        LAYAVG         CHANI        LAYVKA        LAYWET
+ ---------------------------------------------------------------------------
+    1             4             0     3.333E-01             0             0
+    2             4             0     3.333E-01             0             0
+    3             4             0     3.333E-01             0             0
+    4             4             0     3.333E-01             0             0
+    5             4             0     3.333E-01             0             0
+    6             4             0     3.333E-01             0             0
+    7             4             0     3.333E-01             0             0
+    8             4             0     3.333E-01             0             0
+    9             4             0     3.333E-01             0             0
+   10             4             0     3.333E-01             0             0
+
+   INTERPRETATION OF LAYER FLAGS:
+                        INTERBLOCK     HORIZONTAL    DATA IN
+         LAYER TYPE   TRANSMISSIVITY   ANISOTROPY   ARRAY VKA   WETTABILITY
+ LAYER      (LAYTYP)      (LAYAVG)       (CHANI)      (LAYVKA)      (LAYWET)
+ ---------------------------------------------------------------------------
+    1      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    2      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    3      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    4      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    5      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    6      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    7      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    8      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+    9      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+   10      UPSTREAM      HARMONIC     3.333E-01    VERTICAL K  NON-WETTABLE
+
+ WETTING CAPABILITY IS NOT ACTIVE IN ANY LAYER
+
+               FACE ANGLE =   1.57080    
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   1
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   1
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   1
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   1
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   2
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   2
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   2
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   2
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   3
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   3
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   3
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   3
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   4
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   4
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   4
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   4
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   5
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   5
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   5
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   5
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   6
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   6
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   6
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   6
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   7
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   7
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   7
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   7
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   8
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   8
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   8
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   8
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER   9
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER   9
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER   9
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER   9
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+
+
+              HYD. COND. ALONG ROWS FOR LAYER  10
+ READING ON UNIT   70 WITH FORMAT: (FREE)              
+
+
+
+                VERTICAL HYD. COND. FOR LAYER  10
+ READING ON UNIT   71 WITH FORMAT: (FREE)              
+
+
+
+                   SPECIFIC STORAGE FOR LAYER  10
+ READING ON UNIT   72 WITH FORMAT: (FREE)              
+
+
+
+                     SPECIFIC YIELD FOR LAYER  10
+ READING ON UNIT   73 WITH FORMAT: (FREE)              
+
+ CLN -- CONDUIT DOMAIN FLOW PACKAGE, VERSION 1, 5/17/2010 INPUT READ FROM UNIT   17
+
+  CONDUIT BOUNDARY ARRAY  =         1
+
+    CONDUIT INITIAL HEAD  =   50.0000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+ No named parameters
+ MAXIMUM OF   1960 ACTIVE GHB CELLS AT ONE TIME
+ CELL-BY-CELL FLOWS WILL BE SAVED ON UNIT   50
+ LISTS OF GENERAL-HEAD BOUNDARY CELLS WILL NOT BE PRINTED
+
+
+     0 GHB parameters
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+ No named parameters
+ OPTION 3 -- RECHARGE TO HIGHEST ACTIVE NODE IN EACH VERTICAL COLUMN
+ CELL-BY-CELL FLOWS WILL BE SAVED ON UNIT   50
+
+
+     0 Recharge parameters
+
+ SMS -- SPARSE MATRIX SOLVER PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT 10
+ No named parameters
+ ALL SOLVER INPUT DATA WILL BE READ 
+FROM THE SOLVER INPUT FILE. 
+ OUTER ITERATION CONVERGENCE CRITERION (HCLOSE) =    0.100000E-07
+ INNER ITERATION CONVERGENCE CRITERION (HICLOSE) =    0.100000E-05
+ MAXIMUM NUMBER OF OUTER ITERATIONS (MXITER)     =       200
+ MAXIMUM NUMBER OF INNER ITERATIONS (ITER1)      =       100
+ SOLVER PRINTOUT INDEX             (IPRSMS)      =         1
+ NONLINEAR ITERATION METHOD    (NONLINMETH)      =         1
+ LINEAR SOLUTION METHOD           (LINMETH)      =         1
+ D-B-D WEIGHT REDUCTION FACTOR      (THETA)      =    0.700000E+00
+ D-B-D WEIGHT INCREASE INCREMENT    (KAPPA)      =    0.700000E-01
+ D-B-D PREVIOUS HISTORY FACTOR      (GAMMA)      =    0.100000E+00
+ MOMENTUM TERM                  (AMOMENTUM)      =    0.000000E+00
+ MAXIMUM NUMBER OF BACKTRACKS    (NUMTRACK)      =       200
+ BACKTRACKING TOLERANCE FACTOR       (BTOL)      =    0.110000E+01
+ BACKTRACKING REDUCTION FACTOR     (BREDUC)      =    0.200000E+00
+ BACKTRACKING RESIDUAL LIMIT      (RES_LIM)      =    0.100000E+01
+ ***Newton Linearization will be used***
+ 
+ ***XMD linear solver will be used***
+ XMD -- LINEAR SOLUTION BY XMD PACKAGE VERSION 1.30
+     BY MOTOMU IBARAKI, OHIO STATE UNIVERSITY, COLOMBUS, OH
+                 INPUT READ FROM UNIT 10
+ ACCELERATION METHOD                    (IACL) =         1
+ EQUATION ORDERING FLAG               (NORDER) =         0
+ LEVEL OF FILL                         (LEVEL) =         7
+ MAXIMUM NUMBER OF ORTHOGONALIZATIONS  (NORTH) =        14
+ INDEX FOR USING REDUCED SYSTEM      (IREDSYS) =         0
+ RESID. REDUCTION CONVERGE CRITERION  (RRCTOL) =  0.000000E+00
+ INDEX FOR USING DROP TOLERANCE     (IDROPTOL) =         1
+ DROP TOLERANCE VALUE                 ((EPSRN) =  0.100000E-02
+ 
+1
+                            STRESS PERIOD NO.    1, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+                 RECHARGE =  2.281542E-04
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.134516E+12     0.134516E+12
+LA         1              100                                                                         1.76559                  2653           GWF-node number
+LA         1              100                                                                        -48.3168                     1           CLN-node number
+UR         1                                                                                          1.76559                  2653           GWF-node number
+UR         1                                                                                         -48.3168                     1           CLN-node number
+BT         2                             0             0          0.168910E-02     0.168910E-02
+LA         2               24                                                                        0.108620E-02             29123           GWF-node number
+LA         2               24                                                                        0.523331E-03                 8           CLN-node number
+UR         2                                                                                         0.108620E-02             29123           GWF-node number
+UR         2                                                                                         0.366332E-03                 8           CLN-node number
+BT         3                             3             1           1.32721         0.561395E-01
+LA         3               29                                                                        0.839928E-03             29123           GWF-node number
+LA         3               29                                                                        0.442453E-03                 8           CLN-node number
+UR         3                                                                                         0.839928E-03             29123           GWF-node number
+UR         3                                                                                         0.340689E-03                 8           CLN-node number
+BT         4                             3             0          0.557813         0.557813    
+LA         4                8                                                                        0.572088E-05             36985           GWF-node number
+LA         4                8                                                                        0.999668E-04                 8           CLN-node number
+UR         4                                                                                         0.572088E-05             36985           GWF-node number
+UR         4                                                                                         0.839721E-04                 8           CLN-node number
+BT         5                             0             0          0.147378E-01     0.147378E-01
+LA         5               15                                                                        0.374947E-04             29123           GWF-node number
+LA         5               15                                                                        0.342753E-04                 8           CLN-node number
+UR         5                                                                                         0.374947E-04             29123           GWF-node number
+UR         5                                                                                         0.311905E-04                 8           CLN-node number
+BT         6                             3             0          0.674375E-01     0.674375E-01
+LA         6                3                                                                       -0.532797E-05             14548           GWF-node number
+LA         6                3                                                                       -0.483442E-05                18           CLN-node number
+UR         6                                                                                        -0.372958E-05             14548           GWF-node number
+UR         6                                                                                        -0.307953E-05                18           CLN-node number
+BT         7                             0             0          0.902736E-02     0.902736E-02
+LA         7                2                                                                        0.185449E-05              9889           GWF-node number
+LA         7                2                                                                       -0.156821E-05                18           CLN-node number
+UR         7                                                                                        -0.130344E-05              6096           GWF-node number
+UR         7                                                                                        -0.110872E-05                18           CLN-node number
+BT         8                             0             0          0.849303E-03     0.849303E-03
+LA         8                1                                                                        0.641371E-06              9889           GWF-node number
+LA         8                1                                                                       -0.724378E-06                18           CLN-node number
+UR         8                                                                                         0.448960E-06              9889           GWF-node number
+UR         8                                                                                        -0.562842E-06                18           CLN-node number
+BT         9                             0             0          0.628936E-04     0.628936E-04
+LA         9                1                                                                        0.313919E-06             25046           GWF-node number
+LA         9                1                                                                        0.388831E-07                 1           CLN-node number
+UR         9                                                                                         0.241717E-06             25046           GWF-node number
+UR         9                                                                                         0.211485E-07                 1           CLN-node number
+BT        10                             0             0          0.921217E-05     0.921217E-05
+LA        10                1                                                                        0.339455E-06             17194           GWF-node number
+LA        10                1                                                                        0.542802E-07                 1           CLN-node number
+UR        10                                                                                         0.285142E-06             17194           GWF-node number
+UR        10                                                                                         0.333226E-07                 1           CLN-node number
+BT        11                             0             0          0.701989E-05     0.701989E-05
+LA        11                1                                                                        0.334727E-06             25368           GWF-node number
+LA        11                1                                                                        0.112809E-06                 1           CLN-node number
+UR        11                                                                                         0.304602E-06             25368           GWF-node number
+UR        11                                                                                         0.771501E-07                 1           CLN-node number
+BT        12                             3             0          0.972990E-05     0.972990E-05
+LA        12                1                                                                        0.275027E-06             33238           GWF-node number
+LA        12                1                                                                        0.131112E-06                 1           CLN-node number
+UR        12                                                                                         0.269527E-06             33238           GWF-node number
+UR        12                                                                                         0.988454E-07                 1           CLN-node number
+BT        13                             3             0          0.115965E-04     0.115965E-04
+LA        13                1                                                                        0.252392E-06             33238           GWF-node number
+LA        13                1                                                                        0.145231E-06                 1           CLN-node number
+UR        13                                                                                         0.252392E-06             33238           GWF-node number
+UR        13                                                                                         0.119655E-06                 1           CLN-node number
+BT        14                             0             0          0.111210E-04     0.111210E-04
+LA        14                1                                                                        0.245295E-06              1397           GWF-node number
+LA        14                1                                                                        0.151744E-06                18           CLN-node number
+UR        14                                                                                         0.234837E-06             33238           GWF-node number
+UR        14                                                                                         0.135644E-06                18           CLN-node number
+BT        15                             0             0          0.902234E-05     0.902234E-05
+LA        15                1                                                                        0.241095E-06              5331           GWF-node number
+LA        15                1                                                                        0.153267E-06                18           CLN-node number
+UR        15                                                                                         0.220551E-06             33238           GWF-node number
+UR        15                                                                                         0.147734E-06                18           CLN-node number
+BT        16                             0             0          0.667982E-05     0.667982E-05
+LA        16                1                                                                        0.230274E-06              5331           GWF-node number
+LA        16                1                                                                        0.152419E-06                18           CLN-node number
+UR        16                                                                                         0.209340E-06             33238           GWF-node number
+UR        16                                                                                         0.152419E-06                18           CLN-node number
+BT        17                             0             0          0.479500E-05     0.479500E-05
+LA        17                1                                                                        0.218992E-06              5331           GWF-node number
+LA        17                1                                                                        0.158174E-06                18           CLN-node number
+UR        17                                                                                         0.203734E-06             33238           GWF-node number
+UR        17                                                                                         0.158174E-06                18           CLN-node number
+BT        18                             0             0          0.349355E-05     0.349355E-05
+LA        18                1                                                                        0.220679E-06              5331           GWF-node number
+LA        18                1                                                                        0.178512E-06                18           CLN-node number
+UR        18                                                                                         0.212874E-06             33240           GWF-node number
+UR        18                                                                                         0.178512E-06                18           CLN-node number
+BT        19                             0             0          0.268028E-05     0.268028E-05
+LA        19                1                                                                        0.296604E-06             25342           GWF-node number
+LA        19                1                                                                        0.262565E-06                18           CLN-node number
+UR        19                                                                                         0.296604E-06             25342           GWF-node number
+UR        19                                                                                         0.262565E-06                18           CLN-node number
+BT        20                             0             0          0.217551E-05     0.217551E-05
+LA        20                1                                                                        0.491511E-06             25334           GWF-node number
+LA        20                1                                                                        0.452125E-06                18           CLN-node number
+UR        20                                                                                         0.491511E-06             25334           GWF-node number
+UR        20                                                                                         0.452125E-06                18           CLN-node number
+BT        21                             0             0          0.188370E-05     0.188370E-05
+LA        21                1                                                                        0.236712E-06              9270           GWF-node number
+LA        21                1                                                                        0.193797E-06                15           CLN-node number
+UR        21                                                                                         0.236712E-06              9270           GWF-node number
+UR        21                                                                                         0.193797E-06                15           CLN-node number
+BT        22                             0             0          0.163522E-05     0.163522E-05
+LA        22                1                                                                        0.217487E-06             25004           GWF-node number
+LA        22                1                                                                        0.218202E-06                18           CLN-node number
+UR        22                                                                                         0.217487E-06             25004           GWF-node number
+UR        22                                                                                         0.218202E-06                18           CLN-node number
+BT        23                             0             0          0.149190E-05     0.149190E-05
+LA        23                1                                                                        0.212174E-06              9270           GWF-node number
+LA        23                1                                                                        0.157519E-06                15           CLN-node number
+UR        23                                                                                         0.212174E-06              9270           GWF-node number
+UR        23                                                                                         0.157519E-06                15           CLN-node number
+BT        24                             0             0          0.139190E-05     0.139190E-05
+LA        24                1                                                                        0.244587E-06             25004           GWF-node number
+LA        24                1                                                                        0.259991E-06                18           CLN-node number
+UR        24                                                                                         0.244587E-06             25004           GWF-node number
+UR        24                                                                                         0.259991E-06                18           CLN-node number
+BT        25                             0             0          0.123943E-05     0.123943E-05
+LA        25                1                                                                        0.991867E-07              9270           GWF-node number
+LA        25                1                                                                        0.521570E-07                15           CLN-node number
+UR        25                                                                                         0.991867E-07              9270           GWF-node number
+UR        25                                                                                         0.521570E-07                15           CLN-node number
+BT        26                             0             0          0.118841E-05     0.118841E-05
+LA        26                3                                                                        0.415444E-05             36673           GWF-node number
+LA        26                3                                                                        0.376023E-05                18           CLN-node number
+UR        26                                                                                         0.415444E-05             36673           GWF-node number
+UR        26                                                                                         0.376023E-05                18           CLN-node number
+BT        27                             3             0          0.181197E-05     0.181197E-05
+LA        27                1                                                                        0.105133E-06             13289           GWF-node number
+LA        27                1                                                                        0.205775E-07                 6           CLN-node number
+UR        27                                                                                         0.894937E-07             13655           GWF-node number
+UR        27                                                                                         0.205775E-07                 6           CLN-node number
+BT        28                             0             0          0.350032E-06     0.350032E-06
+LA        28                1                                                                        0.830530E-07              5444           GWF-node number
+LA        28                1                                                                        0.345999E-07                 5           CLN-node number
+UR        28                                                                                         0.780361E-07             25447           GWF-node number
+UR        28                                                                                         0.345999E-07                 5           CLN-node number
+BT        29                             0             0          0.250552E-06     0.250552E-06
+LA        29                1                                                                        0.772424E-07             13355           GWF-node number
+LA        29                1                                                                        0.274760E-07                 6           CLN-node number
+UR        29                                                                                         0.746128E-07             25447           GWF-node number
+UR        29                                                                                         0.274760E-07                 6           CLN-node number
+BT        30                             0             0          0.226852E-06     0.226852E-06
+LA        30                1                                                                        0.792970E-07             17275           GWF-node number
+LA        30                1                                                                        0.319682E-07                 5           CLN-node number
+UR        30                                                                                         0.739197E-07             25447           GWF-node number
+UR        30                                                                                         0.319682E-07                 5           CLN-node number
+BT        31                             0             0          0.207384E-06     0.207384E-06
+LA        31                1                                                                        0.830163E-07             25139           GWF-node number
+LA        31                1                                                                        0.307819E-07                 5           CLN-node number
+UR        31                                                                                         0.813559E-07             25139           GWF-node number
+UR        31                                                                                         0.307819E-07                 5           CLN-node number
+BT        32                             0             0          0.188909E-06     0.188909E-06
+LA        32                1                                                                        0.323388E-06             25451           GWF-node number
+LA        32                1                                                                        0.134494E-06                 5           CLN-node number
+UR        32                                                                                         0.323388E-06             25451           GWF-node number
+UR        32                                                                                         0.134494E-06                 5           CLN-node number
+BT        33                             0             0          0.172888E-06     0.172888E-06
+LA        33                1                                                                        0.425877E-07              5476           GWF-node number
+LA        33                1                                                                        0.153410E-07                 1           CLN-node number
+UR        33                                                                                         0.425877E-07              5476           GWF-node number
+UR        33                                                                                         0.153410E-07                 1           CLN-node number
+BT        34                             0             0          0.169643E-06     0.169643E-06
+LA        34                1                                                                        0.875601E-07             21208           GWF-node number
+LA        34                1                                                                        0.447010E-07                 1           CLN-node number
+UR        34                                                                                         0.875601E-07             21208           GWF-node number
+UR        34                                                                                         0.447010E-07                 1           CLN-node number
+BT        35                             0             0          0.163071E-06     0.163071E-06
+LA        35                1                                                                        0.619550E-07             25451           GWF-node number
+LA        35                1                                                                        0.267482E-07                 1           CLN-node number
+UR        35                                                                                         0.619550E-07             25451           GWF-node number
+UR        35                                                                                         0.267482E-07                 1           CLN-node number
+BT        36                             0             0          0.161122E-06     0.161122E-06
+LA        36                1                                                                        0.934273E-07             25139           GWF-node number
+LA        36                1                                                                        0.524974E-07                 1           CLN-node number
+UR        36                                                                                         0.934273E-07             25139           GWF-node number
+UR        36                                                                                         0.524974E-07                 1           CLN-node number
+BT        37                             0             0          0.155040E-06     0.155040E-06
+LA        37                1                                                                        0.284158E-07             25451           GWF-node number
+LA        37                1                                                                        0.112535E-07                 1           CLN-node number
+UR        37                                                                                         0.284158E-07             25451           GWF-node number
+UR        37                                                                                         0.112535E-07                 1           CLN-node number
+BT        38                             0             0          0.153991E-06     0.153991E-06
+LA        38                1                                                                        0.184723E-06             25463           GWF-node number
+LA        38                1                                                                        0.989074E-07                 1           CLN-node number
+UR        38                                                                                         0.184723E-06             25463           GWF-node number
+UR        38                                                                                         0.989074E-07                 1           CLN-node number
+BT        39                             0             0          0.146381E-06     0.146381E-06
+LA        39                1                                                                        0.664045E-07             25471           GWF-node number
+LA        39                1                                                                        0.385637E-07                 1           CLN-node number
+UR        39                                                                                         0.664045E-07             25471           GWF-node number
+UR        39                                                                                         0.385637E-07                 1           CLN-node number
+BT        40                             0             0          0.143357E-06     0.143357E-06
+LA        40                1                                                                        0.837575E-07             25471           GWF-node number
+LA        40                1                                                                        0.512537E-07                 1           CLN-node number
+UR        40                                                                                         0.837575E-07             25471           GWF-node number
+UR        40                                                                                         0.512537E-07                 1           CLN-node number
+BT        41                             0             0          0.139917E-06     0.139917E-06
+LA        41                1                                                                        0.515590E-07             25471           GWF-node number
+LA        41                1                                                                        0.316102E-07                 1           CLN-node number
+UR        41                                                                                         0.515590E-07             25471           GWF-node number
+UR        41                                                                                         0.316102E-07                 1           CLN-node number
+BT        42                             0             0          0.137374E-06     0.137374E-06
+LA        42                1                                                                        0.109216E-06             25471           GWF-node number
+LA        42                1                                                                        0.731040E-07                 1           CLN-node number
+UR        42                                                                                         0.109216E-06             25471           GWF-node number
+UR        42                                                                                         0.731040E-07                 1           CLN-node number
+BT        43                             0             0          0.133080E-06     0.133080E-06
+LA        43                1                                                                        0.295820E-07             25471           GWF-node number
+LA        43                1                                                                        0.175368E-07                 1           CLN-node number
+UR        43                                                                                         0.295820E-07             25471           GWF-node number
+UR        43                                                                                         0.175368E-07                 1           CLN-node number
+BT        44                             0             0          0.131211E-06     0.131211E-06
+LA        44                1                                                                        0.246167E-06             25471           GWF-node number
+LA        44                1                                                                        0.179127E-06                 1           CLN-node number
+UR        44                                                                                         0.246167E-06             25471           GWF-node number
+UR        44                                                                                         0.179127E-06                 1           CLN-node number
+BT        45                             0             0          0.122761E-06     0.122761E-06
+LA        45                1                                                                        0.157525E-07              5346           GWF-node number
+LA        45                1                                                                        0.510439E-08                16           CLN-node number
+UR        45                                                                                         0.157525E-07              5346           GWF-node number
+UR        45                                                                                         0.510439E-08                16           CLN-node number
+BT        46                             0             0          0.119570E-06     0.119570E-06
+LA        46                1                                                                        0.262000E-07             25471           GWF-node number
+LA        46                1                                                                        0.181960E-07                 1           CLN-node number
+UR        46                                                                                         0.262000E-07             25471           GWF-node number
+UR        46                                                                                         0.181960E-07                 1           CLN-node number
+BT        47                             0             0          0.119042E-06     0.119042E-06
+LA        47                1                                                                        0.252919E-06             25471           GWF-node number
+LA        47                1                                                                        0.209984E-06                 2           CLN-node number
+UR        47                                                                                         0.252919E-06             25471           GWF-node number
+UR        47                                                                                         0.209984E-06                 2           CLN-node number
+BT        48                             0             0          0.110937E-06     0.110937E-06
+LA        48                1                                                                        0.160831E-07              5346           GWF-node number
+LA        48                1                                                                        0.388220E-08                16           CLN-node number
+UR        48                                                                                         0.160831E-07              5346           GWF-node number
+UR        48                                                                                         0.388220E-08                16           CLN-node number
+BT        49                             0             0          0.106860E-06     0.106860E-06
+LA        49                1                                                                        0.164972E-07             25471           GWF-node number
+LA        49                1                                                                        0.124502E-07                 1           CLN-node number
+UR        49                                                                                         0.164972E-07             25471           GWF-node number
+UR        49                                                                                         0.124502E-07                 1           CLN-node number
+BT        50                             0             0          0.106556E-06     0.106556E-06
+LA        50                3                                                                        0.399028E-05             25471           GWF-node number
+LA        50                3                                                                        0.352899E-05                 6           CLN-node number
+UR        50                                                                                         0.399028E-05             25471           GWF-node number
+UR        50                                                                                         0.352899E-05                 6           CLN-node number
+BT        51                             0             0          0.163136E-07     0.163136E-07
+LA        51                1                                                                        0.718016E-07             25192           GWF-node number
+LA        51                1                                                                        0.618544E-08                16           CLN-node number
+UR        51                                                                                         0.718016E-07             25192           GWF-node number
+UR        51                                                                                         0.618544E-08                16           CLN-node number
+BT        52                             0             0          0.155415E-07     0.155415E-07
+LA        52                1                                                                        0.112108E-06             29123           GWF-node number
+LA        52                1                                                                        0.199230E-07                 9           CLN-node number
+UR        52                                                                                         0.112108E-06             29123           GWF-node number
+UR        52                                                                                         0.199230E-07                 9           CLN-node number
+BT        53                             0             0          0.141680E-07     0.141680E-07
+LA        53                1                                                                        0.350140E-07             29123           GWF-node number
+LA        53                1                                                                        0.182188E-08                16           CLN-node number
+UR        53                                                                                         0.350140E-07             29123           GWF-node number
+UR        53                                                                                         0.182188E-08                16           CLN-node number
+BT        54                             0             0          0.133992E-07     0.133992E-07
+LA        54                1                                                                        0.100967E-06             29123           GWF-node number
+LA        54                1                                                                        0.161054E-07                 9           CLN-node number
+UR        54                                                                                         0.100967E-06             29123           GWF-node number
+UR        54                                                                                         0.161054E-07                 9           CLN-node number
+BT        55                             0             0          0.118895E-07     0.118895E-07
+LA        55                1                                                                        0.601948E-07             29123           GWF-node number
+LA        55                1                                                                        0.675262E-08                16           CLN-node number
+UR        55                                                                                         0.601948E-07             29123           GWF-node number
+UR        55                                                                                         0.675262E-08                16           CLN-node number
+BT        56                             0             0          0.113006E-07     0.113006E-07
+LA        56                1                                                                        0.709698E-07             29123           GWF-node number
+LA        56                1                                                                        0.127922E-07                 9           CLN-node number
+UR        56                                                                                         0.709698E-07             29123           GWF-node number
+UR        56                                                                                         0.127922E-07                 9           CLN-node number
+BT        57                             0             0          0.102281E-07     0.102281E-07
+LA        57                1                                                                        0.361176E-07             29123           GWF-node number
+LA        57                1                                                                        0.293847E-08                16           CLN-node number
+UR        57                                                                                         0.361176E-07             29123           GWF-node number
+UR        57                                                                                         0.293847E-08                16           CLN-node number
+BT        58                             0             0          0.983955E-08     0.983955E-08
+LA        58                1                                                                        0.107821E-06             29123           GWF-node number
+LA        58                1                                                                        0.176590E-07                 9           CLN-node number
+UR        58                                                                                         0.107821E-06             29123           GWF-node number
+UR        58                                                                                         0.176590E-07                 9           CLN-node number
+BT        59                             0             0          0.870501E-08     0.870501E-08
+LA        59                1                                                                        0.275657E-07             29123           GWF-node number
+LA        59                1                                                                        0.171972E-08                16           CLN-node number
+UR        59                                                                                         0.275657E-07             29123           GWF-node number
+UR        59                                                                                         0.171972E-08                16           CLN-node number
+BT        60                             0             0          0.835657E-08     0.835657E-08
+LA        60                1                                                                        0.257769E-06             29123           GWF-node number
+LA        60                1                                                                        0.385105E-07                18           CLN-node number
+UR        60                                                                                         0.257769E-06             29123           GWF-node number
+UR        60                                                                                         0.385105E-07                18           CLN-node number
+BT        61                             0             0          0.680022E-08     0.680022E-08
+LA        61                1                                                                        0.211383E-07             29123           GWF-node number
+LA        61                1                                                                        0.155032E-09                16           CLN-node number
+UR        61                                                                                         0.211383E-07             29123           GWF-node number
+UR        61                                                                                         0.155032E-09                16           CLN-node number
+BT        62                             0             0          0.614065E-08     0.614065E-08
+LA        62                1                                                                        0.636998E-07             29123           GWF-node number
+LA        62                1                                                                        0.906087E-08                18           CLN-node number
+UR        62                                                                                         0.636998E-07             29123           GWF-node number
+UR        62                                                                                         0.906087E-08                18           CLN-node number
+BT        63                             0             0          0.574931E-08     0.574931E-08
+LA        63                1                                                                        0.407728E-07             29123           GWF-node number
+LA        63                1                                                                        0.478318E-08                17           CLN-node number
+UR        63                                                                                         0.407728E-07             29123           GWF-node number
+UR        63                                                                                         0.478318E-08                17           CLN-node number
+BT        64                             0             0          0.548786E-08     0.548786E-08
+LA        64                1                                                                        0.673699E-07             29123           GWF-node number
+LA        64                1                                                                        0.106199E-07                 9           CLN-node number
+UR        64                                                                                         0.673699E-07             29123           GWF-node number
+UR        64                                                                                         0.106199E-07                 9           CLN-node number
+BT        65                             0             0          0.512247E-08     0.512247E-08
+LA        65                1                                                                        0.204470E-07             29123           GWF-node number
+LA        65                1                                                                        0.153849E-08                16           CLN-node number
+UR        65                                                                                         0.204470E-07             29123           GWF-node number
+UR        65                                                                                         0.153849E-08                16           CLN-node number
+BT        66                             0             0          0.497525E-08     0.497525E-08
+LA        66                1                                                                        0.130777E-06             29123           GWF-node number
+LA        66                1                                                                        0.195845E-07                 9           CLN-node number
+UR        66                                                                                         0.130777E-06             29123           GWF-node number
+UR        66                                                                                         0.195845E-07                 9           CLN-node number
+BT        67                             0             0          0.448672E-08     0.448672E-08
+LA        67                1                                                                        0.159162E-07             29123           GWF-node number
+LA        67                1                                                                        0.864893E-09                16           CLN-node number
+UR        67                                                                                         0.159162E-07             29123           GWF-node number
+UR        67                                                                                         0.864893E-09                16           CLN-node number
+BT        68                             0             0          0.429027E-08     0.429027E-08
+LA        68                1                                                                        0.845170E-07             29123           GWF-node number
+LA        68                1                                                                        0.125488E-07                 9           CLN-node number
+UR        68                                                                                         0.845170E-07             29123           GWF-node number
+UR        68                                                                                         0.125488E-07                 9           CLN-node number
+BT        69                             0             0          0.401829E-08     0.401829E-08
+LA        69                1                                                                        0.255967E-07             29123           GWF-node number
+LA        69                1                                                                        0.322364E-08                17           CLN-node number
+UR        69                                                                                         0.255967E-07             29123           GWF-node number
+UR        69                                                                                         0.322364E-08                17           CLN-node number
+BT        70                             0             0          0.387397E-08     0.387397E-08
+LA        70                1                                                                        0.612426E-07             29123           GWF-node number
+LA        70                1                                                                        0.105424E-07                 9           CLN-node number
+UR        70                                                                                         0.612426E-07             29123           GWF-node number
+UR        70                                                                                         0.105424E-07                 9           CLN-node number
+BT        71                             0             0          0.369104E-08     0.369104E-08
+LA        71                1                                                                        0.128713E-07             29123           GWF-node number
+LA        71                1                                                                        0.101759E-08                16           CLN-node number
+UR        71                                                                                         0.128713E-07             29123           GWF-node number
+UR        71                                                                                         0.101759E-08                16           CLN-node number
+BT        72                             0             0          0.360190E-08     0.360190E-08
+LA        72                1                                                                        0.223052E-06             29123           GWF-node number
+LA        72                1                                                                        0.356576E-07                18           CLN-node number
+UR        72                                                                                         0.223052E-06             29123           GWF-node number
+UR        72                                                                                         0.356576E-07                18           CLN-node number
+BT        73                             0             0          0.318959E-08     0.318959E-08
+LA        73                1                                                                        0.133616E-07             29123           GWF-node number
+LA        73                1                                                                        0.209982E-08                 6           CLN-node number
+UR        73                                                                                         0.133616E-07             29123           GWF-node number
+UR        73                                                                                         0.209982E-08                 6           CLN-node number
+BT        74                             0             0          0.293201E-08     0.293201E-08
+LA        74                1                                                                        0.952458E-07             29123           GWF-node number
+LA        74                1                                                                        0.195114E-07                 8           CLN-node number
+UR        74                                                                                         0.952458E-07             29123           GWF-node number
+UR        74                                                                                         0.195114E-07                 8           CLN-node number
+BT        75                             0             0          0.277098E-08     0.277098E-08
+LA        75                1                                                                        0.750751E-08             29123           GWF-node number
+LA        75                1                                                                        0.606165E-09                16           CLN-node number
+
+
+    75 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   1
+
+ TOTAL OF      75OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+    1.7656    ,       2653  0.10862E-02,      29123  0.83993E-03,      29123  0.57209E-05,      36985  0.37495E-04,      29123
+  -0.37296E-05,      14548 -0.13034E-05,       6096  0.44896E-06,       9889  0.24172E-06,      25046  0.28514E-06,      17194
+   0.30460E-06,      25368  0.26953E-06,      33238  0.25239E-06,      33238  0.23484E-06,      33238  0.22055E-06,      33238
+   0.20934E-06,      33238  0.20373E-06,      33238  0.21287E-06,      33240  0.29660E-06,      25342  0.49151E-06,      25334
+   0.23671E-06,       9270  0.21749E-06,      25004  0.21217E-06,       9270  0.24459E-06,      25004  0.99187E-07,       9270
+   0.41544E-05,      36673  0.89494E-07,      13655  0.78036E-07,      25447  0.74613E-07,      25447  0.73920E-07,      25447
+   0.81356E-07,      25139  0.32339E-06,      25451  0.42588E-07,       5476  0.87560E-07,      21208  0.61955E-07,      25451
+   0.93427E-07,      25139  0.28416E-07,      25451  0.18472E-06,      25463  0.66404E-07,      25471  0.83758E-07,      25471
+   0.51559E-07,      25471  0.10922E-06,      25471  0.29582E-07,      25471  0.24617E-06,      25471  0.15752E-07,       5346
+   0.26200E-07,      25471  0.25292E-06,      25471  0.16083E-07,       5346  0.16497E-07,      25471  0.39903E-05,      25471
+   0.71802E-07,      25192  0.11211E-06,      29123  0.35014E-07,      29123  0.10097E-06,      29123  0.60195E-07,      29123
+   0.70970E-07,      29123  0.36118E-07,      29123  0.10782E-06,      29123  0.27566E-07,      29123  0.25777E-06,      29123
+   0.21138E-07,      29123  0.63700E-07,      29123  0.40773E-07,      29123  0.67370E-07,      29123  0.20447E-07,      29123
+   0.13078E-06,      29123  0.15916E-07,      29123  0.84517E-07,      29123  0.25597E-07,      29123  0.61243E-07,      29123
+   0.12871E-07,      29123  0.22305E-06,      29123  0.13362E-07,      29123  0.95246E-07,      29123  0.75075E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   -48.317    ,          1  0.36633E-03,          8  0.34069E-03,          8  0.83972E-04,          8  0.31190E-04,          8
+  -0.30795E-05,         18 -0.11087E-05,         18 -0.56284E-06,         18  0.21149E-07,          1  0.33323E-07,          1
+   0.77150E-07,          1  0.98845E-07,          1  0.11966E-06,          1  0.13564E-06,         18  0.14773E-06,         18
+   0.15242E-06,         18  0.15817E-06,         18  0.17851E-06,         18  0.26257E-06,         18  0.45212E-06,         18
+   0.19380E-06,         15  0.21820E-06,         18  0.15752E-06,         15  0.25999E-06,         18  0.52157E-07,         15
+   0.37602E-05,         18  0.20577E-07,          6  0.34600E-07,          5  0.27476E-07,          6  0.31968E-07,          5
+   0.30782E-07,          5  0.13449E-06,          5  0.15341E-07,          1  0.44701E-07,          1  0.26748E-07,          1
+   0.52497E-07,          1  0.11253E-07,          1  0.98907E-07,          1  0.38564E-07,          1  0.51254E-07,          1
+   0.31610E-07,          1  0.73104E-07,          1  0.17537E-07,          1  0.17913E-06,          1  0.51044E-08,         16
+   0.18196E-07,          1  0.20998E-06,          2  0.38822E-08,         16  0.12450E-07,          1  0.35290E-05,          6
+   0.61854E-08,         16  0.19923E-07,          9  0.18219E-08,         16  0.16105E-07,          9  0.67526E-08,         16
+   0.12792E-07,          9  0.29385E-08,         16  0.17659E-07,          9  0.17197E-08,         16  0.38511E-07,         18
+   0.15503E-09,         16  0.90609E-08,         18  0.47832E-08,         17  0.10620E-07,          9  0.15385E-08,         16
+   0.19584E-07,          9  0.86489E-09,         16  0.12549E-07,          9  0.32236E-08,         17  0.10542E-07,          9
+   0.10176E-08,         16  0.35658E-07,         18  0.20998E-08,          6  0.19511E-07,          8  0.60616E-09,         16
+
+ OUTPUT CONTROL FOR STRESS PERIOD        1   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      1
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      1
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    1
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    1
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       1
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =           0.0000               STORAGE =           0.0000
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =      233629.9375              RECHARGE =      233629.9375
+
+            TOTAL IN =      233629.9375              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =           0.0000               STORAGE =           0.0000
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =      233629.9219       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =      233629.9219             TOTAL OUT =      233629.9219
+
+            IN - OUT =       1.5625E-02              IN - OUT =       1.5625E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         1
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+1
+1
+                            STRESS PERIOD NO.    2, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.268464E-08     0.268464E-08
+LA         1                1                                                                        0.424800E-07             29123           GWF-node number
+LA         1                1                                                                        0.872984E-08                17           CLN-node number
+UR         1                                                                                         0.424800E-07             29123           GWF-node number
+UR         1                                                                                         0.872984E-08                17           CLN-node number
+BT         2                             0             0          0.204052E-08     0.204052E-08
+LA         2                1                                                                        0.149535E-07             29123           GWF-node number
+LA         2                1                                                                        0.435578E-08                 8           CLN-node number
+UR         2                                                                                         0.149535E-07             29123           GWF-node number
+UR         2                                                                                         0.435578E-08                 8           CLN-node number
+BT         3                             0             0          0.172544E-08     0.172544E-08
+LA         3                1                                                                        0.153341E-07             29123           GWF-node number
+LA         3                1                                                                        0.272226E-08                16           CLN-node number
+UR         3                                                                                         0.153341E-07             29123           GWF-node number
+UR         3                                                                                         0.272226E-08                16           CLN-node number
+BT         4                             3             0          0.241035E-08     0.241035E-08
+LA         4                1                                                                        0.108740E-07             29123           GWF-node number
+LA         4                1                                                                        0.335282E-08                 9           CLN-node number
+UR         4                                                                                         0.108740E-07             29123           GWF-node number
+UR         4                                                                                         0.335282E-08                 9           CLN-node number
+BT         5                             0             0          0.213801E-08     0.213801E-08
+LA         5                1                                                                        0.105145E-07             29123           GWF-node number
+LA         5                1                                                                        0.211144E-08                16           CLN-node number
+UR         5                                                                                         0.105145E-07             29123           GWF-node number
+UR         5                                                                                         0.211144E-08                16           CLN-node number
+BT         6                             0             0          0.187503E-08     0.187503E-08
+LA         6                1                                                                        0.107671E-07             29123           GWF-node number
+LA         6                1                                                                        0.281997E-08                 9           CLN-node number
+UR         6                                                                                         0.107671E-07             29123           GWF-node number
+UR         6                                                                                         0.281997E-08                 9           CLN-node number
+BT         7                             0             0          0.157447E-08     0.157447E-08
+LA         7                1                                                                        0.109687E-07             29123           GWF-node number
+LA         7                1                                                                        0.248803E-08                 9           CLN-node number
+UR         7                                                                                         0.109687E-07             29123           GWF-node number
+UR         7                                                                                         0.248803E-08                 9           CLN-node number
+BT         8                             0             0          0.136426E-08     0.136426E-08
+LA         8                1                                                                        0.126744E-07             29123           GWF-node number
+LA         8                1                                                                        0.316357E-08                 8           CLN-node number
+UR         8                                                                                         0.126744E-07             29123           GWF-node number
+UR         8                                                                                         0.316357E-08                 8           CLN-node number
+BT         9                             0             0          0.119599E-08     0.119599E-08
+LA         9                1                                                                        0.187899E-07             29123           GWF-node number
+LA         9                1                                                                        0.431932E-08                 8           CLN-node number
+UR         9                                                                                         0.187899E-07             29123           GWF-node number
+UR         9                                                                                         0.431932E-08                 8           CLN-node number
+BT        10                             0             0          0.105130E-08     0.105130E-08
+LA        10                1                                                                        0.699685E-07             29123           GWF-node number
+LA        10                1                                                                        0.181535E-07                 8           CLN-node number
+UR        10                                                                                         0.699685E-07             29123           GWF-node number
+UR        10                                                                                         0.181535E-07                 8           CLN-node number
+BT        11                             0             0          0.748697E-09     0.748697E-09
+LA        11                1                                                                        0.449661E-08             29123           GWF-node number
+LA        11                1                                                                       -0.228048E-09                 3           CLN-node number
+
+
+    11 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   2
+
+ TOTAL OF      11OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.42480E-07,      29123  0.14954E-07,      29123  0.15334E-07,      29123  0.10874E-07,      29123  0.10514E-07,      29123
+   0.10767E-07,      29123  0.10969E-07,      29123  0.12674E-07,      29123  0.18790E-07,      29123  0.69969E-07,      29123
+   0.44966E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.87298E-08,         17  0.43558E-08,          8  0.27223E-08,         16  0.33528E-08,          9  0.21114E-08,         16
+   0.28200E-08,          9  0.24880E-08,          9  0.31636E-08,          8  0.43193E-08,          8  0.18153E-07,          8
+  -0.22805E-09,          3
+
+ OUTPUT CONTROL FOR STRESS PERIOD        2   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       2
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      2
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      2
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    2
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    2
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       2
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       2.4366E-09               STORAGE =       2.4366E-09
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =      467259.8750              RECHARGE =      233629.9375
+
+            TOTAL IN =      467259.8750              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       2.5115E-03               STORAGE =       2.5115E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =      467259.8438       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =      467259.8463             TOTAL OUT =      233629.9244
+
+            IN - OUT =       2.8739E-02              IN - OUT =       1.3114E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         2
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 1.72800E+05  2880.0      48.000      2.0000     5.47570E-03
+1
+1
+                            STRESS PERIOD NO.    3, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.631387E-08     0.631387E-08
+LA         1                1                                                                        0.104527E-07              2756           GWF-node number
+LA         1                1                                                                        0.162324E-08                 7           CLN-node number
+UR         1                                                                                         0.104527E-07              2756           GWF-node number
+UR         1                                                                                         0.162324E-08                 7           CLN-node number
+BT         2                             0             0          0.169389E-08     0.169389E-08
+LA         2                1                                                                        0.202001E-07             25192           GWF-node number
+LA         2                1                                                                        0.458438E-08                 6           CLN-node number
+UR         2                                                                                         0.202001E-07             25192           GWF-node number
+UR         2                                                                                         0.458438E-08                 6           CLN-node number
+BT         3                             0             0          0.107503E-08     0.107503E-08
+LA         3                1                                                                        0.800709E-08             36985           GWF-node number
+LA         3                1                                                                        0.151284E-08                 1           CLN-node number
+
+
+     3 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   3
+
+ TOTAL OF       3OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.10453E-07,       2756  0.20200E-07,      25192  0.80071E-08,      36985
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.16232E-08,          7  0.45844E-08,          6  0.15128E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        3   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       3
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      3
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      3
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    3
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    3
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       3
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       3.2467E-09               STORAGE =       8.1008E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =      700889.8125              RECHARGE =      233629.9375
+
+            TOTAL IN =      700889.8125              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       4.4287E-03               STORAGE =       1.9172E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =      700889.7656       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =      700889.7701             TOTAL OUT =      233629.9238
+
+            IN - OUT =       4.2446E-02              IN - OUT =       1.3708E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         3
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 2.59200E+05  4320.0      72.000      3.0000     8.21355E-03
+1
+1
+                            STRESS PERIOD NO.    4, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.478033E-08     0.478033E-08
+LA         1                1                                                                        0.821348E-08              1606           GWF-node number
+LA         1                1                                                                        0.203393E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   4
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.82135E-08,       1606
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.20339E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        4   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       4
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      4
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      4
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    4
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    4
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       4
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       4.1332E-09               STORAGE =       8.8647E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =      934519.7500              RECHARGE =      233629.9375
+
+            TOTAL IN =      934519.7500              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       5.8730E-03               STORAGE =       1.4443E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =      934519.6875       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =      934519.6934             TOTAL OUT =      233629.9233
+
+            IN - OUT =       5.6627E-02              IN - OUT =       1.4181E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         4
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 3.45600E+05  5760.0      96.000      4.0000     1.09514E-02
+1
+1
+                            STRESS PERIOD NO.    5, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.353281E-08     0.353281E-08
+LA         1                1                                                                        0.855071E-08             29123           GWF-node number
+LA         1                1                                                                        0.189402E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   5
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.85507E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.18940E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        5   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       5
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      5
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      5
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    5
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    5
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       5
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       4.9778E-09               STORAGE =       8.4467E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     1168149.6875              RECHARGE =      233629.9375
+
+            TOTAL IN =     1168149.6875              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       7.3352E-03               STORAGE =       1.4622E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     1168149.6094       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     1168149.6167             TOTAL OUT =      233629.9233
+
+            IN - OUT =       7.0790E-02              IN - OUT =       1.4163E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         5
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 4.32000E+05  7200.0      120.00      5.0000     1.36893E-02
+1
+1
+                            STRESS PERIOD NO.    6, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.310100E-08     0.310100E-08
+LA         1                1                                                                        0.857975E-08             29123           GWF-node number
+LA         1                1                                                                        0.211700E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   6
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.85798E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.21170E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        6   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       6
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      6
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      6
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    6
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    6
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       6
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       5.9717E-09               STORAGE =       9.9389E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     1401779.6250              RECHARGE =      233629.9375
+
+            TOTAL IN =     1401779.6250              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       8.7921E-03               STORAGE =       1.4569E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     1401779.5312       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     1401779.5400             TOTAL OUT =      233629.9233
+
+            IN - OUT =       8.4958E-02              IN - OUT =       1.4168E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         6
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 5.18400E+05  8640.0      144.00      6.0000     1.64271E-02
+1
+1
+                            STRESS PERIOD NO.    7, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.287235E-08     0.287235E-08
+LA         1                1                                                                        0.850189E-08             29123           GWF-node number
+LA         1                1                                                                        0.203529E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   7
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.85019E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.20353E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        7   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       7
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      7
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      7
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    7
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    7
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       7
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       6.7648E-09               STORAGE =       7.9311E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     1635409.5625              RECHARGE =      233629.9375
+
+            TOTAL IN =     1635409.5625              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       1.0242E-02               STORAGE =       1.4503E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     1635409.4531       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     1635409.4634             TOTAL OUT =      233629.9233
+
+            IN - OUT =       9.9133E-02              IN - OUT =       1.4175E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         7
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 6.04800E+05  10080.      168.00      7.0000     1.91650E-02
+1
+1
+                            STRESS PERIOD NO.    8, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.272746E-08     0.272746E-08
+LA         1                1                                                                        0.839942E-08             29123           GWF-node number
+LA         1                1                                                                        0.214891E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   8
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.83994E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.21489E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        8   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       8
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      8
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      8
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    8
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    8
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       8
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       7.4305E-09               STORAGE =       6.6561E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     1869039.5000              RECHARGE =      233629.9375
+
+            TOTAL IN =     1869039.5000              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       1.1689E-02               STORAGE =       1.4470E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     1869039.3750       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     1869039.3867             TOTAL OUT =      233629.9233
+
+            IN - OUT =           0.1133              IN - OUT =       1.4178E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         8
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 6.91200E+05  11520.      192.00      8.0000     2.19028E-02
+1
+1
+                            STRESS PERIOD NO.    9, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.262151E-08     0.262151E-08
+LA         1                1                                                                        0.826196E-08             29123           GWF-node number
+LA         1                1                                                                        0.211409E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   9
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.82620E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.21141E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD        9   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD       9
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      9
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD      9
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD    9
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD    9
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD       9
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       8.0421E-09               STORAGE =       6.1166E-10
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     2102669.4375              RECHARGE =      233629.9375
+
+            TOTAL IN =     2102669.4375              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       1.3131E-02               STORAGE =       1.4412E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     2102669.2969       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     2102669.3100             TOTAL OUT =      233629.9233
+
+            IN - OUT =           0.1275              IN - OUT =       1.4184E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD         9
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 7.77600E+05  12960.      216.00      9.0000     2.46407E-02
+1
+1
+                            STRESS PERIOD NO.   10, LENGTH =   1.000000    
+                            -----------------------------------------------
+
+                              NUMBER OF TIME STEPS =     1
+
+                               MULTIPLIER FOR DELT =     1.200
+
+                            INITIAL TIME STEP SIZE =   1.000000    
+
+ GHB -- GENERAL-HEAD BOUNDARY PACKAGE, VERSION 7, 5/2/2005
+         INPUT READ FROM UNIT   16
+
+ REUSING NON-PARAMETER GHB CELLS FROM LAST STRESS PERIOD
+
+   1960 GHB CELLS
+
+ RCH -- RECHARGE PACKAGE, VERSION 7, 5/2/2005 INPUT READ FROM UNIT   15
+
+ REUSING RECH FROM LAST STRESS PERIOD
+ 
+ SOLVING FOR HEAD 
+
+
+ OUTER ITERATION SUMMARY
+ -----------------------
+ BT: Backtracking; LA: Linear Acceleration; UR: Under-relaxation
+
+    Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
+        Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
+BT         1                             0             0          0.254248E-08     0.254248E-08
+LA         1                1                                                                        0.813171E-08             29123           GWF-node number
+LA         1                1                                                                        0.219320E-08                 1           CLN-node number
+
+
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD  10
+
+ TOTAL OF       1OUTER ITERATIONS
+  MAXIMUM CHANGE FOR EACH ITERATION:
+   MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.81317E-08,      29123
+
+  MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
+   MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
+ ------------------------------------------------------------------------------------------------------------------------------------
+   0.21932E-08,          1
+
+ OUTPUT CONTROL FOR STRESS PERIOD       10   TIME STEP        1
+    PRINT BUDGET
+    SAVE HEAD FOR ALL LAYERS
+    SAVE BUDGET
+ UBUDSVU SAVING "         STORAGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSV  SAVING "     CLN STORAGE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD      10
+ UBUDSVU SAVING "   CONSTANT HEAD" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "   FLOW JA FACE " ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "             CLN" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "  CLN CONST HEAD" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "   FLOW CLN FACE" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "             GWF" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING " HEAD DEP BOUNDS" ON UNIT  51 AT TIME STEP      1, STRESS PERIOD     10
+ UBUDSVU SAVING "        RECHARGE" ON UNIT  50 AT TIME STEP      1, STRESS PERIOD     10
+
+ HEAD WILL BE SAVED ON UNIT   30 AT END OF TIME STEP   1, STRESS PERIOD   10
+
+ CLN HEAD WILL BE SAVED ON UNIT   31 AT END OF TIME STEP   1, STRESS PERIOD   10
+1
+  VOLUMETRIC BUDGET FOR ENTIRE MODEL AT END OF TIME STEP       1 IN STRESS PERIOD      10
+  ---------------------------------------------------------------------------------------
+
+     CUMULATIVE VOLUMES      L**3       RATES FOR THIS TIME STEP      L**3/T
+     ------------------                 ------------------------
+
+           IN:                                      IN:
+           ---                                      ---
+             STORAGE =       9.6455E-09               STORAGE =       1.6034E-09
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
+            RECHARGE =     2336299.3750              RECHARGE =      233629.9375
+
+            TOTAL IN =     2336299.3750              TOTAL IN =      233629.9375
+
+          OUT:                                     OUT:
+          ----                                     ----
+             STORAGE =       1.4568E-02               STORAGE =       1.4376E-03
+         CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
+       CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
+      CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
+     HEAD DEP BOUNDS =     2336299.2188       HEAD DEP BOUNDS =      233629.9219
+            RECHARGE =           0.0000              RECHARGE =           0.0000
+
+           TOTAL OUT =     2336299.2333             TOTAL OUT =      233629.9233
+
+            IN - OUT =           0.1417              IN - OUT =       1.4187E-02
+
+ PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
+
+
+
+
+
+
+          TIME SUMMARY AT END OF TIME STEP         1 IN STRESS PERIOD        10
+                    SECONDS     MINUTES      HOURS       DAYS        YEARS
+                    -----------------------------------------------------------
+   TIME STEP LENGTH  86400.      1440.0      24.000      1.0000     2.73785E-03
+ STRESS PERIOD TIME  86400.      1440.0      24.000      1.0000     2.73785E-03
+         TOTAL TIME 8.64000E+05  14400.      240.00      10.000     2.73785E-02
+1
+
+ Run end date and time (yyyy/mm/dd hh:mm:ss): 2019/02/24  8:54:24
+ Elapsed run time: 21.753 Seconds
+

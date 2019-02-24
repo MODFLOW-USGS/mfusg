@@ -1,0 +1,27 @@
+LIST 3 model01.lst
+BAS6 4 model01.bas
+SMS 10 model01.sms
+DISU 11 model01.dis
+OC 12 model01.oc
+LPF 13 model01.lpf
+RCH 15 model01.rch
+GHB 16 model01.ghb
+CLN 17 model01.cln
+#CLN 17 model01.cln.working
+DATA 60 top.ref
+DATA 61 bot.ref
+DATA 62 area.ref
+DATA 63 qt01.iac.dat
+DATA 64 qt01.ja.dat
+DATA 65 qt01.c1.dat
+DATA 66 qt01.c2.dat
+DATA 67 qt01.fahl.dat
+DATA 70 kx.ref
+DATA 71 kz.ref
+DATA 72 ss.ref
+DATA 73 sy.ref
+DATA(BINARY) 50 model01.cbb
+DATA(BINARY) 51 model01.cln.cbb
+DATA(BINARY) 30 model01.hds
+DATA(BINARY) 31 model01.cln.hds
+
