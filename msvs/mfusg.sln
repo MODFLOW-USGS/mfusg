@@ -6,9 +6,14 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "mfusg", "mfusg.vfproj", "{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		profile|Win32 = profile|Win32
+		profile|x64 = profile|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -17,6 +22,10 @@ Global
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Debug|Win32.Build.0 = Debug|Win32
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Debug|x64.ActiveCfg = Debug|x64
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Debug|x64.Build.0 = Debug|x64
+		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.profile|Win32.ActiveCfg = profile|Win32
+		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.profile|Win32.Build.0 = profile|Win32
+		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.profile|x64.ActiveCfg = profile|x64
+		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.profile|x64.Build.0 = profile|x64
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Release|Win32.ActiveCfg = Release|Win32
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Release|Win32.Build.0 = Release|Win32
 		{85A96A57-BA33-4A96-B785-D0A5BD1EBA8C}.Release|x64.ActiveCfg = Release|x64

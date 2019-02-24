@@ -109,7 +109,7 @@
 
  DIS -- UNSTRUCTURED GRID DISCRETIZATION PACKAGE, VERSION 1 : 5/17/2010 - INPUT READ FROM UNIT   11
       39310 NODES        10 NLAY    267428 NJAG  VERT. SUBDISCRETIZATION INDEX, IVSD =  0
- INDEX FOR INPUT OF UNSTRUCTURED, FINITE-VOLUME CONNECTIVITY INFORMATION, IDSYMRD =   1
+ INDEX FOR INPUT OF UNSTRUCTURED, FINITE-VOLUME CONNECTIVITY INFORMATION, IDSYMRD =   0
    10 STRESS PERIOD(S) IN SIMULATION
  MODEL TIME UNIT IS DAYS
  MODEL LENGTH UNIT IS FEET
@@ -362,13 +362,8 @@
 
 
 
-                CONNECTION LENGTH 1
+               CONNECTION LENGTH 12 FOR LAYER   1
  READING ON UNIT   65 WITH FORMAT: (FREE)              
-
-
-
-                CONNECTION LENGTH 2
- READING ON UNIT   66 WITH FORMAT: (FREE)              
 
 
 
@@ -773,420 +768,150 @@ FROM THE SOLVER INPUT FILE.
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
 BT         1                             0             0          0.134516E+12     0.134516E+12
-LA         1              100                                                                         1.76559                  2653           GWF-node number
-LA         1              100                                                                        -48.3168                     1           CLN-node number
-UR         1                                                                                          1.76559                  2653           GWF-node number
-UR         1                                                                                         -48.3168                     1           CLN-node number
-BT         2                             0             0          0.168910E-02     0.168910E-02
-LA         2               24                                                                        0.108620E-02             29123           GWF-node number
-LA         2               24                                                                        0.523331E-03                 8           CLN-node number
-UR         2                                                                                         0.108620E-02             29123           GWF-node number
-UR         2                                                                                         0.366332E-03                 8           CLN-node number
-BT         3                             3             1           1.32721         0.561395E-01
-LA         3               29                                                                        0.839928E-03             29123           GWF-node number
-LA         3               29                                                                        0.442453E-03                 8           CLN-node number
-UR         3                                                                                         0.839928E-03             29123           GWF-node number
-UR         3                                                                                         0.340689E-03                 8           CLN-node number
-BT         4                             3             0          0.557813         0.557813    
-LA         4                8                                                                        0.572088E-05             36985           GWF-node number
-LA         4                8                                                                        0.999668E-04                 8           CLN-node number
-UR         4                                                                                         0.572088E-05             36985           GWF-node number
-UR         4                                                                                         0.839721E-04                 8           CLN-node number
-BT         5                             0             0          0.147378E-01     0.147378E-01
-LA         5               15                                                                        0.374947E-04             29123           GWF-node number
-LA         5               15                                                                        0.342753E-04                 8           CLN-node number
-UR         5                                                                                         0.374947E-04             29123           GWF-node number
-UR         5                                                                                         0.311905E-04                 8           CLN-node number
-BT         6                             3             0          0.674375E-01     0.674375E-01
-LA         6                3                                                                       -0.532797E-05             14548           GWF-node number
-LA         6                3                                                                       -0.483442E-05                18           CLN-node number
-UR         6                                                                                        -0.372958E-05             14548           GWF-node number
-UR         6                                                                                        -0.307953E-05                18           CLN-node number
-BT         7                             0             0          0.902736E-02     0.902736E-02
-LA         7                2                                                                        0.185449E-05              9889           GWF-node number
-LA         7                2                                                                       -0.156821E-05                18           CLN-node number
-UR         7                                                                                        -0.130344E-05              6096           GWF-node number
-UR         7                                                                                        -0.110872E-05                18           CLN-node number
-BT         8                             0             0          0.849303E-03     0.849303E-03
-LA         8                1                                                                        0.641371E-06              9889           GWF-node number
-LA         8                1                                                                       -0.724378E-06                18           CLN-node number
-UR         8                                                                                         0.448960E-06              9889           GWF-node number
-UR         8                                                                                        -0.562842E-06                18           CLN-node number
-BT         9                             0             0          0.628936E-04     0.628936E-04
-LA         9                1                                                                        0.313919E-06             25046           GWF-node number
-LA         9                1                                                                        0.388831E-07                 1           CLN-node number
-UR         9                                                                                         0.241717E-06             25046           GWF-node number
-UR         9                                                                                         0.211485E-07                 1           CLN-node number
-BT        10                             0             0          0.921217E-05     0.921217E-05
-LA        10                1                                                                        0.339455E-06             17194           GWF-node number
-LA        10                1                                                                        0.542802E-07                 1           CLN-node number
-UR        10                                                                                         0.285142E-06             17194           GWF-node number
-UR        10                                                                                         0.333226E-07                 1           CLN-node number
-BT        11                             0             0          0.701989E-05     0.701989E-05
-LA        11                1                                                                        0.334727E-06             25368           GWF-node number
-LA        11                1                                                                        0.112809E-06                 1           CLN-node number
-UR        11                                                                                         0.304602E-06             25368           GWF-node number
-UR        11                                                                                         0.771501E-07                 1           CLN-node number
-BT        12                             3             0          0.972990E-05     0.972990E-05
-LA        12                1                                                                        0.275027E-06             33238           GWF-node number
-LA        12                1                                                                        0.131112E-06                 1           CLN-node number
-UR        12                                                                                         0.269527E-06             33238           GWF-node number
-UR        12                                                                                         0.988454E-07                 1           CLN-node number
-BT        13                             3             0          0.115965E-04     0.115965E-04
-LA        13                1                                                                        0.252392E-06             33238           GWF-node number
-LA        13                1                                                                        0.145231E-06                 1           CLN-node number
-UR        13                                                                                         0.252392E-06             33238           GWF-node number
-UR        13                                                                                         0.119655E-06                 1           CLN-node number
-BT        14                             0             0          0.111210E-04     0.111210E-04
-LA        14                1                                                                        0.245295E-06              1397           GWF-node number
-LA        14                1                                                                        0.151744E-06                18           CLN-node number
-UR        14                                                                                         0.234837E-06             33238           GWF-node number
-UR        14                                                                                         0.135644E-06                18           CLN-node number
-BT        15                             0             0          0.902234E-05     0.902234E-05
-LA        15                1                                                                        0.241095E-06              5331           GWF-node number
-LA        15                1                                                                        0.153267E-06                18           CLN-node number
-UR        15                                                                                         0.220551E-06             33238           GWF-node number
-UR        15                                                                                         0.147734E-06                18           CLN-node number
-BT        16                             0             0          0.667982E-05     0.667982E-05
-LA        16                1                                                                        0.230274E-06              5331           GWF-node number
-LA        16                1                                                                        0.152419E-06                18           CLN-node number
-UR        16                                                                                         0.209340E-06             33238           GWF-node number
-UR        16                                                                                         0.152419E-06                18           CLN-node number
-BT        17                             0             0          0.479500E-05     0.479500E-05
-LA        17                1                                                                        0.218992E-06              5331           GWF-node number
-LA        17                1                                                                        0.158174E-06                18           CLN-node number
-UR        17                                                                                         0.203734E-06             33238           GWF-node number
-UR        17                                                                                         0.158174E-06                18           CLN-node number
-BT        18                             0             0          0.349355E-05     0.349355E-05
-LA        18                1                                                                        0.220679E-06              5331           GWF-node number
-LA        18                1                                                                        0.178512E-06                18           CLN-node number
-UR        18                                                                                         0.212874E-06             33240           GWF-node number
-UR        18                                                                                         0.178512E-06                18           CLN-node number
-BT        19                             0             0          0.268028E-05     0.268028E-05
-LA        19                1                                                                        0.296604E-06             25342           GWF-node number
-LA        19                1                                                                        0.262565E-06                18           CLN-node number
-UR        19                                                                                         0.296604E-06             25342           GWF-node number
-UR        19                                                                                         0.262565E-06                18           CLN-node number
-BT        20                             0             0          0.217551E-05     0.217551E-05
-LA        20                1                                                                        0.491511E-06             25334           GWF-node number
-LA        20                1                                                                        0.452125E-06                18           CLN-node number
-UR        20                                                                                         0.491511E-06             25334           GWF-node number
-UR        20                                                                                         0.452125E-06                18           CLN-node number
-BT        21                             0             0          0.188370E-05     0.188370E-05
-LA        21                1                                                                        0.236712E-06              9270           GWF-node number
-LA        21                1                                                                        0.193797E-06                15           CLN-node number
-UR        21                                                                                         0.236712E-06              9270           GWF-node number
-UR        21                                                                                         0.193797E-06                15           CLN-node number
-BT        22                             0             0          0.163522E-05     0.163522E-05
-LA        22                1                                                                        0.217487E-06             25004           GWF-node number
-LA        22                1                                                                        0.218202E-06                18           CLN-node number
-UR        22                                                                                         0.217487E-06             25004           GWF-node number
-UR        22                                                                                         0.218202E-06                18           CLN-node number
-BT        23                             0             0          0.149190E-05     0.149190E-05
-LA        23                1                                                                        0.212174E-06              9270           GWF-node number
-LA        23                1                                                                        0.157519E-06                15           CLN-node number
-UR        23                                                                                         0.212174E-06              9270           GWF-node number
-UR        23                                                                                         0.157519E-06                15           CLN-node number
-BT        24                             0             0          0.139190E-05     0.139190E-05
-LA        24                1                                                                        0.244587E-06             25004           GWF-node number
-LA        24                1                                                                        0.259991E-06                18           CLN-node number
-UR        24                                                                                         0.244587E-06             25004           GWF-node number
-UR        24                                                                                         0.259991E-06                18           CLN-node number
-BT        25                             0             0          0.123943E-05     0.123943E-05
-LA        25                1                                                                        0.991867E-07              9270           GWF-node number
-LA        25                1                                                                        0.521570E-07                15           CLN-node number
-UR        25                                                                                         0.991867E-07              9270           GWF-node number
-UR        25                                                                                         0.521570E-07                15           CLN-node number
-BT        26                             0             0          0.118841E-05     0.118841E-05
-LA        26                3                                                                        0.415444E-05             36673           GWF-node number
-LA        26                3                                                                        0.376023E-05                18           CLN-node number
-UR        26                                                                                         0.415444E-05             36673           GWF-node number
-UR        26                                                                                         0.376023E-05                18           CLN-node number
-BT        27                             3             0          0.181197E-05     0.181197E-05
-LA        27                1                                                                        0.105133E-06             13289           GWF-node number
-LA        27                1                                                                        0.205775E-07                 6           CLN-node number
-UR        27                                                                                         0.894937E-07             13655           GWF-node number
-UR        27                                                                                         0.205775E-07                 6           CLN-node number
-BT        28                             0             0          0.350032E-06     0.350032E-06
-LA        28                1                                                                        0.830530E-07              5444           GWF-node number
-LA        28                1                                                                        0.345999E-07                 5           CLN-node number
-UR        28                                                                                         0.780361E-07             25447           GWF-node number
-UR        28                                                                                         0.345999E-07                 5           CLN-node number
-BT        29                             0             0          0.250552E-06     0.250552E-06
-LA        29                1                                                                        0.772424E-07             13355           GWF-node number
-LA        29                1                                                                        0.274760E-07                 6           CLN-node number
-UR        29                                                                                         0.746128E-07             25447           GWF-node number
-UR        29                                                                                         0.274760E-07                 6           CLN-node number
-BT        30                             0             0          0.226852E-06     0.226852E-06
-LA        30                1                                                                        0.792970E-07             17275           GWF-node number
-LA        30                1                                                                        0.319682E-07                 5           CLN-node number
-UR        30                                                                                         0.739197E-07             25447           GWF-node number
-UR        30                                                                                         0.319682E-07                 5           CLN-node number
-BT        31                             0             0          0.207384E-06     0.207384E-06
-LA        31                1                                                                        0.830163E-07             25139           GWF-node number
-LA        31                1                                                                        0.307819E-07                 5           CLN-node number
-UR        31                                                                                         0.813559E-07             25139           GWF-node number
-UR        31                                                                                         0.307819E-07                 5           CLN-node number
-BT        32                             0             0          0.188909E-06     0.188909E-06
-LA        32                1                                                                        0.323388E-06             25451           GWF-node number
-LA        32                1                                                                        0.134494E-06                 5           CLN-node number
-UR        32                                                                                         0.323388E-06             25451           GWF-node number
-UR        32                                                                                         0.134494E-06                 5           CLN-node number
-BT        33                             0             0          0.172888E-06     0.172888E-06
-LA        33                1                                                                        0.425877E-07              5476           GWF-node number
-LA        33                1                                                                        0.153410E-07                 1           CLN-node number
-UR        33                                                                                         0.425877E-07              5476           GWF-node number
-UR        33                                                                                         0.153410E-07                 1           CLN-node number
-BT        34                             0             0          0.169643E-06     0.169643E-06
-LA        34                1                                                                        0.875601E-07             21208           GWF-node number
-LA        34                1                                                                        0.447010E-07                 1           CLN-node number
-UR        34                                                                                         0.875601E-07             21208           GWF-node number
-UR        34                                                                                         0.447010E-07                 1           CLN-node number
-BT        35                             0             0          0.163071E-06     0.163071E-06
-LA        35                1                                                                        0.619550E-07             25451           GWF-node number
-LA        35                1                                                                        0.267482E-07                 1           CLN-node number
-UR        35                                                                                         0.619550E-07             25451           GWF-node number
-UR        35                                                                                         0.267482E-07                 1           CLN-node number
-BT        36                             0             0          0.161122E-06     0.161122E-06
-LA        36                1                                                                        0.934273E-07             25139           GWF-node number
-LA        36                1                                                                        0.524974E-07                 1           CLN-node number
-UR        36                                                                                         0.934273E-07             25139           GWF-node number
-UR        36                                                                                         0.524974E-07                 1           CLN-node number
-BT        37                             0             0          0.155040E-06     0.155040E-06
-LA        37                1                                                                        0.284158E-07             25451           GWF-node number
-LA        37                1                                                                        0.112535E-07                 1           CLN-node number
-UR        37                                                                                         0.284158E-07             25451           GWF-node number
-UR        37                                                                                         0.112535E-07                 1           CLN-node number
-BT        38                             0             0          0.153991E-06     0.153991E-06
-LA        38                1                                                                        0.184723E-06             25463           GWF-node number
-LA        38                1                                                                        0.989074E-07                 1           CLN-node number
-UR        38                                                                                         0.184723E-06             25463           GWF-node number
-UR        38                                                                                         0.989074E-07                 1           CLN-node number
-BT        39                             0             0          0.146381E-06     0.146381E-06
-LA        39                1                                                                        0.664045E-07             25471           GWF-node number
-LA        39                1                                                                        0.385637E-07                 1           CLN-node number
-UR        39                                                                                         0.664045E-07             25471           GWF-node number
-UR        39                                                                                         0.385637E-07                 1           CLN-node number
-BT        40                             0             0          0.143357E-06     0.143357E-06
-LA        40                1                                                                        0.837575E-07             25471           GWF-node number
-LA        40                1                                                                        0.512537E-07                 1           CLN-node number
-UR        40                                                                                         0.837575E-07             25471           GWF-node number
-UR        40                                                                                         0.512537E-07                 1           CLN-node number
-BT        41                             0             0          0.139917E-06     0.139917E-06
-LA        41                1                                                                        0.515590E-07             25471           GWF-node number
-LA        41                1                                                                        0.316102E-07                 1           CLN-node number
-UR        41                                                                                         0.515590E-07             25471           GWF-node number
-UR        41                                                                                         0.316102E-07                 1           CLN-node number
-BT        42                             0             0          0.137374E-06     0.137374E-06
-LA        42                1                                                                        0.109216E-06             25471           GWF-node number
-LA        42                1                                                                        0.731040E-07                 1           CLN-node number
-UR        42                                                                                         0.109216E-06             25471           GWF-node number
-UR        42                                                                                         0.731040E-07                 1           CLN-node number
-BT        43                             0             0          0.133080E-06     0.133080E-06
-LA        43                1                                                                        0.295820E-07             25471           GWF-node number
-LA        43                1                                                                        0.175368E-07                 1           CLN-node number
-UR        43                                                                                         0.295820E-07             25471           GWF-node number
-UR        43                                                                                         0.175368E-07                 1           CLN-node number
-BT        44                             0             0          0.131211E-06     0.131211E-06
-LA        44                1                                                                        0.246167E-06             25471           GWF-node number
-LA        44                1                                                                        0.179127E-06                 1           CLN-node number
-UR        44                                                                                         0.246167E-06             25471           GWF-node number
-UR        44                                                                                         0.179127E-06                 1           CLN-node number
-BT        45                             0             0          0.122761E-06     0.122761E-06
-LA        45                1                                                                        0.157525E-07              5346           GWF-node number
-LA        45                1                                                                        0.510439E-08                16           CLN-node number
-UR        45                                                                                         0.157525E-07              5346           GWF-node number
-UR        45                                                                                         0.510439E-08                16           CLN-node number
-BT        46                             0             0          0.119570E-06     0.119570E-06
-LA        46                1                                                                        0.262000E-07             25471           GWF-node number
-LA        46                1                                                                        0.181960E-07                 1           CLN-node number
-UR        46                                                                                         0.262000E-07             25471           GWF-node number
-UR        46                                                                                         0.181960E-07                 1           CLN-node number
-BT        47                             0             0          0.119042E-06     0.119042E-06
-LA        47                1                                                                        0.252919E-06             25471           GWF-node number
-LA        47                1                                                                        0.209984E-06                 2           CLN-node number
-UR        47                                                                                         0.252919E-06             25471           GWF-node number
-UR        47                                                                                         0.209984E-06                 2           CLN-node number
-BT        48                             0             0          0.110937E-06     0.110937E-06
-LA        48                1                                                                        0.160831E-07              5346           GWF-node number
-LA        48                1                                                                        0.388220E-08                16           CLN-node number
-UR        48                                                                                         0.160831E-07              5346           GWF-node number
-UR        48                                                                                         0.388220E-08                16           CLN-node number
-BT        49                             0             0          0.106860E-06     0.106860E-06
-LA        49                1                                                                        0.164972E-07             25471           GWF-node number
-LA        49                1                                                                        0.124502E-07                 1           CLN-node number
-UR        49                                                                                         0.164972E-07             25471           GWF-node number
-UR        49                                                                                         0.124502E-07                 1           CLN-node number
-BT        50                             0             0          0.106556E-06     0.106556E-06
-LA        50                3                                                                        0.399028E-05             25471           GWF-node number
-LA        50                3                                                                        0.352899E-05                 6           CLN-node number
-UR        50                                                                                         0.399028E-05             25471           GWF-node number
-UR        50                                                                                         0.352899E-05                 6           CLN-node number
-BT        51                             0             0          0.163136E-07     0.163136E-07
-LA        51                1                                                                        0.718016E-07             25192           GWF-node number
-LA        51                1                                                                        0.618544E-08                16           CLN-node number
-UR        51                                                                                         0.718016E-07             25192           GWF-node number
-UR        51                                                                                         0.618544E-08                16           CLN-node number
-BT        52                             0             0          0.155415E-07     0.155415E-07
-LA        52                1                                                                        0.112108E-06             29123           GWF-node number
-LA        52                1                                                                        0.199230E-07                 9           CLN-node number
-UR        52                                                                                         0.112108E-06             29123           GWF-node number
-UR        52                                                                                         0.199230E-07                 9           CLN-node number
-BT        53                             0             0          0.141680E-07     0.141680E-07
-LA        53                1                                                                        0.350140E-07             29123           GWF-node number
-LA        53                1                                                                        0.182188E-08                16           CLN-node number
-UR        53                                                                                         0.350140E-07             29123           GWF-node number
-UR        53                                                                                         0.182188E-08                16           CLN-node number
-BT        54                             0             0          0.133992E-07     0.133992E-07
-LA        54                1                                                                        0.100967E-06             29123           GWF-node number
-LA        54                1                                                                        0.161054E-07                 9           CLN-node number
-UR        54                                                                                         0.100967E-06             29123           GWF-node number
-UR        54                                                                                         0.161054E-07                 9           CLN-node number
-BT        55                             0             0          0.118895E-07     0.118895E-07
-LA        55                1                                                                        0.601948E-07             29123           GWF-node number
-LA        55                1                                                                        0.675262E-08                16           CLN-node number
-UR        55                                                                                         0.601948E-07             29123           GWF-node number
-UR        55                                                                                         0.675262E-08                16           CLN-node number
-BT        56                             0             0          0.113006E-07     0.113006E-07
-LA        56                1                                                                        0.709698E-07             29123           GWF-node number
-LA        56                1                                                                        0.127922E-07                 9           CLN-node number
-UR        56                                                                                         0.709698E-07             29123           GWF-node number
-UR        56                                                                                         0.127922E-07                 9           CLN-node number
-BT        57                             0             0          0.102281E-07     0.102281E-07
-LA        57                1                                                                        0.361176E-07             29123           GWF-node number
-LA        57                1                                                                        0.293847E-08                16           CLN-node number
-UR        57                                                                                         0.361176E-07             29123           GWF-node number
-UR        57                                                                                         0.293847E-08                16           CLN-node number
-BT        58                             0             0          0.983955E-08     0.983955E-08
-LA        58                1                                                                        0.107821E-06             29123           GWF-node number
-LA        58                1                                                                        0.176590E-07                 9           CLN-node number
-UR        58                                                                                         0.107821E-06             29123           GWF-node number
-UR        58                                                                                         0.176590E-07                 9           CLN-node number
-BT        59                             0             0          0.870501E-08     0.870501E-08
-LA        59                1                                                                        0.275657E-07             29123           GWF-node number
-LA        59                1                                                                        0.171972E-08                16           CLN-node number
-UR        59                                                                                         0.275657E-07             29123           GWF-node number
-UR        59                                                                                         0.171972E-08                16           CLN-node number
-BT        60                             0             0          0.835657E-08     0.835657E-08
-LA        60                1                                                                        0.257769E-06             29123           GWF-node number
-LA        60                1                                                                        0.385105E-07                18           CLN-node number
-UR        60                                                                                         0.257769E-06             29123           GWF-node number
-UR        60                                                                                         0.385105E-07                18           CLN-node number
-BT        61                             0             0          0.680022E-08     0.680022E-08
-LA        61                1                                                                        0.211383E-07             29123           GWF-node number
-LA        61                1                                                                        0.155032E-09                16           CLN-node number
-UR        61                                                                                         0.211383E-07             29123           GWF-node number
-UR        61                                                                                         0.155032E-09                16           CLN-node number
-BT        62                             0             0          0.614065E-08     0.614065E-08
-LA        62                1                                                                        0.636998E-07             29123           GWF-node number
-LA        62                1                                                                        0.906087E-08                18           CLN-node number
-UR        62                                                                                         0.636998E-07             29123           GWF-node number
-UR        62                                                                                         0.906087E-08                18           CLN-node number
-BT        63                             0             0          0.574931E-08     0.574931E-08
-LA        63                1                                                                        0.407728E-07             29123           GWF-node number
-LA        63                1                                                                        0.478318E-08                17           CLN-node number
-UR        63                                                                                         0.407728E-07             29123           GWF-node number
-UR        63                                                                                         0.478318E-08                17           CLN-node number
-BT        64                             0             0          0.548786E-08     0.548786E-08
-LA        64                1                                                                        0.673699E-07             29123           GWF-node number
-LA        64                1                                                                        0.106199E-07                 9           CLN-node number
-UR        64                                                                                         0.673699E-07             29123           GWF-node number
-UR        64                                                                                         0.106199E-07                 9           CLN-node number
-BT        65                             0             0          0.512247E-08     0.512247E-08
-LA        65                1                                                                        0.204470E-07             29123           GWF-node number
-LA        65                1                                                                        0.153849E-08                16           CLN-node number
-UR        65                                                                                         0.204470E-07             29123           GWF-node number
-UR        65                                                                                         0.153849E-08                16           CLN-node number
-BT        66                             0             0          0.497525E-08     0.497525E-08
-LA        66                1                                                                        0.130777E-06             29123           GWF-node number
-LA        66                1                                                                        0.195845E-07                 9           CLN-node number
-UR        66                                                                                         0.130777E-06             29123           GWF-node number
-UR        66                                                                                         0.195845E-07                 9           CLN-node number
-BT        67                             0             0          0.448672E-08     0.448672E-08
-LA        67                1                                                                        0.159162E-07             29123           GWF-node number
-LA        67                1                                                                        0.864893E-09                16           CLN-node number
-UR        67                                                                                         0.159162E-07             29123           GWF-node number
-UR        67                                                                                         0.864893E-09                16           CLN-node number
-BT        68                             0             0          0.429027E-08     0.429027E-08
-LA        68                1                                                                        0.845170E-07             29123           GWF-node number
-LA        68                1                                                                        0.125488E-07                 9           CLN-node number
-UR        68                                                                                         0.845170E-07             29123           GWF-node number
-UR        68                                                                                         0.125488E-07                 9           CLN-node number
-BT        69                             0             0          0.401829E-08     0.401829E-08
-LA        69                1                                                                        0.255967E-07             29123           GWF-node number
-LA        69                1                                                                        0.322364E-08                17           CLN-node number
-UR        69                                                                                         0.255967E-07             29123           GWF-node number
-UR        69                                                                                         0.322364E-08                17           CLN-node number
-BT        70                             0             0          0.387397E-08     0.387397E-08
-LA        70                1                                                                        0.612426E-07             29123           GWF-node number
-LA        70                1                                                                        0.105424E-07                 9           CLN-node number
-UR        70                                                                                         0.612426E-07             29123           GWF-node number
-UR        70                                                                                         0.105424E-07                 9           CLN-node number
-BT        71                             0             0          0.369104E-08     0.369104E-08
-LA        71                1                                                                        0.128713E-07             29123           GWF-node number
-LA        71                1                                                                        0.101759E-08                16           CLN-node number
-UR        71                                                                                         0.128713E-07             29123           GWF-node number
-UR        71                                                                                         0.101759E-08                16           CLN-node number
-BT        72                             0             0          0.360190E-08     0.360190E-08
-LA        72                1                                                                        0.223052E-06             29123           GWF-node number
-LA        72                1                                                                        0.356576E-07                18           CLN-node number
-UR        72                                                                                         0.223052E-06             29123           GWF-node number
-UR        72                                                                                         0.356576E-07                18           CLN-node number
-BT        73                             0             0          0.318959E-08     0.318959E-08
-LA        73                1                                                                        0.133616E-07             29123           GWF-node number
-LA        73                1                                                                        0.209982E-08                 6           CLN-node number
-UR        73                                                                                         0.133616E-07             29123           GWF-node number
-UR        73                                                                                         0.209982E-08                 6           CLN-node number
-BT        74                             0             0          0.293201E-08     0.293201E-08
-LA        74                1                                                                        0.952458E-07             29123           GWF-node number
-LA        74                1                                                                        0.195114E-07                 8           CLN-node number
-UR        74                                                                                         0.952458E-07             29123           GWF-node number
-UR        74                                                                                         0.195114E-07                 8           CLN-node number
-BT        75                             0             0          0.277098E-08     0.277098E-08
-LA        75                1                                                                        0.750751E-08             29123           GWF-node number
-LA        75                1                                                                        0.606165E-09                16           CLN-node number
+LA         1               57                                                                         1.00400                  2699           GWF-node number
+LA         1               57                                                                        -49.0021                    18           CLN-node number
+UR         1                                                                                          1.00400                  2699           GWF-node number
+UR         1                                                                                         -49.0021                    18           CLN-node number
+BT         2                             0             0          0.449640E-05     0.449640E-05
+LA         2                1                                                                        0.208397E-06              1409           GWF-node number
+LA         2                1                                                                        0.238584E-06                 1           CLN-node number
+UR         2                                                                                         0.208397E-06              1409           GWF-node number
+UR         2                                                                                         0.167009E-06                 1           CLN-node number
+BT         3                             0             0          0.370273E-05     0.370273E-05
+LA         3                1                                                                        0.884679E-07              1293           GWF-node number
+LA         3                1                                                                        0.191849E-06                12           CLN-node number
+UR         3                                                                                         0.884679E-07              1293           GWF-node number
+UR         3                                                                                         0.147724E-06                12           CLN-node number
+BT         4                             0             0          0.388346E-05     0.388346E-05
+LA         4                1                                                                        0.919736E-07              1411           GWF-node number
+LA         4                1                                                                        0.763795E-07                 2           CLN-node number
+UR         4                                                                                         0.919736E-07              1411           GWF-node number
+UR         4                                                                                         0.641587E-07                 2           CLN-node number
+BT         5                             0             0          0.318154E-05     0.318154E-05
+LA         5                1                                                                        0.549426E-07              1375           GWF-node number
+LA         5                1                                                                        0.850298E-07                 9           CLN-node number
+UR         5                                                                                         0.549426E-07              1375           GWF-node number
+UR         5                                                                                         0.773771E-07                 9           CLN-node number
+BT         6                             0             0          0.265881E-05     0.265881E-05
+LA         6                1                                                                        0.569197E-07              1411           GWF-node number
+LA         6                1                                                                        0.511559E-07                10           CLN-node number
+UR         6                                                                                         0.569197E-07              1411           GWF-node number
+UR         6                                                                                         0.501327E-07                10           CLN-node number
+BT         7                             0             0          0.216427E-05     0.216427E-05
+LA         7                1                                                                        0.412758E-07              1409           GWF-node number
+LA         7                1                                                                        0.499352E-07                 8           CLN-node number
+UR         7                                                                                         0.412758E-07              1409           GWF-node number
+UR         7                                                                                         0.499352E-07                 8           CLN-node number
+BT         8                             0             0          0.173995E-05     0.173995E-05
+LA         8                1                                                                        0.401541E-07              1408           GWF-node number
+LA         8                1                                                                        0.358272E-07                10           CLN-node number
+UR         8                                                                                         0.401541E-07              1408           GWF-node number
+UR         8                                                                                         0.358272E-07                10           CLN-node number
+BT         9                             0             0          0.139481E-05     0.139481E-05
+LA         9                1                                                                       -0.426194E-07             22773           GWF-node number
+LA         9                1                                                                        0.399143E-07                 8           CLN-node number
+UR         9                                                                                        -0.426194E-07             22773           GWF-node number
+UR         9                                                                                         0.399143E-07                 8           CLN-node number
+BT        10                             0             0          0.111491E-05     0.111491E-05
+LA        10                1                                                                       -0.480202E-07             22773           GWF-node number
+LA        10                1                                                                        0.300529E-07                15           CLN-node number
+UR        10                                                                                        -0.480202E-07             22773           GWF-node number
+UR        10                                                                                         0.300529E-07                15           CLN-node number
+BT        11                             0             0          0.880238E-06     0.880238E-06
+LA        11                1                                                                       -0.480465E-07             22772           GWF-node number
+LA        11                1                                                                        0.404487E-07                 4           CLN-node number
+UR        11                                                                                        -0.480465E-07             22772           GWF-node number
+UR        11                                                                                         0.404487E-07                 4           CLN-node number
+BT        12                             0             0          0.683119E-06     0.683119E-06
+LA        12                1                                                                        0.436559E-07              1411           GWF-node number
+LA        12                1                                                                        0.466940E-08                18           CLN-node number
+UR        12                                                                                         0.436559E-07              1411           GWF-node number
+UR        12                                                                                         0.466940E-08                18           CLN-node number
+BT        13                             0             0          0.546266E-06     0.546266E-06
+LA        13                1                                                                       -0.263086E-07             22722           GWF-node number
+LA        13                1                                                                        0.394461E-07                 1           CLN-node number
+UR        13                                                                                        -0.263086E-07             22722           GWF-node number
+UR        13                                                                                         0.394461E-07                 1           CLN-node number
+BT        14                             0             0          0.460695E-06     0.460695E-06
+LA        14                1                                                                        0.347236E-07              1411           GWF-node number
+LA        14                1                                                                       -0.115829E-07                 1           CLN-node number
+UR        14                                                                                         0.258518E-07              1377           GWF-node number
+UR        14                                                                                        -0.810806E-08                 1           CLN-node number
+BT        15                             0             0          0.450741E-06     0.450741E-06
+LA        15                1                                                                       -0.203042E-07             22722           GWF-node number
+LA        15                1                                                                        0.175591E-07                18           CLN-node number
+UR        15                                                                                        -0.203042E-07             22722           GWF-node number
+UR        15                                                                                         0.860394E-08                18           CLN-node number
+BT        16                             0             0          0.334121E-06     0.334121E-06
+LA        16                1                                                                       -0.508888E-07             22722           GWF-node number
+LA        16                1                                                                        0.356393E-07                 2           CLN-node number
+UR        16                                                                                        -0.508888E-07             22722           GWF-node number
+UR        16                                                                                         0.199580E-07                 2           CLN-node number
+BT        17                             0             0          0.305258E-06     0.305258E-06
+LA        17                1                                                                        0.172047E-07              1409           GWF-node number
+LA        17                1                                                                        0.114587E-07                 1           CLN-node number
+UR        17                                                                                        -0.136861E-07             22722           GWF-node number
+UR        17                                                                                         0.721895E-08                 1           CLN-node number
+BT        18                             0             0          0.212698E-06     0.212698E-06
+LA        18                1                                                                        0.177559E-07              1409           GWF-node number
+LA        18                1                                                                        0.139567E-07                18           CLN-node number
+UR        18                                                                                        -0.165466E-07             22722           GWF-node number
+UR        18                                                                                         0.976971E-08                18           CLN-node number
+BT        19                             0             0          0.169757E-06     0.169757E-06
+LA        19                1                                                                       -0.209816E-07             22722           GWF-node number
+LA        19                1                                                                        0.183169E-07                18           CLN-node number
+UR        19                                                                                        -0.209816E-07             22722           GWF-node number
+UR        19                                                                                         0.141040E-07                18           CLN-node number
+BT        20                             0             0          0.130446E-06     0.130446E-06
+LA        20                1                                                                       -0.309371E-07             22722           GWF-node number
+LA        20                1                                                                        0.259095E-07                 9           CLN-node number
+UR        20                                                                                        -0.309371E-07             22722           GWF-node number
+UR        20                                                                                         0.217640E-07                 9           CLN-node number
+BT        21                             0             0          0.874753E-07     0.874753E-07
+LA        21                1                                                                       -0.257502E-07             22722           GWF-node number
+LA        21                1                                                                        0.216022E-07                 1           CLN-node number
+UR        21                                                                                        -0.257502E-07             22722           GWF-node number
+UR        21                                                                                         0.196580E-07                 1           CLN-node number
+BT        22                             0             0          0.583964E-07     0.583964E-07
+LA        22                1                                                                        0.194169E-07              1310           GWF-node number
+LA        22                1                                                                        0.110661E-07                16           CLN-node number
+UR        22                                                                                         0.194169E-07              1310           GWF-node number
+UR        22                                                                                         0.108447E-07                16           CLN-node number
+BT        23                             0             0          0.471792E-07     0.471792E-07
+LA        23                1                                                                        0.106435E-07              5222           GWF-node number
+LA        23                1                                                                        0.882579E-08                 1           CLN-node number
+UR        23                                                                                         0.106435E-07              5222           GWF-node number
+UR        23                                                                                         0.882579E-08                 1           CLN-node number
+BT        24                             0             0          0.361905E-07     0.361905E-07
+LA        24                1                                                                        0.145694E-07              1332           GWF-node number
+LA        24                1                                                                        0.278127E-08                18           CLN-node number
+UR        24                                                                                         0.144746E-07              1411           GWF-node number
+UR        24                                                                                         0.278127E-08                18           CLN-node number
+BT        25                             3             0          0.619577E-07     0.619577E-07
+LA        25                1                                                                        0.584048E-08              1449           GWF-node number
+LA        25                1                                                                        0.831713E-08                 1           CLN-node number
 
 
-    75 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   1
+    25 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   1
 
- TOTAL OF      75OUTER ITERATIONS
+ TOTAL OF      25OUTER ITERATIONS
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-    1.7656    ,       2653  0.10862E-02,      29123  0.83993E-03,      29123  0.57209E-05,      36985  0.37495E-04,      29123
-  -0.37296E-05,      14548 -0.13034E-05,       6096  0.44896E-06,       9889  0.24172E-06,      25046  0.28514E-06,      17194
-   0.30460E-06,      25368  0.26953E-06,      33238  0.25239E-06,      33238  0.23484E-06,      33238  0.22055E-06,      33238
-   0.20934E-06,      33238  0.20373E-06,      33238  0.21287E-06,      33240  0.29660E-06,      25342  0.49151E-06,      25334
-   0.23671E-06,       9270  0.21749E-06,      25004  0.21217E-06,       9270  0.24459E-06,      25004  0.99187E-07,       9270
-   0.41544E-05,      36673  0.89494E-07,      13655  0.78036E-07,      25447  0.74613E-07,      25447  0.73920E-07,      25447
-   0.81356E-07,      25139  0.32339E-06,      25451  0.42588E-07,       5476  0.87560E-07,      21208  0.61955E-07,      25451
-   0.93427E-07,      25139  0.28416E-07,      25451  0.18472E-06,      25463  0.66404E-07,      25471  0.83758E-07,      25471
-   0.51559E-07,      25471  0.10922E-06,      25471  0.29582E-07,      25471  0.24617E-06,      25471  0.15752E-07,       5346
-   0.26200E-07,      25471  0.25292E-06,      25471  0.16083E-07,       5346  0.16497E-07,      25471  0.39903E-05,      25471
-   0.71802E-07,      25192  0.11211E-06,      29123  0.35014E-07,      29123  0.10097E-06,      29123  0.60195E-07,      29123
-   0.70970E-07,      29123  0.36118E-07,      29123  0.10782E-06,      29123  0.27566E-07,      29123  0.25777E-06,      29123
-   0.21138E-07,      29123  0.63700E-07,      29123  0.40773E-07,      29123  0.67370E-07,      29123  0.20447E-07,      29123
-   0.13078E-06,      29123  0.15916E-07,      29123  0.84517E-07,      29123  0.25597E-07,      29123  0.61243E-07,      29123
-   0.12871E-07,      29123  0.22305E-06,      29123  0.13362E-07,      29123  0.95246E-07,      29123  0.75075E-08,      29123
+    1.0040    ,       2699  0.20840E-06,       1409  0.88468E-07,       1293  0.91974E-07,       1411  0.54943E-07,       1375
+   0.56920E-07,       1411  0.41276E-07,       1409  0.40154E-07,       1408 -0.42619E-07,      22773 -0.48020E-07,      22773
+  -0.48047E-07,      22772  0.43656E-07,       1411 -0.26309E-07,      22722  0.25852E-07,       1377 -0.20304E-07,      22722
+  -0.50889E-07,      22722 -0.13686E-07,      22722 -0.16547E-07,      22722 -0.20982E-07,      22722 -0.30937E-07,      22722
+  -0.25750E-07,      22722  0.19417E-07,       1310  0.10643E-07,       5222  0.14475E-07,       1411  0.58405E-08,       1449
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   -48.317    ,          1  0.36633E-03,          8  0.34069E-03,          8  0.83972E-04,          8  0.31190E-04,          8
-  -0.30795E-05,         18 -0.11087E-05,         18 -0.56284E-06,         18  0.21149E-07,          1  0.33323E-07,          1
-   0.77150E-07,          1  0.98845E-07,          1  0.11966E-06,          1  0.13564E-06,         18  0.14773E-06,         18
-   0.15242E-06,         18  0.15817E-06,         18  0.17851E-06,         18  0.26257E-06,         18  0.45212E-06,         18
-   0.19380E-06,         15  0.21820E-06,         18  0.15752E-06,         15  0.25999E-06,         18  0.52157E-07,         15
-   0.37602E-05,         18  0.20577E-07,          6  0.34600E-07,          5  0.27476E-07,          6  0.31968E-07,          5
-   0.30782E-07,          5  0.13449E-06,          5  0.15341E-07,          1  0.44701E-07,          1  0.26748E-07,          1
-   0.52497E-07,          1  0.11253E-07,          1  0.98907E-07,          1  0.38564E-07,          1  0.51254E-07,          1
-   0.31610E-07,          1  0.73104E-07,          1  0.17537E-07,          1  0.17913E-06,          1  0.51044E-08,         16
-   0.18196E-07,          1  0.20998E-06,          2  0.38822E-08,         16  0.12450E-07,          1  0.35290E-05,          6
-   0.61854E-08,         16  0.19923E-07,          9  0.18219E-08,         16  0.16105E-07,          9  0.67526E-08,         16
-   0.12792E-07,          9  0.29385E-08,         16  0.17659E-07,          9  0.17197E-08,         16  0.38511E-07,         18
-   0.15503E-09,         16  0.90609E-08,         18  0.47832E-08,         17  0.10620E-07,          9  0.15385E-08,         16
-   0.19584E-07,          9  0.86489E-09,         16  0.12549E-07,          9  0.32236E-08,         17  0.10542E-07,          9
-   0.10176E-08,         16  0.35658E-07,         18  0.20998E-08,          6  0.19511E-07,          8  0.60616E-09,         16
+   -49.002    ,         18  0.16701E-06,          1  0.14772E-06,         12  0.64159E-07,          2  0.77377E-07,          9
+   0.50133E-07,         10  0.49935E-07,          8  0.35827E-07,         10  0.39914E-07,          8  0.30053E-07,         15
+   0.40449E-07,          4  0.46694E-08,         18  0.39446E-07,          1 -0.81081E-08,          1  0.86039E-08,         18
+   0.19958E-07,          2  0.72190E-08,          1  0.97697E-08,         18  0.14104E-07,         18  0.21764E-07,          9
+   0.19658E-07,          1  0.10845E-07,         16  0.88258E-08,          1  0.27813E-08,         18  0.83171E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        1   TIME STEP        1
     PRINT BUDGET
@@ -1229,12 +954,12 @@ LA        75                1                                                   
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =      233629.9219       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =      233629.9375       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =      233629.9219             TOTAL OUT =      233629.9219
+           TOTAL OUT =      233629.9375             TOTAL OUT =      233629.9375
 
-            IN - OUT =       1.5625E-02              IN - OUT =       1.5625E-02
+            IN - OUT =           0.0000              IN - OUT =           0.0000
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1280,77 +1005,28 @@ LA        75                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.268464E-08     0.268464E-08
-LA         1                1                                                                        0.424800E-07             29123           GWF-node number
-LA         1                1                                                                        0.872984E-08                17           CLN-node number
-UR         1                                                                                         0.424800E-07             29123           GWF-node number
-UR         1                                                                                         0.872984E-08                17           CLN-node number
-BT         2                             0             0          0.204052E-08     0.204052E-08
-LA         2                1                                                                        0.149535E-07             29123           GWF-node number
-LA         2                1                                                                        0.435578E-08                 8           CLN-node number
-UR         2                                                                                         0.149535E-07             29123           GWF-node number
-UR         2                                                                                         0.435578E-08                 8           CLN-node number
-BT         3                             0             0          0.172544E-08     0.172544E-08
-LA         3                1                                                                        0.153341E-07             29123           GWF-node number
-LA         3                1                                                                        0.272226E-08                16           CLN-node number
-UR         3                                                                                         0.153341E-07             29123           GWF-node number
-UR         3                                                                                         0.272226E-08                16           CLN-node number
-BT         4                             3             0          0.241035E-08     0.241035E-08
-LA         4                1                                                                        0.108740E-07             29123           GWF-node number
-LA         4                1                                                                        0.335282E-08                 9           CLN-node number
-UR         4                                                                                         0.108740E-07             29123           GWF-node number
-UR         4                                                                                         0.335282E-08                 9           CLN-node number
-BT         5                             0             0          0.213801E-08     0.213801E-08
-LA         5                1                                                                        0.105145E-07             29123           GWF-node number
-LA         5                1                                                                        0.211144E-08                16           CLN-node number
-UR         5                                                                                         0.105145E-07             29123           GWF-node number
-UR         5                                                                                         0.211144E-08                16           CLN-node number
-BT         6                             0             0          0.187503E-08     0.187503E-08
-LA         6                1                                                                        0.107671E-07             29123           GWF-node number
-LA         6                1                                                                        0.281997E-08                 9           CLN-node number
-UR         6                                                                                         0.107671E-07             29123           GWF-node number
-UR         6                                                                                         0.281997E-08                 9           CLN-node number
-BT         7                             0             0          0.157447E-08     0.157447E-08
-LA         7                1                                                                        0.109687E-07             29123           GWF-node number
-LA         7                1                                                                        0.248803E-08                 9           CLN-node number
-UR         7                                                                                         0.109687E-07             29123           GWF-node number
-UR         7                                                                                         0.248803E-08                 9           CLN-node number
-BT         8                             0             0          0.136426E-08     0.136426E-08
-LA         8                1                                                                        0.126744E-07             29123           GWF-node number
-LA         8                1                                                                        0.316357E-08                 8           CLN-node number
-UR         8                                                                                         0.126744E-07             29123           GWF-node number
-UR         8                                                                                         0.316357E-08                 8           CLN-node number
-BT         9                             0             0          0.119599E-08     0.119599E-08
-LA         9                1                                                                        0.187899E-07             29123           GWF-node number
-LA         9                1                                                                        0.431932E-08                 8           CLN-node number
-UR         9                                                                                         0.187899E-07             29123           GWF-node number
-UR         9                                                                                         0.431932E-08                 8           CLN-node number
-BT        10                             0             0          0.105130E-08     0.105130E-08
-LA        10                1                                                                        0.699685E-07             29123           GWF-node number
-LA        10                1                                                                        0.181535E-07                 8           CLN-node number
-UR        10                                                                                         0.699685E-07             29123           GWF-node number
-UR        10                                                                                         0.181535E-07                 8           CLN-node number
-BT        11                             0             0          0.748697E-09     0.748697E-09
-LA        11                1                                                                        0.449661E-08             29123           GWF-node number
-LA        11                1                                                                       -0.228048E-09                 3           CLN-node number
+BT         1                             0             0          0.248011E-07     0.248011E-07
+LA         1                1                                                                        0.111452E-07              1411           GWF-node number
+LA         1                1                                                                        0.198690E-08                 1           CLN-node number
+UR         1                                                                                         0.111452E-07              1411           GWF-node number
+UR         1                                                                                         0.198690E-08                 1           CLN-node number
+BT         2                             0             0          0.190473E-08     0.190473E-08
+LA         2                1                                                                        0.228363E-08              5269           GWF-node number
+LA         2                1                                                                        0.538916E-08                 8           CLN-node number
 
 
-    11 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   2
+     2 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   2
 
- TOTAL OF      11OUTER ITERATIONS
+ TOTAL OF       2OUTER ITERATIONS
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.42480E-07,      29123  0.14954E-07,      29123  0.15334E-07,      29123  0.10874E-07,      29123  0.10514E-07,      29123
-   0.10767E-07,      29123  0.10969E-07,      29123  0.12674E-07,      29123  0.18790E-07,      29123  0.69969E-07,      29123
-   0.44966E-08,      29123
+   0.11145E-07,       1411  0.22836E-08,       5269
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.87298E-08,         17  0.43558E-08,          8  0.27223E-08,         16  0.33528E-08,          9  0.21114E-08,         16
-   0.28200E-08,          9  0.24880E-08,          9  0.31636E-08,          8  0.43193E-08,          8  0.18153E-07,          8
-  -0.22805E-09,          3
+   0.19869E-08,          1  0.53892E-08,          8
 
  OUTPUT CONTROL FOR STRESS PERIOD        2   TIME STEP        1
     PRINT BUDGET
@@ -1380,27 +1056,27 @@ LA        11                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       2.4366E-09               STORAGE =       2.4366E-09
+             STORAGE =       1.1321E-02               STORAGE =       1.1321E-02
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =      467259.8750              RECHARGE =      233629.9375
 
-            TOTAL IN =      467259.8750              TOTAL IN =      233629.9375
+            TOTAL IN =      467259.8863              TOTAL IN =      233629.9488
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       2.5115E-03               STORAGE =       2.5115E-03
+             STORAGE =       3.4596E-03               STORAGE =       3.4596E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =      467259.8438       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =      467259.8750       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =      467259.8463             TOTAL OUT =      233629.9244
+           TOTAL OUT =      467259.8785             TOTAL OUT =      233629.9410
 
-            IN - OUT =       2.8739E-02              IN - OUT =       1.3114E-02
+            IN - OUT =       7.8614E-03              IN - OUT =       7.8614E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1446,33 +1122,23 @@ LA        11                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.631387E-08     0.631387E-08
-LA         1                1                                                                        0.104527E-07              2756           GWF-node number
-LA         1                1                                                                        0.162324E-08                 7           CLN-node number
-UR         1                                                                                         0.104527E-07              2756           GWF-node number
-UR         1                                                                                         0.162324E-08                 7           CLN-node number
-BT         2                             0             0          0.169389E-08     0.169389E-08
-LA         2                1                                                                        0.202001E-07             25192           GWF-node number
-LA         2                1                                                                        0.458438E-08                 6           CLN-node number
-UR         2                                                                                         0.202001E-07             25192           GWF-node number
-UR         2                                                                                         0.458438E-08                 6           CLN-node number
-BT         3                             0             0          0.107503E-08     0.107503E-08
-LA         3                1                                                                        0.800709E-08             36985           GWF-node number
-LA         3                1                                                                        0.151284E-08                 1           CLN-node number
+BT         1                             0             0          0.185652E-07     0.185652E-07
+LA         1                1                                                                        0.591946E-08              1411           GWF-node number
+LA         1                1                                                                        0.424948E-08                18           CLN-node number
 
 
-     3 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   3
+     1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   3
 
- TOTAL OF       3OUTER ITERATIONS
+ TOTAL OF       1OUTER ITERATIONS
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.10453E-07,       2756  0.20200E-07,      25192  0.80071E-08,      36985
+   0.59195E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.16232E-08,          7  0.45844E-08,          6  0.15128E-08,          1
+   0.42495E-08,         18
 
  OUTPUT CONTROL FOR STRESS PERIOD        3   TIME STEP        1
     PRINT BUDGET
@@ -1502,27 +1168,27 @@ LA         3                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       3.2467E-09               STORAGE =       8.1008E-10
+             STORAGE =       2.0998E-02               STORAGE =       9.6770E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =      700889.8125              RECHARGE =      233629.9375
 
-            TOTAL IN =      700889.8125              TOTAL IN =      233629.9375
+            TOTAL IN =      700889.8335              TOTAL IN =      233629.9472
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       4.4287E-03               STORAGE =       1.9172E-03
+             STORAGE =       6.4250E-03               STORAGE =       2.9654E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =      700889.7656       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =      700889.8125       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =      700889.7701             TOTAL OUT =      233629.9238
+           TOTAL OUT =      700889.8189             TOTAL OUT =      233629.9405
 
-            IN - OUT =       4.2446E-02              IN - OUT =       1.3708E-02
+            IN - OUT =       1.4573E-02              IN - OUT =       6.7117E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1568,9 +1234,9 @@ LA         3                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.478033E-08     0.478033E-08
-LA         1                1                                                                        0.821348E-08              1606           GWF-node number
-LA         1                1                                                                        0.203393E-08                 1           CLN-node number
+BT         1                             0             0          0.180530E-07     0.180530E-07
+LA         1                1                                                                        0.503641E-08              1375           GWF-node number
+LA         1                1                                                                        0.686474E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   4
@@ -1579,12 +1245,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.82135E-08,       1606
+   0.50364E-08,       1375
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.20339E-08,          1
+   0.68647E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        4   TIME STEP        1
     PRINT BUDGET
@@ -1614,27 +1280,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       4.1332E-09               STORAGE =       8.8647E-10
+             STORAGE =       3.1327E-02               STORAGE =       1.0329E-02
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =      934519.7500              RECHARGE =      233629.9375
 
-            TOTAL IN =      934519.7500              TOTAL IN =      233629.9375
+            TOTAL IN =      934519.7813              TOTAL IN =      233629.9478
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       5.8730E-03               STORAGE =       1.4443E-03
+             STORAGE =       9.5671E-03               STORAGE =       3.1421E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =      934519.6875       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =      934519.7500       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =      934519.6934             TOTAL OUT =      233629.9233
+           TOTAL OUT =      934519.7596             TOTAL OUT =      233629.9406
 
-            IN - OUT =       5.6627E-02              IN - OUT =       1.4181E-02
+            IN - OUT =       2.1760E-02              IN - OUT =       7.1873E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1680,9 +1346,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.353281E-08     0.353281E-08
-LA         1                1                                                                        0.855071E-08             29123           GWF-node number
-LA         1                1                                                                        0.189402E-08                 1           CLN-node number
+BT         1                             0             0          0.140963E-07     0.140963E-07
+LA         1                1                                                                        0.710513E-08              1411           GWF-node number
+LA         1                1                                                                        0.153217E-08                18           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   5
@@ -1691,12 +1357,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.85507E-08,      29123
+   0.71051E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.18940E-08,          1
+   0.15322E-08,         18
 
  OUTPUT CONTROL FOR STRESS PERIOD        5   TIME STEP        1
     PRINT BUDGET
@@ -1726,27 +1392,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       4.9778E-09               STORAGE =       8.4467E-10
+             STORAGE =       3.9716E-02               STORAGE =       8.3883E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     1168149.6875              RECHARGE =      233629.9375
 
-            TOTAL IN =     1168149.6875              TOTAL IN =      233629.9375
+            TOTAL IN =     1168149.7272              TOTAL IN =      233629.9459
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       7.3352E-03               STORAGE =       1.4622E-03
+             STORAGE =       1.2108E-02               STORAGE =       2.5408E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     1168149.6094       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     1168149.6875       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     1168149.6167             TOTAL OUT =      233629.9233
+           TOTAL OUT =     1168149.6996             TOTAL OUT =      233629.9400
 
-            IN - OUT =       7.0790E-02              IN - OUT =       1.4163E-02
+            IN - OUT =       2.7608E-02              IN - OUT =       5.8475E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1792,9 +1458,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.310100E-08     0.310100E-08
-LA         1                1                                                                        0.857975E-08             29123           GWF-node number
-LA         1                1                                                                        0.211700E-08                 1           CLN-node number
+BT         1                             0             0          0.136485E-07     0.136485E-07
+LA         1                1                                                                        0.400745E-08              5352           GWF-node number
+LA         1                1                                                                        0.848403E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   6
@@ -1803,12 +1469,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.85798E-08,      29123
+   0.40074E-08,       5352
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.21170E-08,          1
+   0.84840E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        6   TIME STEP        1
     PRINT BUDGET
@@ -1838,27 +1504,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       5.9717E-09               STORAGE =       9.9389E-10
+             STORAGE =       4.7848E-02               STORAGE =       8.1326E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     1401779.6250              RECHARGE =      233629.9375
 
-            TOTAL IN =     1401779.6250              TOTAL IN =      233629.9375
+            TOTAL IN =     1401779.6728              TOTAL IN =      233629.9456
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       8.7921E-03               STORAGE =       1.4569E-03
+             STORAGE =       1.4560E-02               STORAGE =       2.4520E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     1401779.5312       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     1401779.6250       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     1401779.5400             TOTAL OUT =      233629.9233
+           TOTAL OUT =     1401779.6396             TOTAL OUT =      233629.9400
 
-            IN - OUT =       8.4958E-02              IN - OUT =       1.4168E-02
+            IN - OUT =       3.3288E-02              IN - OUT =       5.6806E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -1904,9 +1570,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.287235E-08     0.287235E-08
-LA         1                1                                                                        0.850189E-08             29123           GWF-node number
-LA         1                1                                                                        0.203529E-08                 1           CLN-node number
+BT         1                             0             0          0.115296E-07     0.115296E-07
+LA         1                1                                                                        0.940373E-08              1411           GWF-node number
+LA         1                1                                                                       -0.296447E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   7
@@ -1915,12 +1581,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.85019E-08,      29123
+   0.94037E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.20353E-08,          1
+  -0.29645E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        7   TIME STEP        1
     PRINT BUDGET
@@ -1950,27 +1616,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       6.7648E-09               STORAGE =       7.9311E-10
+             STORAGE =       5.3787E-02               STORAGE =       5.9386E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     1635409.5625              RECHARGE =      233629.9375
 
-            TOTAL IN =     1635409.5625              TOTAL IN =      233629.9375
+            TOTAL IN =     1635409.6163              TOTAL IN =      233629.9434
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       1.0242E-02               STORAGE =       1.4503E-03
+             STORAGE =       1.6344E-02               STORAGE =       1.7841E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     1635409.4531       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     1635409.5625       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     1635409.4634             TOTAL OUT =      233629.9233
+           TOTAL OUT =     1635409.5788             TOTAL OUT =      233629.9393
 
-            IN - OUT =       9.9133E-02              IN - OUT =       1.4175E-02
+            IN - OUT =       3.7443E-02              IN - OUT =       4.1546E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -2016,9 +1682,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.272746E-08     0.272746E-08
-LA         1                1                                                                        0.839942E-08             29123           GWF-node number
-LA         1                1                                                                        0.214891E-08                 1           CLN-node number
+BT         1                             0             0          0.110872E-07     0.110872E-07
+LA         1                1                                                                       -0.443671E-08              1411           GWF-node number
+LA         1                1                                                                        0.909532E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   8
@@ -2027,12 +1693,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.83994E-08,      29123
+  -0.44367E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.21489E-08,          1
+   0.90953E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        8   TIME STEP        1
     PRINT BUDGET
@@ -2062,27 +1728,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       7.4305E-09               STORAGE =       6.6561E-10
+             STORAGE =       5.9337E-02               STORAGE =       5.5498E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     1869039.5000              RECHARGE =      233629.9375
 
-            TOTAL IN =     1869039.5000              TOTAL IN =      233629.9375
+            TOTAL IN =     1869039.5593              TOTAL IN =      233629.9430
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       1.1689E-02               STORAGE =       1.4470E-03
+             STORAGE =       1.8006E-02               STORAGE =       1.6621E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     1869039.3750       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     1869039.5000       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     1869039.3867             TOTAL OUT =      233629.9233
+           TOTAL OUT =     1869039.5180             TOTAL OUT =      233629.9392
 
-            IN - OUT =           0.1133              IN - OUT =       1.4178E-02
+            IN - OUT =       4.1331E-02              IN - OUT =       3.8877E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -2128,9 +1794,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.262151E-08     0.262151E-08
-LA         1                1                                                                        0.826196E-08             29123           GWF-node number
-LA         1                1                                                                        0.211409E-08                 1           CLN-node number
+BT         1                             0             0          0.995557E-08     0.995557E-08
+LA         1                1                                                                        0.933365E-08              1411           GWF-node number
+LA         1                1                                                                       -0.394510E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD   9
@@ -2139,12 +1805,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.82620E-08,      29123
+   0.93336E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.21141E-08,          1
+  -0.39451E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD        9   TIME STEP        1
     PRINT BUDGET
@@ -2174,27 +1840,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       8.0421E-09               STORAGE =       6.1166E-10
+             STORAGE =       6.4180E-02               STORAGE =       4.8434E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     2102669.4375              RECHARGE =      233629.9375
 
-            TOTAL IN =     2102669.4375              TOTAL IN =      233629.9375
+            TOTAL IN =     2102669.5017              TOTAL IN =      233629.9423
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       1.3131E-02               STORAGE =       1.4412E-03
+             STORAGE =       1.9453E-02               STORAGE =       1.4470E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     2102669.2969       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     2102669.4375       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     2102669.3100             TOTAL OUT =      233629.9233
+           TOTAL OUT =     2102669.4570             TOTAL OUT =      233629.9389
 
-            IN - OUT =           0.1275              IN - OUT =       1.4184E-02
+            IN - OUT =       4.4727E-02              IN - OUT =       3.3963E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -2240,9 +1906,9 @@ LA         1                1                                                   
 
     Outer-Iteration  Inner-Iteration  Backtracking  Number of        Incoming       Outgoing  Maximum Head Change     Maximum Head Change
         Number           Count           Flag       Backtracks       Residual       Residual           Value              Location
-BT         1                             0             0          0.254248E-08     0.254248E-08
-LA         1                1                                                                        0.813171E-08             29123           GWF-node number
-LA         1                1                                                                        0.219320E-08                 1           CLN-node number
+BT         1                             0             0          0.907623E-08     0.907623E-08
+LA         1                1                                                                       -0.431529E-08              1411           GWF-node number
+LA         1                1                                                                        0.827033E-08                 1           CLN-node number
 
 
      1 CALLS TO SPARSE MATRIX SOLVER PACKAGE  IN FLOW TIME STEP   1 STRESS PERIOD  10
@@ -2251,12 +1917,12 @@ LA         1                1                                                   
   MAXIMUM CHANGE FOR EACH ITERATION:
    MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE  MAX. CHANGE        NODE
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.81317E-08,      29123
+  -0.43153E-08,       1411
 
   MAXIMUM CHANGE FOR CLN NODE AT EACH ITERATION:
    MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL  MAX. CHANGE    CLN-CELL
  ------------------------------------------------------------------------------------------------------------------------------------
-   0.21932E-08,          1
+   0.82703E-08,          1
 
  OUTPUT CONTROL FOR STRESS PERIOD       10   TIME STEP        1
     PRINT BUDGET
@@ -2286,27 +1952,27 @@ LA         1                1                                                   
 
            IN:                                      IN:
            ---                                      ---
-             STORAGE =       9.6455E-09               STORAGE =       1.6034E-09
+             STORAGE =       6.8995E-02               STORAGE =       4.8145E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
      HEAD DEP BOUNDS =           0.0000       HEAD DEP BOUNDS =           0.0000
             RECHARGE =     2336299.3750              RECHARGE =      233629.9375
 
-            TOTAL IN =     2336299.3750              TOTAL IN =      233629.9375
+            TOTAL IN =     2336299.4440              TOTAL IN =      233629.9423
 
           OUT:                                     OUT:
           ----                                     ----
-             STORAGE =       1.4568E-02               STORAGE =       1.4376E-03
+             STORAGE =       2.0888E-02               STORAGE =       1.4351E-03
          CLN STORAGE =           0.0000           CLN STORAGE =           0.0000
        CONSTANT HEAD =           0.0000         CONSTANT HEAD =           0.0000
       CLN CONST HEAD =           0.0000        CLN CONST HEAD =           0.0000
-     HEAD DEP BOUNDS =     2336299.2188       HEAD DEP BOUNDS =      233629.9219
+     HEAD DEP BOUNDS =     2336299.3750       HEAD DEP BOUNDS =      233629.9375
             RECHARGE =           0.0000              RECHARGE =           0.0000
 
-           TOTAL OUT =     2336299.2333             TOTAL OUT =      233629.9233
+           TOTAL OUT =     2336299.3959             TOTAL OUT =      233629.9389
 
-            IN - OUT =           0.1417              IN - OUT =       1.4187E-02
+            IN - OUT =       4.8106E-02              IN - OUT =       3.3794E-03
 
  PERCENT DISCREPANCY =           0.00     PERCENT DISCREPANCY =           0.00
 
@@ -2323,6 +1989,6 @@ LA         1                1                                                   
          TOTAL TIME 8.64000E+05  14400.      240.00      10.000     2.73785E-02
 1
 
- Run end date and time (yyyy/mm/dd hh:mm:ss): 2019/02/24  8:54:24
- Elapsed run time: 21.753 Seconds
+ Run end date and time (yyyy/mm/dd hh:mm:ss): 2019/02/24 17:38:28
+ Elapsed run time: 11.799 Seconds
 
