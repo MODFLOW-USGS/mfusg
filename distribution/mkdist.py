@@ -261,6 +261,12 @@ if __name__ == '__main__':
     msg = 'Updating the examples failed.  Return code = {}'.format(return_code)
     assert return_code == 0, msg
 
+    # Copy the get_ex02.py file
+    get_ex02_file = '../examples/get_ex02.py'
+    dest = folder_dict['test']
+    print('  copying {} ===> {}'.format(get_ex02_file, dest))
+    shutil.copy2(get_ex02_file, dest)
+
     # Zip the distribution
     uflag = 'u'
     if win_target_os:

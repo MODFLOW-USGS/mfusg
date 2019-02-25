@@ -55,7 +55,7 @@ will be created when the distribution file is unzipped:
     |--bin            ; MODFLOW-USG executables for personal computers
     |--doc            ; Documentation files
     |--msvs           ; Microsoft Visual Studio Project files
-    |--pymake         ; A python script for compiling MODFLOW-USG
+    |--make           ; makefile for compiling MODFLOW-USG with gfortran
     |--src            ; MODFLOW-USG source code
        |zonebudusg    ; Source for zonebudget post processing program
     |--test           ; Input and output files for verification tests
