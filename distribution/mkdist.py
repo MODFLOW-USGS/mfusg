@@ -129,7 +129,7 @@ def distribution_setup(name, dest, subdirs):
 if __name__ == '__main__':
 
     # Define distribution information and setup the folder structure
-    win_target_os = False
+    win_target_os = True
     distribution_program = 'mfusg'
     distribution_version = '1_5'
     distribution_name = distribution_program + distribution_version
@@ -166,14 +166,26 @@ if __name__ == '__main__':
     if win_target_os:
         fc = 'ifort'
         cc = 'cl'
+        arch = 'ia32'
     else:
         fc = 'gfortran'
         cc = 'gcc'
-    pymake.main(srcdir, target, fc, cc, makeclean=True, include_subdirs=False)
+        arch = 'intel64'
+    pymake.main(srcdir, target, fc, cc, makeclean=True, include_subdirs=False,
+                arch=arch)
     if win_target_os:
         target += '.exe'
     if not os.path.isfile(target):
         raise Exception('Did not build target: {}'.format(target))
+    # if windows, also make a 32-bit executable
+    if win_target_os:
+        arch = 'intel64'
+        target = os.path.join(folder_dict['bin'], distribution_program) + '_x64'
+        pymake.main(srcdir, target, fc, cc, makeclean=True,
+                    include_subdirs=False, arch=arch)
+        target += '.exe'
+        if not os.path.isfile(target):
+            raise Exception('Did not build target: {}'.format(target))
 
     # Copy the ZONEBUDUSG source files
     print(2 * '\n')
