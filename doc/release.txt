@@ -14,7 +14,6 @@ NOTE: Any use of trade, product or firm names is for descriptive purposes
 
 o Version 1.5 02/27/2019
     MFUSG -- Updated program version and date.
-    CLN2BASU1 --
     GLO2BASU1 -- DDREFERENCE was not implemented correctly and so the drawdown
        reference array was never reset when DDREFERENCE was specified in the
        output control file.
@@ -23,7 +22,7 @@ o Version 1.5 02/27/2019
     GWF2EVT8U1 -- Adding missing variable to use statement.
     GWF2WEL7U1 -- Initialized variable to zero.
     UTL7U1 -- Modified UBDSVBU to use correct node number.
-    Executables -- Compiled using Intel Fortran 2019.1.144
+    Executables -- Compiled using Intel Fortran 2019.2.190
 
 
 o Version 1.4 10/27/2017

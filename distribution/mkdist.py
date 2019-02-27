@@ -212,7 +212,7 @@ if __name__ == '__main__':
     print('Copy documentation files')
     print('\n')
     documentation_files = ['tm6-A45.pdf', 'zonbudusg.pdf',
-                           'mfusgio/mfusg_io_v_1_4.pdf']
+                           'mfusgio/mfusg_io_v_1_5.pdf']
     for docfile in documentation_files:
         docfile_wpath = os.path.join('../doc', docfile)
         dest = folder_dict['doc']
