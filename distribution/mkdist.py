@@ -273,7 +273,7 @@ if __name__ == '__main__':
     return_code = p.returncode
     msg = 'Updating the examples failed.  Return code = {}'.format(return_code)
     assert return_code == 0, msg
-    os.remove(os.path.join(folder_dict['test'], 'update_python.py'))
+    os.remove(os.path.join(folder_dict['test'], 'update_output.py'))
 
     # Copy the get_ex02.py file
     get_ex02_file = '../examples/get_ex02.py'
