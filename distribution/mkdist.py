@@ -258,7 +258,8 @@ if __name__ == '__main__':
     windows_line_endings = win_target_os
     convert_line_endings(distribution_path, windows_line_endings)
 
-    # Run the examples and save the output
+    # Run the examples and save the output using update_python.py, then
+    # delete the update_python.py script from the distribution
     print(2 * '\n')
     print('Running the examples')
     print('\n')
@@ -272,6 +273,7 @@ if __name__ == '__main__':
     return_code = p.returncode
     msg = 'Updating the examples failed.  Return code = {}'.format(return_code)
     assert return_code == 0, msg
+    os.remove(os.path.join(folder_dict['test'], 'update_python.py'))
 
     # Copy the get_ex02.py file
     get_ex02_file = '../examples/get_ex02.py'
