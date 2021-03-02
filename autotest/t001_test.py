@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import flopy
 import pymake
-from pymake.autotest import get_namefiles, compare_budget, compare_heads
+from pymake import get_namefiles, compare_budget, compare_heads
 import config
 
 
