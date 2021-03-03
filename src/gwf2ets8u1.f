@@ -191,7 +191,7 @@ C
 C        SPECIFICATIONS:
 C     ------------------------------------------------------------------
       USE GLOBAL,       ONLY:NCOL,NROW,IOUT,DELR,DELC,IFREFM,NODLAY,
-     1  AREA,IUNSTR
+     1  AREA,IUNSTR,NODES
       USE GWFETSMODULE, ONLY:NETSOP,NETSEG,NPETS,IETSPF,
      1 IETS,ETSR,ETSX,ETSS,PXDP,PETM,INIETS,NIETS
       REAL, DIMENSION(:,:),ALLOCATABLE  ::TEMP
@@ -373,7 +373,7 @@ C7B------IF INIETS=>0 THEN READ INDICATOR ARRAY.
           ELSE ! FOR UNSTRUCTURED GRID
 C11------IF INIETS=>0 THEN CALL MODULE U2DINT TO READ INDICATOR ARRAY.
             CALL U2DINT(IETS,ANAME(1),1,NIETS,0,IN,IOUT)
-C----------------------------------------------------            
+C----------------------------------------------------
 C ----------CHECK FOR IETS BEING LARGER THAN NODES
             IFLAG = 0
             DO I=1,NIETS
@@ -382,15 +382,15 @@ C ----------CHECK FOR IETS BEING LARGER THAN NODES
                 GO TO 112
               ENDIF
             ENDDO
-112         CONTINUE 
+112         CONTINUE
 C ----------WRITE MESSAGE AND STOP IF IEVT IS LARGER THAN NODES
             IF(IFLAG.GT.0)THEN
-              WRITE(IOUT,75)IFLAG,NODES 
+              WRITE(IOUT,75)IFLAG,NODES
 75            FORMAT('INDEX NODE NO.',I10,
      1        ', LARGER THAN TOTAL GWF NODES (',I10,'), STOPPING')
               STOP
             ENDIF
-C----------------------------------------------------             
+C----------------------------------------------------
           ENDIF
         ENDIF
       ELSE !NETSOP IS NOT 2 SO SET TOP LAYER OF NODES IN IETS
