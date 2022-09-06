@@ -2,6 +2,7 @@
         INTEGER IPREC,NEQ,NA
         REAL, ALLOCATABLE, DIMENSION(:) ::BUFF
         REAL, ALLOCATABLE, DIMENSION(:) ::BUFFD
+        REAL, ALLOCATABLE, DIMENSION(:) ::BUFFD_by_index
         INTEGER, ALLOCATABLE, DIMENSION(:)    ::IA
         INTEGER, ALLOCATABLE, DIMENSION(:)    ::JA
         REAL,    ALLOCATABLE, DIMENSION(:)    ::A
@@ -351,20 +352,19 @@ C  FULL 3-D ARRAY
       ELSE IF(ITYPE.EQ.3) THEN
 C  1-LAYER ARRAY WITH LAYER INDICATOR ARRAY
          BUFFD=DZERO
+         BUFFD_by_index=DZERO
          READ(INBUD) (IBUFF(N),N=1,NREAL)
          IF(IPREC.EQ.1) THEN
            READ(INBUD) (BUFF(N),N=1,NREAL)
            DO 265 N=1,NREAL
-           BUFFD(N)=BUFF(N)
+           BUFFD_by_index(N)=BUFF(N)
 265        CONTINUE
          ELSE
-           READ(INBUD) (BUFFD(N),N=1,NREAL)
+           READ(INBUD) (BUFFD_by_index(N),N=1,NREAL)
          END IF
          DO 270 I=1,NREAL
-         IF(I.NE.IBUFF(I)) THEN
-            BUFFD(IBUFF(I))=BUFFD(I)
-            BUFFD(I)=DZERO
-          END IF
+         BUFFD(IBUFF(I))=BUFFD_by_index(I)
+         BUFFD_by_index(I)=DZERO
 270      CONTINUE
       ELSE IF(ITYPE.EQ.4) THEN
 C  1-LAYER ARRAY THAT DEFINES LAYER 1
@@ -464,6 +464,7 @@ C
       NA=NJAG
       ALLOCATE (BUFF(NA))
       ALLOCATE (BUFFD(NA))
+      ALLOCATE (BUFFD_by_index(NA))
       ALLOCATE (IA(NEQ+1))
       ALLOCATE (JA(NA))
       ALLOCATE (NODELAY(NLAY))
@@ -1512,15 +1513,15 @@ C
       END
       SUBROUTINE VBNMCHK(IFIRST,IOUT,IUCSV,MTOT,NTRDIM,VBNM)
 C     ******************************************************************
-C     CHECK TO SEE IF THE NUMBER OR TYPE OF ENTRIES IN THE BUDGET FILE 
+C     CHECK TO SEE IF THE NUMBER OR TYPE OF ENTRIES IN THE BUDGET FILE
 C     HAS CHANGED.  FOR THE FIRST CALL, STORE NON-STORAGE ENTRIES IN
-C     VBNM0.  TERMINATE WITH AN ERROR IF VBNM DIFFERS FROM VBNM0 IN 
+C     VBNM0.  TERMINATE WITH AN ERROR IF VBNM DIFFERS FROM VBNM0 IN
 C     SUBSEQUENT CALLS.
 C     ******************************************************************
 C       SPECIFICATIONS:
       CHARACTER*16 VBNM(NTRDIM)
       CHARACTER*16,ALLOCATABLE,SAVE :: VBNM0(:)
-      INTEGER,SAVE    ::MTOT0       
+      INTEGER,SAVE    ::MTOT0
 C     ------------------------------------------------------------------
 C
 C-----SET MSTART VALUE FOR WHERE TO START COMPARING IN VBNM.  SET MLEN
@@ -1563,19 +1564,19 @@ C-----IF ENTRIES DO NOT COMPARE, THEN TERMINATE WITH AN ERROR
       IF(IERR.GT.0) THEN
          WRITE(*,5)
          WRITE(*,*) 'Entries first detected in budget file: ', VBNM0(:)
-         WRITE(*,*) 'Entries currently detected in budget file: ', 
+         WRITE(*,*) 'Entries currently detected in budget file: ',
      1               VBNM(MSTART:MTOT)
 C
          WRITE(IUCSV,5)
-         WRITE(IUCSV,*) 'Entries first detected in budget file: ', 
+         WRITE(IUCSV,*) 'Entries first detected in budget file: ',
      1                   VBNM0(:)
-         WRITE(IUCSV,*) 'Entries currently detected in budget file: ', 
+         WRITE(IUCSV,*) 'Entries currently detected in budget file: ',
      1                   VBNM(MSTART:MTOT)
 C
          WRITE(IOUT,5)
-         WRITE(IOUT,*) 'Entries first detected in budget file: ', 
+         WRITE(IOUT,*) 'Entries first detected in budget file: ',
      1                  VBNM0(:)
-         WRITE(IOUT,*) 'Entries currently detected in budget file: ', 
+         WRITE(IOUT,*) 'Entries currently detected in budget file: ',
      1                  VBNM(MSTART:MTOT)
 C
     5    FORMAT(' Stopping -- the entries in the budget file have ',
